@@ -1,168 +1,611 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marv & Co Chartered Accountants</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marv &amp; Co Chartered Accountants | Company, LLP &amp; GST Registration in Thrissur</title>
+<meta name="description" content="Marv &amp; Co is a Thrissur-based Chartered Accountancy practice handling company, LLP, partnership and GST registration end to end, plus the compliance work that follows.">
+<meta property="og:title" content="Marv &amp; Co Chartered Accountants">
+<meta property="og:description" content="Company, LLP, partnership and GST registration in Thrissur, Kerala, handled start to finish by two practicing Chartered Accountants.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS — swap brand colors here. All colors are named by
+   purpose, not value, so a rebrand only touches this block.
+   ============================================================ */
+:root{
+  --bg:#faf7ee;
+  --surface:#ffffff;
+  --surface-alt:#f2ecd8;
+  --fg:#14110d;
+  --muted:#5c5646;
+  --border:#e6dfc9;
 
-        body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+  --accent:#1f7a63;
+  --accent-hover:#185f4d;
+  --accent-fg:#faf7ee;
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+  --success:#2f8f4e;
+  --success-bg:#eaf5ec;
+  --warn:#b45309;
+  --warn-bg:#fbf0e0;
+  --danger:#b3261e;
+  --danger-bg:#fbeceb;
 
-        header {
-            text-align: center;
-            padding: 30px 0;
-            background: #2c3e50;
-            color: white;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
+  --ink:#14110d;
+  --ink-fg:#f7f4ea;
+  --ink-muted:#a39c8a;
+  --ghost-bg:rgba(247,244,234,.08);
+  --ghost-bg-hover:rgba(247,244,234,.15);
+  --ghost-border:rgba(247,244,234,.35);
 
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
+  --radius-sm:6px;
+  --radius:10px;
+  --ease:cubic-bezier(.23,1,.32,1);
 
-        .subheading {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 800px;
-            margin: 0 auto;
-        }
+  --font-display:'Oswald','Arial Narrow',Arial,sans-serif;
+  --font-body:'Inter',-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
 
-        .services {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
+  --fs-caption:.75rem;
+  --fs-small:.875rem;
+  --fs-body:1rem;
+  --fs-h3:1.375rem;
+  --fs-h2:1.75rem;
+  --fs-h1:2.5rem;
+  --fs-display:clamp(2.25rem,5vw + 1rem,3.75rem);
 
-        .services h2 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
-            font-size: 2rem;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #3498db;
-        }
+  --sp-1:8px; --sp-2:12px; --sp-3:16px; --sp-4:24px;
+  --sp-5:32px; --sp-6:48px; --sp-7:64px; --sp-8:96px; --sp-9:128px;
+}
 
-        .tiles {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
-        }
+/* ============================================================
+   RESET / BASE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--font-body);
+  font-size:var(--fs-body);
+  font-weight:400;
+  line-height:1.6;
+  min-height:100vh;
+}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+ul{list-style:none}
+main{display:block}
 
-        .tile {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            border: 1px solid #eaeaea;
-            cursor: pointer;
-        }
+h1,h2,h3{
+  font-family:var(--font-display);
+  font-weight:700;
+  line-height:1.1;
+  letter-spacing:-.005em;
+}
+.eyebrow,.uppercase{
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-weight:600;
+}
+p{max-width:65ch}
+.no-measure{max-width:none}
 
-        .tile:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-            border-color: #3498db;
-        }
+:focus{outline:none}
+:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:3px;
+  border-radius:2px;
+}
+.scene :focus-visible,.ink :focus-visible{
+  outline-color:var(--ink-fg);
+}
 
-        .tile-content {
-            padding: 25px;
-            text-align: center;
-        }
+.skip-link{
+  position:absolute;
+  left:-9999px;
+  top:0;
+  background:var(--ink);
+  color:var(--ink-fg);
+  padding:var(--sp-2) var(--sp-4);
+  z-index:200;
+  border-radius:0 0 var(--radius-sm) 0;
+}
+.skip-link:focus{left:0}
 
-        .tile h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-        }
+.container{
+  max-width:1200px;
+  margin-inline:auto;
+  padding-inline:var(--sp-4);
+}
 
-        .tile p {
-            color: #7f8c8d;
-            line-height: 1.6;
-        }
+@media (min-width:768px){
+  :root{
+    --fs-h3:1.5rem;
+    --fs-h2:2rem;
+    --fs-h1:3rem;
+  }
+  .container{padding-inline:var(--sp-6)}
+}
 
-        .icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            color: #3498db;
-        }
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:var(--sp-2);
+  padding:14px 28px;
+  border-radius:999px;
+  font-family:var(--font-body);
+  font-size:var(--fs-small);
+  font-weight:600;
+  letter-spacing:.02em;
+  white-space:nowrap;
+  transition:background-color 90ms var(--ease),border-color 90ms var(--ease),transform 90ms var(--ease);
+  min-height:44px;
+}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--accent);color:var(--accent-fg)}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-ghost{background:var(--ghost-bg);border:1px solid var(--ghost-border);color:var(--ink-fg)}
+.btn-ghost:hover{background:var(--ghost-bg-hover)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--fg)}
+.btn-outline:hover{border-color:var(--muted)}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
+.icon{width:1.1em;height:1.1em;flex-shrink:0}
 
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            color: #7f8c8d;
-            font-size: 0.9rem;
-        }
-    </style>
+/* ============================================================
+   NAV — transparent over the dark scene, sticky on scroll
+   ============================================================ */
+.nav{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:rgba(20,17,13,.55);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(247,244,234,.1);
+}
+.nav-inner{
+  max-width:1200px;
+  margin-inline:auto;
+  padding:var(--sp-3) var(--sp-4);
+  display:flex;
+  align-items:center;
+  gap:var(--sp-4);
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:var(--sp-2);
+  color:var(--ink-fg);
+  margin-right:auto;
+}
+.brand-mark{width:34px;height:34px;flex-shrink:0}
+.brand-word{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:1.05rem;
+  letter-spacing:.03em;
+  line-height:1;
+}
+.brand-word small{
+  display:block;
+  font-family:var(--font-body);
+  font-weight:500;
+  font-size:.6rem;
+  letter-spacing:.14em;
+  color:var(--ink-muted);
+  margin-top:3px;
+}
+.nav-menu{
+  display:none;
+  align-items:center;
+  gap:var(--sp-5);
+}
+.nav-menu a{
+  color:var(--ink-fg);
+  font-size:var(--fs-small);
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  padding:var(--sp-1) 0;
+  border-bottom:1px solid transparent;
+  transition:opacity 90ms var(--ease);
+}
+.nav-menu a:hover{opacity:.75}
+.nav-menu a[aria-current="page"]{
+  border-bottom-color:var(--ink-fg);
+}
+.nav-toggle{
+  display:flex;
+  color:var(--ink-fg);
+  width:40px;
+  height:40px;
+  align-items:center;
+  justify-content:center;
+}
+.nav-cta{display:none}
+@media (min-width:900px){
+  .nav-menu{display:flex}
+  .nav-toggle{display:none}
+  .nav-cta{display:inline-flex}
+}
+.nav-menu.is-open{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:var(--sp-4);
+  position:absolute;
+  top:100%;
+  left:0;
+  right:0;
+  background:var(--ink);
+  padding:var(--sp-4);
+  border-bottom:1px solid rgba(247,244,234,.15);
+}
+
+/* ============================================================
+   DARK SCENE — the opening band on every page
+   ============================================================ */
+.scene{
+  background:var(--ink);
+  color:var(--ink-fg);
+}
+.scene-inner{
+  max-width:1200px;
+  margin-inline:auto;
+  padding:var(--sp-7) var(--sp-4) var(--sp-8);
+}
+.scene--home .scene-inner{
+  min-height:78vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding-top:var(--sp-8);
+}
+.scene--page .scene-inner{
+  padding-top:var(--sp-6);
+  padding-bottom:var(--sp-7);
+}
+.scene .eyebrow{color:var(--ink-muted)}
+.scene h1{
+  text-transform:uppercase;
+  letter-spacing:.01em;
+  font-size:var(--fs-display);
+  margin-top:var(--sp-3);
+  max-width:18ch;
+}
+.scene--page h1{font-size:var(--fs-h1);max-width:24ch}
+.scene p{
+  color:var(--ink-muted);
+  font-size:1.125rem;
+  margin-top:var(--sp-4);
+  max-width:52ch;
+}
+.scene--page p{margin-top:var(--sp-2);font-size:var(--fs-body)}
+.scene-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:var(--sp-3);
+  margin-top:var(--sp-6);
+}
+@media (min-width:768px){
+  .scene-inner{padding-inline:var(--sp-6)}
+}
+
+/* ============================================================
+   SECTIONS / LAYOUT UTILITIES
+   ============================================================ */
+section{padding-block:var(--sp-7)}
+@media (min-width:768px){section{padding-block:var(--sp-8)}}
+.section-alt{background:var(--surface-alt)}
+.section-head{max-width:60ch;margin-bottom:var(--sp-6)}
+.section-head .eyebrow{color:var(--accent)}
+.section-head h2{font-size:var(--fs-h2);text-transform:uppercase;letter-spacing:.01em;margin-top:var(--sp-2)}
+.section-head p{color:var(--muted);margin-top:var(--sp-2)}
+
+/* Stat / credibility strip */
+.stats{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:var(--sp-5) var(--sp-4);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding-block:var(--sp-5);
+}
+.stat b{
+  display:block;
+  font-family:var(--font-display);
+  font-size:var(--fs-h2);
+  font-weight:700;
+}
+.stat span{
+  display:block;
+  color:var(--muted);
+  font-size:var(--fs-small);
+  margin-top:4px;
+}
+@media (min-width:768px){
+  .stats{grid-template-columns:repeat(4,1fr)}
+}
+
+/* Offer / feature blocks — no shadowed cards, spacing carries the grouping */
+.offer-grid{
+  display:grid;
+  gap:var(--sp-6);
+}
+@media (min-width:768px){
+  .offer-grid{grid-template-columns:repeat(3,1fr);gap:var(--sp-5)}
+  .offer-card{padding-right:var(--sp-5);border-right:1px solid var(--border)}
+  .offer-card:last-child{border-right:0}
+}
+.offer-card .icon-wrap{
+  width:48px;height:48px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  color:var(--accent);
+  margin-bottom:var(--sp-4);
+}
+.offer-card .icon-wrap svg{width:24px;height:24px}
+.offer-card h3{font-size:var(--fs-h3);text-transform:uppercase;letter-spacing:.005em}
+.offer-card p{color:var(--muted);margin-top:var(--sp-2)}
+.offer-card a{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:var(--sp-3);color:var(--accent);font-weight:600;font-size:var(--fs-small);
+}
+.offer-card a svg{width:16px;height:16px;transition:transform 120ms var(--ease)}
+.offer-card a:hover svg{transform:translateX(3px)}
+
+/* Testimonial teaser */
+.quote-teaser{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:var(--sp-5);
+}
+.quote-teaser blockquote{font-size:var(--fs-h3);font-family:var(--font-display);font-weight:600;line-height:1.3}
+.quote-teaser figcaption{margin-top:var(--sp-3);color:var(--muted);font-size:var(--fs-small)}
+.placeholder-tag{
+  display:inline-block;
+  font-size:var(--fs-caption);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--warn);
+  background:var(--warn-bg);
+  padding:3px 8px;
+  border-radius:4px;
+  font-weight:600;
+  margin-bottom:var(--sp-3);
+}
+
+/* CTA band */
+.cta-band{
+  background:var(--ink);
+  color:var(--ink-fg);
+  text-align:left;
+}
+.cta-band .container{
+  display:flex;
+  flex-direction:column;
+  gap:var(--sp-4);
+  align-items:flex-start;
+}
+.cta-band h2{
+  font-size:var(--fs-h1);
+  text-transform:uppercase;
+  letter-spacing:.01em;
+  max-width:16ch;
+}
+.cta-band p{color:var(--ink-muted);max-width:48ch}
+@media (min-width:768px){
+  .cta-band .container{flex-direction:row;align-items:center;justify-content:space-between}
+  .cta-band p{margin-top:var(--sp-2)}
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer{
+  background:var(--ink);
+  color:var(--ink-muted);
+  padding-block:var(--sp-6);
+  font-size:var(--fs-small);
+}
+.footer-grid{
+  display:flex;
+  flex-direction:column;
+  gap:var(--sp-5);
+}
+.footer-brand{color:var(--ink-fg);font-family:var(--font-display);font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+.footer-links{display:flex;flex-wrap:wrap;gap:var(--sp-4)}
+.footer-links a:hover{color:var(--ink-fg)}
+.footer-bottom{
+  margin-top:var(--sp-5);
+  padding-top:var(--sp-4);
+  border-top:1px solid rgba(247,244,234,.12);
+  display:flex;
+  flex-wrap:wrap;
+  gap:var(--sp-2) var(--sp-4);
+  justify-content:space-between;
+}
+@media (min-width:768px){
+  .footer-grid{flex-direction:row;justify-content:space-between}
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;}
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Welcome to Marv & Co Chartered Accountants</h1>
-            <p class="subheading">Your trusted partner for comprehensive financial solutions and business advisory services</p>
-        </header>
+<a class="skip-link" href="#main">Skip to main content</a>
 
-        <section class="services">
-            <h2>Incorporation Services</h2>
-            <div class="tiles">
-                <div class="tile" onclick="window.location.href='Partnership_Deed_Form.html'">
-                    <div class="tile-content">
-                        <div class="icon">🤝</div>
-                        <h3>Partnership</h3>
-                        <p>Register your partnership firm with our expert guidance and documentation support</p>
-                    </div>
-                </div>
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="index.html" aria-label="Marv &amp; Co home">
+      <svg class="brand-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M8 38V12l16 15" stroke="#e07a2f" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M24 27 40 12" stroke="#1f9d8a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M40 12v26" stroke="#3aa65a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 38 27 21" stroke="#c1392b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="brand-word">MARV&amp;CO<small>Chartered Accountants</small></span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu" aria-label="Open menu">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+        <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
+      </svg>
+    </button>
+    <nav class="nav-menu" id="navMenu" aria-label="Primary">
+      <a href="index.html" aria-current="page">Home</a>
+      <a href="about.html">About</a>
+      <a href="services.html">Services</a>
+      <a href="testimonials.html">Testimonials</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <a class="btn btn-ghost nav-cta" href="contact.html">Book a Consultation</a>
+  </div>
+</header>
 
-                <div class="tile" onclick="window.location.href='company_registration.html'">
-                    <div class="tile-content">
-                        <div class="icon">🏢</div>
-                        <h3>Limited Liability Partnership (LLP)</h3>
-                        <p>Incorporate your LLP with limited liability protection and flexible structure</p>
-                    </div>
-                </div>
+<main id="main">
 
-                <div class="tile" onclick="window.location.href='company_registration.html'">
-                    <div class="tile-content">
-                        <div class="icon">🏛️</div>
-                        <h3>Company</h3>
-                        <p>Register private or public companies with complete compliance support</p>
-                    </div>
-                </div>
-
-                <div class="tile" onclick="window.location.href='gst_registration.html'">
-                    <div class="tile-content">
-                        <div class="icon">📊</div>
-                        <h3>GST Registration</h3>
-                        <p>Get GST registration and filing services for your business</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <footer>
-            <p>© 2023 Marv & Co Chartered Accountants. All rights reserved.</p>
-            <p>Contact: marvandcom@gmail.com | Phone: +91 7025173905</p>
-        </footer>
+  <section class="scene scene--home">
+    <div class="scene-inner">
+      <p class="eyebrow">Chartered Accountants · Thrissur, Kerala</p>
+      <h1>Registered right. Compliant from day one.</h1>
+      <p>Marv &amp; Co handles company, LLP, partnership and GST registration end to end &mdash; then stays on as your compliance partner, so nothing gets filed late because no one was watching the calendar.</p>
+      <div class="scene-actions">
+        <a class="btn btn-primary" href="contact.html">Book a Consultation</a>
+        <a class="btn btn-ghost" href="services.html">View Services</a>
+      </div>
     </div>
+  </section>
+
+  <section aria-label="At a glance">
+    <div class="container">
+      <div class="stats">
+        <div class="stat"><b>2024</b><span>Founded in</span></div>
+        <div class="stat"><b>Thrissur</b><span>Kerala, India</span></div>
+        <div class="stat"><b>2</b><span>Chartered Accountant partners</span></div>
+        <div class="stat"><b>4</b><span>Registration &amp; compliance services</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-alt" aria-label="What we handle">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">What we handle</p>
+        <h2>The paperwork, taken off your desk</h2>
+        <p>Three things founders in Thrissur ask us for most. The full breakdown, with pricing, is on the Services page.</p>
+      </div>
+      <div class="offer-grid">
+        <div class="offer-card">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="4" y="3" width="10" height="18"/><rect x="14" y="9" width="6" height="12"/>
+              <line x1="7" y1="7" x2="7" y2="7.01"/><line x1="11" y1="7" x2="11" y2="7.01"/>
+              <line x1="7" y1="11" x2="7" y2="11.01"/><line x1="11" y1="11" x2="11" y2="11.01"/>
+              <line x1="7" y1="15" x2="7" y2="15.01"/><line x1="11" y1="15" x2="11" y2="15.01"/>
+            </svg>
+          </div>
+          <h3>Business Incorporation</h3>
+          <p>Private limited, public, or LLP. We handle name approval, drafting the MoA/AoA or LLP agreement, and ROC filing through to your certificate of incorporation.</p>
+          <a href="services.html">See how it works <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><path d="M13 6l6 6-6 6"/></svg></a>
+        </div>
+        <div class="offer-card">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="9" cy="8" r="3"/><path d="M3.5 20c0-3.3 2.5-5.5 5.5-5.5s5.5 2.2 5.5 5.5"/>
+              <circle cx="17" cy="7" r="2.3"/><path d="M14.8 14.8c2.6.2 4.7 2.3 4.7 5.2"/>
+            </svg>
+          </div>
+          <h3>Partnership Registration</h3>
+          <p>A partnership deed drafted for how you'll actually run the business, registered properly, with your accounting set up from day one.</p>
+          <a href="services.html">See how it works <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><path d="M13 6l6 6-6 6"/></svg></a>
+        </div>
+        <div class="offer-card">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6 3h12v17l-2-1.2-2 1.2-2-1.2-2 1.2-2-1.2-2 1.2V3Z"/>
+              <line x1="8.5" y1="8" x2="15.5" y2="8"/><line x1="8.5" y1="11.5" x2="15.5" y2="11.5"/><line x1="8.5" y1="15" x2="13" y2="15"/>
+            </svg>
+          </div>
+          <h3>GST Registration &amp; Filing</h3>
+          <p>Get your GST number, then keep monthly or quarterly returns filed on schedule &mdash; not the week before the deadline.</p>
+          <a href="services.html">See how it works <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><path d="M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Client feedback">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">From clients</p>
+        <h2>What it's like to work with us</h2>
+      </div>
+      <figure class="quote-teaser">
+        <span class="placeholder-tag">Placeholder &mdash; replace with a real client quote</span>
+        <blockquote>&ldquo;[PLACEHOLDER: client quote about how the registration process actually went &mdash; what was slow before, what Marv &amp; Co fixed.]&rdquo;</blockquote>
+        <figcaption>&mdash; [PLACEHOLDER: Client Name], [PLACEHOLDER: Company / Role]</figcaption>
+      </figure>
+      <p style="margin-top:var(--sp-4)"><a href="testimonials.html" class="btn btn-outline">Read client stories</a></p>
+    </div>
+  </section>
+
+  <section class="cta-band" aria-label="Get started">
+    <div class="container">
+      <div>
+        <h2>Ready to register?</h2>
+        <p>Tell us what you're setting up &mdash; a call back within one working day, no obligation.</p>
+      </div>
+      <a class="btn btn-ghost" href="contact.html">Book a Consultation</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <p class="footer-brand">Marv &amp; Co</p>
+        <p style="margin-top:8px">Chartered Accountants &middot; Thrissur, Kerala</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="services.html">Services</a>
+        <a href="testimonials.html">Testimonials</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Marv &amp; Co Chartered Accountants. All rights reserved.</p>
+      <p>marvandcom@gmail.com &middot; +91 7025173905</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var toggle = document.getElementById('navToggle');
+  var menu = document.getElementById('navMenu');
+  toggle.addEventListener('click', function(){
+    var open = menu.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+})();
+</script>
 </body>
 </html>

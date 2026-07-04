@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Marv &amp; Co | Chartered Accountants in Thrissur</title>
+<meta name="description" content="Marv & Co was founded in 2024 in Thrissur by two practicing Chartered Accountants. Here's the story, our working commitments, and the people behind them.">
+<meta property="og:title" content="About Marv &amp; Co Chartered Accountants">
+<meta property="og:description" content="Founded 2024 in Thrissur, Kerala by two practicing Chartered Accountants.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf7ee; --surface:#ffffff; --surface-alt:#f2ecd8; --fg:#14110d; --muted:#5c5646; --border:#e6dfc9;
+  --accent:#1f7a63; --accent-hover:#185f4d; --accent-fg:#faf7ee;
+  --success:#2f8f4e; --success-bg:#eaf5ec; --warn:#b45309; --warn-bg:#fbf0e0; --danger:#b3261e; --danger-bg:#fbeceb;
+  --ink:#14110d; --ink-fg:#f7f4ea; --ink-muted:#a39c8a;
+  --ghost-bg:rgba(247,244,234,.08); --ghost-bg-hover:rgba(247,244,234,.15); --ghost-border:rgba(247,244,234,.35);
+  --radius-sm:6px; --radius:10px; --ease:cubic-bezier(.23,1,.32,1);
+  --font-display:'Oswald','Arial Narrow',Arial,sans-serif;
+  --font-body:'Inter',-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --fs-caption:.75rem; --fs-small:.875rem; --fs-body:1rem; --fs-h3:1.375rem; --fs-h2:1.75rem; --fs-h1:2.5rem;
+  --fs-display:clamp(2.25rem,5vw + 1rem,3.75rem);
+  --sp-1:8px; --sp-2:12px; --sp-3:16px; --sp-4:24px; --sp-5:32px; --sp-6:48px; --sp-7:64px; --sp-8:96px; --sp-9:128px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:var(--fs-body);font-weight:400;line-height:1.6;min-height:100vh}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+ul{list-style:none}
+main{display:block}
+h1,h2,h3{font-family:var(--font-display);font-weight:700;line-height:1.1;letter-spacing:-.005em}
+.eyebrow,.uppercase{text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+p{max-width:65ch}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+.scene :focus-visible,.ink :focus-visible{outline-color:var(--ink-fg)}
+.skip-link{position:absolute;left:-9999px;top:0;background:var(--ink);color:var(--ink-fg);padding:var(--sp-2) var(--sp-4);z-index:200;border-radius:0 0 var(--radius-sm) 0}
+.skip-link:focus{left:0}
+.container{max-width:1200px;margin-inline:auto;padding-inline:var(--sp-4)}
+@media (min-width:768px){:root{--fs-h3:1.5rem;--fs-h2:2rem;--fs-h1:3rem}.container{padding-inline:var(--sp-6)}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--sp-2);padding:14px 28px;border-radius:999px;font-family:var(--font-body);font-size:var(--fs-small);font-weight:600;letter-spacing:.02em;white-space:nowrap;transition:background-color 90ms var(--ease),border-color 90ms var(--ease),transform 90ms var(--ease);min-height:44px}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--accent);color:var(--accent-fg)}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-ghost{background:var(--ghost-bg);border:1px solid var(--ghost-border);color:var(--ink-fg)}
+.btn-ghost:hover{background:var(--ghost-bg-hover)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--fg)}
+.btn-outline:hover{border-color:var(--muted)}
+.icon{width:1.1em;height:1.1em;flex-shrink:0}
+
+.nav{position:sticky;top:0;z-index:100;background:rgba(20,17,13,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(247,244,234,.1)}
+.nav-inner{max-width:1200px;margin-inline:auto;padding:var(--sp-3) var(--sp-4);display:flex;align-items:center;gap:var(--sp-4)}
+.brand{display:flex;align-items:center;gap:var(--sp-2);color:var(--ink-fg);margin-right:auto}
+.brand-mark{width:34px;height:34px;flex-shrink:0}
+.brand-word{font-family:var(--font-display);font-weight:700;font-size:1.05rem;letter-spacing:.03em;line-height:1}
+.brand-word small{display:block;font-family:var(--font-body);font-weight:500;font-size:.6rem;letter-spacing:.14em;color:var(--ink-muted);margin-top:3px}
+.nav-menu{display:none;align-items:center;gap:var(--sp-5)}
+.nav-menu a{color:var(--ink-fg);font-size:var(--fs-small);font-weight:500;text-transform:uppercase;letter-spacing:.08em;padding:var(--sp-1) 0;border-bottom:1px solid transparent;transition:opacity 90ms var(--ease)}
+.nav-menu a:hover{opacity:.75}
+.nav-menu a[aria-current="page"]{border-bottom-color:var(--ink-fg)}
+.nav-toggle{display:flex;color:var(--ink-fg);width:40px;height:40px;align-items:center;justify-content:center}
+.nav-cta{display:none}
+@media (min-width:900px){.nav-menu{display:flex}.nav-toggle{display:none}.nav-cta{display:inline-flex}}
+.nav-menu.is-open{display:flex;flex-direction:column;align-items:flex-start;gap:var(--sp-4);position:absolute;top:100%;left:0;right:0;background:var(--ink);padding:var(--sp-4);border-bottom:1px solid rgba(247,244,234,.15)}
+
+.scene{background:var(--ink);color:var(--ink-fg)}
+.scene-inner{max-width:1200px;margin-inline:auto;padding:var(--sp-7) var(--sp-4) var(--sp-8)}
+.scene--page .scene-inner{padding-top:var(--sp-6);padding-bottom:var(--sp-7)}
+.scene .eyebrow{color:var(--ink-muted)}
+.scene h1{text-transform:uppercase;letter-spacing:.01em;font-size:var(--fs-display);margin-top:var(--sp-3);max-width:18ch}
+.scene--page h1{font-size:var(--fs-h1);max-width:24ch}
+.scene p{color:var(--ink-muted);font-size:1.125rem;margin-top:var(--sp-4);max-width:52ch}
+.scene--page p{margin-top:var(--sp-2);font-size:var(--fs-body)}
+@media (min-width:768px){.scene-inner{padding-inline:var(--sp-6)}}
+
+section{padding-block:var(--sp-7)}
+@media (min-width:768px){section{padding-block:var(--sp-8)}}
+.section-alt{background:var(--surface-alt)}
+.section-head{max-width:60ch;margin-bottom:var(--sp-6)}
+.section-head .eyebrow{color:var(--accent)}
+.section-head h2{font-size:var(--fs-h2);text-transform:uppercase;letter-spacing:.01em;margin-top:var(--sp-2)}
+.section-head p{color:var(--muted);margin-top:var(--sp-2)}
+
+.cta-band{background:var(--ink);color:var(--ink-fg);text-align:left}
+.cta-band .container{display:flex;flex-direction:column;gap:var(--sp-4);align-items:flex-start}
+.cta-band h2{font-size:var(--fs-h1);text-transform:uppercase;letter-spacing:.01em;max-width:16ch}
+.cta-band p{color:var(--ink-muted);max-width:48ch}
+@media (min-width:768px){.cta-band .container{flex-direction:row;align-items:center;justify-content:space-between}.cta-band p{margin-top:var(--sp-2)}}
+
+footer{background:var(--ink);color:var(--ink-muted);padding-block:var(--sp-6);font-size:var(--fs-small)}
+.footer-grid{display:flex;flex-direction:column;gap:var(--sp-5)}
+.footer-brand{color:var(--ink-fg);font-family:var(--font-display);font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+.footer-links{display:flex;flex-wrap:wrap;gap:var(--sp-4)}
+.footer-links a:hover{color:var(--ink-fg)}
+.footer-bottom{margin-top:var(--sp-5);padding-top:var(--sp-4);border-top:1px solid rgba(247,244,234,.12);display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-4);justify-content:space-between}
+@media (min-width:768px){.footer-grid{flex-direction:row;justify-content:space-between}}
+
+/* Page-specific: story / values / team */
+.story{max-width:70ch}
+.story p + p{margin-top:var(--sp-4)}
+.values-list{margin-top:var(--sp-2)}
+.value-row{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:var(--sp-4);
+  padding-block:var(--sp-4);
+  border-top:1px solid var(--border);
+}
+.value-row:last-child{border-bottom:1px solid var(--border)}
+.value-row .icon-wrap{
+  width:40px;height:40px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);border-radius:var(--radius);color:var(--accent);
+}
+.value-row .icon-wrap svg{width:20px;height:20px}
+.value-row h3{font-size:var(--fs-h3);text-transform:none;letter-spacing:0}
+.value-row p{color:var(--muted);margin-top:6px}
+
+.team-grid{display:grid;gap:var(--sp-6);margin-top:var(--sp-2)}
+@media (min-width:640px){.team-grid{grid-template-columns:1fr 1fr}}
+.team-card{border:1px solid var(--border);border-radius:var(--radius);padding:var(--sp-5)}
+.team-avatar{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--surface-alt);color:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:700;font-size:1.1rem;
+  margin-bottom:var(--sp-3);
+}
+.team-card h3{font-size:var(--fs-h3)}
+.team-card .role{color:var(--accent);font-size:var(--fs-small);font-weight:600;margin-top:2px}
+.team-card p.bio{color:var(--muted);margin-top:var(--sp-2);font-size:var(--fs-small)}
+.placeholder-tag{display:inline-block;font-size:var(--fs-caption);text-transform:uppercase;letter-spacing:.08em;color:var(--warn);background:var(--warn-bg);padding:3px 8px;border-radius:4px;font-weight:600;margin-bottom:var(--sp-2)}
+
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="index.html" aria-label="Marv &amp; Co home">
+      <svg class="brand-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M8 38V12l16 15" stroke="#e07a2f" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M24 27 40 12" stroke="#1f9d8a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M40 12v26" stroke="#3aa65a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 38 27 21" stroke="#c1392b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="brand-word">MARV&amp;CO<small>Chartered Accountants</small></span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu" aria-label="Open menu">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+        <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
+      </svg>
+    </button>
+    <nav class="nav-menu" id="navMenu" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="about.html" aria-current="page">About</a>
+      <a href="services.html">Services</a>
+      <a href="testimonials.html">Testimonials</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <a class="btn btn-ghost nav-cta" href="contact.html">Book a Consultation</a>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="scene scene--page">
+    <div class="scene-inner">
+      <p class="eyebrow">About Marv &amp; Co</p>
+      <h1>Two Chartered Accountants. One Thrissur practice.</h1>
+      <p>Founded in 2024, built around doing registration paperwork right the first time.</p>
+    </div>
+  </section>
+
+  <section aria-label="Founding story">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">How we started</p>
+        <h2>The founding story</h2>
+      </div>
+      <div class="story">
+        <p>Marv &amp; Co opened in Thrissur in 2024. It began as a partnership between two practicing Chartered Accountants who had spent years on the other side of the table &mdash; reviewing incorporation filings, GST applications and partnership deeds that had gone wrong somewhere: a name rejected at the ROC stage, a deed missing a clause that mattered later, a GST registration filed weeks after the business had already started invoicing.</p>
+        <p>They started Marv &amp; Co to close that gap: one practice that handles the registration and stays on afterward as the compliance partner, instead of handing over a certificate and disappearing. Two years in, that's still the whole model &mdash; a small firm, two partners, no handoffs between departments.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-alt" aria-label="What we commit to">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">What we commit to</p>
+        <h2>Values, as things we actually do</h2>
+        <p>Not principles on a wall &mdash; specific commitments you can hold us to.</p>
+      </div>
+      <div class="values-list">
+        <div class="value-row">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5.2l3.6 2.1"/></svg>
+          </div>
+          <div>
+            <h3>We flag the deadline before it's urgent</h3>
+            <p>Every registration comes with a compliance calendar for what's due next &mdash; ROC filings, GST returns, renewals &mdash; sent ahead, not on the day.</p>
+          </div>
+        </div>
+        <div class="value-row">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 20c0-3.3 2.5-5.5 5.5-5.5s5.5 2.2 5.5 5.5"/><circle cx="17" cy="7" r="2.3"/><path d="M14.8 14.8c2.6.2 4.7 2.3 4.7 5.2"/></svg>
+          </div>
+          <div>
+            <h3>One point of contact, start to finish</h3>
+            <p>The partner who scopes your work is the one who signs off on it. No routing between departments to get a straight answer.</p>
+          </div>
+        </div>
+        <div class="value-row">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="1.5"/><path d="M4 6.5l8 6.5 8-6.5"/></svg>
+          </div>
+          <div>
+            <h3>You get the filed document, not just a receipt</h3>
+            <p>When something is submitted &mdash; incorporation certificate, GST ARN, deed &mdash; you get the actual document, not a confirmation email telling you to trust us.</p>
+          </div>
+        </div>
+        <div class="value-row">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v17l-2-1.2-2 1.2-2-1.2-2 1.2-2-1.2-2 1.2V3Z"/><line x1="8.5" y1="8" x2="15.5" y2="8"/><line x1="8.5" y1="11.5" x2="15.5" y2="11.5"/></svg>
+          </div>
+          <div>
+            <h3>Fixed fee, quoted before we start</h3>
+            <p>You get a quote for the scope agreed, before any work begins. If the scope changes, we requote before doing more &mdash; not after.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Our team">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Who you'll work with</p>
+        <h2>The founding partners</h2>
+      </div>
+      <div class="team-grid">
+        <div class="team-card">
+          <span class="placeholder-tag">Placeholder &mdash; add partner name</span>
+          <div class="team-avatar" aria-hidden="true">CA</div>
+          <h3>[PLACEHOLDER: Partner Name]</h3>
+          <p class="role">Co-Founder &amp; Chartered Accountant</p>
+          <p class="bio">Handles company and LLP incorporation, and the ROC compliance that follows.</p>
+        </div>
+        <div class="team-card">
+          <span class="placeholder-tag">Placeholder &mdash; add partner name</span>
+          <div class="team-avatar" aria-hidden="true">CA</div>
+          <h3>[PLACEHOLDER: Partner Name]</h3>
+          <p class="role">Co-Founder &amp; Chartered Accountant</p>
+          <p class="bio">Handles GST registration and filing, and partnership deed drafting.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band" aria-label="Get started">
+    <div class="container">
+      <div>
+        <h2>Let's talk about your registration</h2>
+        <p>A short call to understand what you're setting up, and what it'll take.</p>
+      </div>
+      <a class="btn btn-ghost" href="contact.html">Book a Consultation</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <p class="footer-brand">Marv &amp; Co</p>
+        <p style="margin-top:8px">Chartered Accountants &middot; Thrissur, Kerala</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="services.html">Services</a>
+        <a href="testimonials.html">Testimonials</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Marv &amp; Co Chartered Accountants. All rights reserved.</p>
+      <p>marvandcom@gmail.com &middot; +91 7025173905</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var toggle = document.getElementById('navToggle');
+  var menu = document.getElementById('navMenu');
+  toggle.addEventListener('click', function(){
+    var open = menu.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+})();
+</script>
+</body>
+</html>

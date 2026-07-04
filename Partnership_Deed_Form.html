@@ -1,59 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partnership Deed Questionnaire | Marv &amp; Co Chartered Accountants</title>
+    <meta name="description" content="Fill in your partnership details, partner information and financial arrangements so Marv & Co can draft your partnership deed.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+    <style>
+        :root{
+          --bg:#faf7ee; --surface:#ffffff; --surface-alt:#f2ecd8; --fg:#14110d; --muted:#5c5646; --border:#e6dfc9;
+          --accent:#1f7a63; --accent-hover:#185f4d; --accent-fg:#faf7ee;
+          --success:#2f8f4e; --success-bg:#eaf5ec; --danger:#b3261e; --danger-bg:#fbeceb;
+          --ink:#14110d; --ink-fg:#f7f4ea; --ink-muted:#a39c8a;
+          --ghost-bg:rgba(247,244,234,.08); --ghost-bg-hover:rgba(247,244,234,.15); --ghost-border:rgba(247,244,234,.35);
+          --radius-sm:6px; --radius:10px; --ease:cubic-bezier(.23,1,.32,1);
+          --font-display:'Oswald','Arial Narrow',Arial,sans-serif;
+          --font-body:'Inter',-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+        }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{background:var(--bg);color:var(--fg);font-family:var(--font-body);line-height:1.6}
+        a{color:inherit}
+        h1,h2,h3{font-family:var(--font-display);font-weight:700;line-height:1.15}
 
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Partnership Deed Questionnaire</title>
-        <style>
-            * { box-sizing: border-box; font-family: Arial, sans-serif; }
-            body { max-width: 900px; margin: 20px auto; padding: 20px; }
-            h1 { color: #2c3e50; text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
-            h2 { color: #2980b9; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-            .section { background: #f8f9fa; padding: 15px; margin-bottom: 20px; border-radius: 5px; border-left: 4px solid #3498db; }
-            label { display: block; margin: 10px 0 5px; font-weight: bold; }
-            input, select, textarea { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
-            button { background: #3498db; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 4px; cursor: pointer; }
-            button:hover { background: #2980b9; }
-            .partner-section { background: #e8f4fc; padding: 15px; margin: 10px 0; border-radius: 5px; }
-            .actions { text-align: center; margin-top: 20px; }
-            .required::after { content: " *"; color: red; }
-            #printBtn { display: none; background: #27ae60; } /* Initially hidden */
-            #printBtn:hover { background: #219653; }
-            .success-message { display: none; text-align: center; color: #27ae60; font-weight: bold; margin: 20px 0; }
-        </style>
-    </head>
-    <body>
+        :focus{outline:none}
+        :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+        .scene :focus-visible{outline-color:var(--ink-fg)}
+        .skip-link{position:absolute;left:-9999px;top:0;background:var(--ink);color:var(--ink-fg);padding:10px 16px;z-index:200}
+        .skip-link:focus{left:0}
+
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:999px;font-family:var(--font-body);font-size:.9rem;font-weight:600;transition:background-color 90ms var(--ease),border-color 90ms var(--ease);min-height:44px;border:0;cursor:pointer}
+        .btn-primary{background:var(--accent);color:var(--accent-fg)}
+        .btn-primary:hover{background:var(--accent-hover)}
+        .btn-primary[disabled]{background:var(--muted);cursor:not-allowed}
+        .btn-outline{background:transparent;border:1px solid var(--border);color:var(--fg)}
+        .btn-outline:hover{border-color:var(--muted)}
+        .btn-ghost{background:var(--ghost-bg);border:1px solid var(--ghost-border);color:var(--ink-fg)}
+        .btn-ghost:hover{background:var(--ghost-bg-hover)}
+
+        .nav{position:sticky;top:0;z-index:100;background:rgba(20,17,13,.55);backdrop-filter:blur(10px)}
+        .nav-inner{max-width:1000px;margin-inline:auto;padding:14px 20px;display:flex;align-items:center;gap:20px}
+        .brand{display:flex;align-items:center;gap:10px;color:var(--ink-fg);margin-right:auto}
+        .brand-mark{width:30px;height:30px}
+        .brand-word{font-family:var(--font-display);font-weight:700;font-size:1rem;letter-spacing:.03em;line-height:1}
+        .brand-word small{display:block;font-family:var(--font-body);font-weight:500;font-size:.58rem;letter-spacing:.14em;color:var(--ink-muted);margin-top:3px}
+        .nav-links{display:none;gap:24px}
+        .nav-links a{color:var(--ink-fg);font-size:.8rem;font-weight:500;text-transform:uppercase;letter-spacing:.08em}
+        @media (min-width:820px){.nav-links{display:flex}}
+
+        .scene{background:var(--ink);color:var(--ink-fg);padding:48px 20px 40px}
+        .scene-inner{max-width:900px;margin-inline:auto}
+        .scene p.eyebrow{text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;color:var(--ink-muted);font-weight:600}
+        .scene h1{text-transform:uppercase;letter-spacing:.01em;font-size:clamp(1.75rem,4vw,2.5rem);margin-top:10px;max-width:24ch}
+        .scene p.sub{color:var(--ink-muted);margin-top:10px;max-width:52ch}
+
+        main{max-width:900px;margin:0 auto;padding:40px 20px 60px}
+
+        .success-message{
+          display:none;
+          align-items:flex-start;
+          gap:12px;
+          background:var(--success-bg);
+          color:#1d5c33;
+          padding:20px;
+          border-radius:var(--radius);
+          margin-bottom:28px;
+          font-weight:600;
+        }
+        .success-message.is-visible{display:flex}
+        .success-message svg{width:22px;height:22px;flex-shrink:0;margin-top:2px}
+
+        .section{background:var(--surface-alt);padding:24px;margin-bottom:24px;border-radius:var(--radius)}
+        .section h2{color:var(--fg);text-transform:uppercase;letter-spacing:.01em;font-size:1.15rem;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:16px}
+
+        label{display:block;margin:14px 0 6px;font-weight:600;font-size:.92rem}
+        input, select, textarea{
+          width:100%;padding:12px 14px;margin-bottom:4px;
+          border:1px solid var(--border);border-radius:var(--radius-sm);
+          background:var(--surface);color:var(--fg);font:inherit;font-size:1rem;
+        }
+        input:focus-visible, select:focus-visible, textarea:focus-visible{border-color:var(--accent)}
+
+        .partner-section{background:var(--surface);border:1px solid var(--border);padding:18px;margin:14px 0;border-radius:var(--radius)}
+        .partner-section h3{font-size:1rem;text-transform:uppercase;letter-spacing:.02em;color:var(--accent);margin-bottom:6px}
+        .actions{text-align:center;margin-top:28px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+        .required::after{content:" *";color:var(--danger)}
+        #printBtn{display:none}
+        #addPartnerBtn{margin-top:8px}
+
+        footer{background:var(--ink);color:var(--ink-muted);padding:32px 20px;font-size:.85rem;text-align:center;margin-top:40px}
+        footer a{color:var(--ink-fg)}
+    </style>
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <header class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="index.html" aria-label="Marv &amp; Co home">
+          <svg class="brand-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <path d="M8 38V12l16 15" stroke="#e07a2f" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M24 27 40 12" stroke="#1f9d8a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M40 12v26" stroke="#3aa65a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 38 27 21" stroke="#c1392b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="brand-word">MARV&amp;CO<small>Chartered Accountants</small></span>
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="services.html">Services</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="scene">
+      <div class="scene-inner">
+        <p class="eyebrow">Partnership Registration</p>
         <h1>Partnership Deed Questionnaire</h1>
-        <div class="success-message" id="successMessage">Form submitted successfully! Please save as PDF below</div>
+        <p class="sub">Fill this in and we'll draft your partnership deed from it. Fields marked with an asterisk are required.</p>
+      </div>
+    </section>
+
+    <main id="main">
+        <div class="success-message" id="successMessage" role="status">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5 10.5 15.5 16.5 9"/></svg>
+          <span>Form submitted successfully! Please save as PDF below.</span>
+        </div>
 
         <form id="partnershipForm">
             <!-- Section 1: Partnership Details -->
             <div class="section">
                 <h2>I. Partnership Details</h2>
 
-                <label class="required">Proposed Partnership Name</label>
-                <input type="text" name="partnership_name" required>
+                <label class="required" for="partnership_name">Proposed Partnership Name</label>
+                <input type="text" id="partnership_name" name="partnership_name" required>
 
-                <label class="required">Principal Place of Business</label>
-                <input type="text" name="business_address" required>
+                <label class="required" for="business_address">Principal Place of Business</label>
+                <input type="text" id="business_address" name="business_address" required>
 
-                <label class="required">Nature of Business</label>
-                <textarea name="business_nature" rows="3" required></textarea>
+                <label class="required" for="business_nature">Nature of Business</label>
+                <textarea id="business_nature" name="business_nature" rows="3" required></textarea>
 
-                <label class="required">Partnership Start Date</label>
-                <input type="date" name="start_date" required>
+                <label class="required" for="start_date">Partnership Start Date</label>
+                <input type="date" id="start_date" name="start_date" required>
 
-                <label class="required">Duration</label>
-                <select name="duration" required>
+                <label class="required" for="duration">Duration</label>
+                <select id="duration" name="duration" required>
                     <option value="">Select Duration</option>
                     <option value="fixed">Fixed Term</option>
                     <option value="indefinite">Indefinite</option>
                 </select>
 
                 <div id="endDateContainer" style="display:none;">
-                    <label class="required">End Date</label>
-                    <input type="date" name="end_date">
+                    <label class="required" for="end_date">End Date</label>
+                    <input type="date" id="end_date" name="end_date">
                 </div>
             </div>
 
@@ -63,138 +164,142 @@
                 <div id="partnersContainer">
                     <!-- Partner sections will be added here dynamically -->
                 </div>
-                <button type="button" id="addPartnerBtn">+ Add Partner</button>
+                <button type="button" class="btn btn-outline" id="addPartnerBtn">+ Add Partner</button>
             </div>
 
             <!-- Section 3: Financial Arrangements -->
             <div class="section">
                 <h2>III. Financial Arrangements</h2>
 
-                <label class="required">Profit/Loss Sharing Ratio (e.g., 50:50)</label>
-                <input type="text" name="profit_sharing" placeholder="Partner1%:Partner2%" required>
+                <label class="required" for="profit_sharing">Profit/Loss Sharing Ratio (e.g., 50:50)</label>
+                <input type="text" id="profit_sharing" name="profit_sharing" placeholder="Partner1%:Partner2%" required>
 
-                <label>Salary/Remuneration (if any)</label>
-                <input type="text" name="salary" placeholder="Specify amounts per partner">
+                <label for="salary">Salary/Remuneration (if any)</label>
+                <input type="text" id="salary" name="salary" placeholder="Specify amounts per partner">
 
-                <label>Interest on Capital (%)</label>
-                <input type="number" name="interest" min="0" max="100" step="0.1">
+                <label for="interest">Interest on Capital (%)</label>
+                <input type="number" id="interest" name="interest" min="0" max="100" step="0.1">
 
-                <label class="required">Authorized Bank Signatories</label>
-                <input type="text" name="signatories" placeholder="List partner names" required>
+                <label class="required" for="signatories">Authorized Bank Signatories</label>
+                <input type="text" id="signatories" name="signatories" placeholder="List partner names" required>
             </div>
 
             <!-- Section 4: Management & Responsibilities -->
             <div class="section">
-                <h2>IV. Management & Responsibilities</h2>
+                <h2>IV. Management &amp; Responsibilities</h2>
 
-                <label class="required">Decision-Making Process</label>
-                <select name="decision_process" required>
+                <label class="required" for="decision_process">Decision-Making Process</label>
+                <select id="decision_process" name="decision_process" required>
                     <option value="">Select Method</option>
                     <option value="unanimous">Unanimous Consent</option>
                     <option value="majority">Majority Vote</option>
                     <option value="managing">Managing Partner Decides</option>
                 </select>
 
-                <label>Key Duties</label>
-                <textarea name="key_duties" rows="3" placeholder="Describe responsibilities per partner"></textarea>
+                <label for="key_duties">Key Duties</label>
+                <textarea id="key_duties" name="key_duties" rows="3" placeholder="Describe responsibilities per partner"></textarea>
             </div>
 
             <!-- Section 5: Additional Terms -->
             <div class="section">
                 <h2>V. Additional Terms</h2>
 
-                <label>Dispute Resolution Method</label>
-                <select name="dispute_resolution">
+                <label for="dispute_resolution">Dispute Resolution Method</label>
+                <select id="dispute_resolution" name="dispute_resolution">
                     <option value="">Select Method</option>
                     <option value="mediation">Mediation</option>
                     <option value="arbitration">Arbitration</option>
                     <option value="court">Court Litigation</option>
                 </select>
 
-                <label>
-                    <input type="checkbox" name="non_compete"> Include Non-Compete Clause
+                <label style="display:flex;align-items:center;gap:8px;font-weight:600;margin-top:16px">
+                    <input type="checkbox" name="non_compete" id="non_compete" style="width:auto;margin:0"> Include Non-Compete Clause
                 </label>
 
-                <div id="nonCompeteDetails" style="display:none; margin-left: 20px;">
-                    <label>Duration (years)</label>
-                    <input type="number" name="non_compete_duration" min="1" max="10" value="2">
+                <div id="nonCompeteDetails" style="display:none; margin-left: 0;">
+                    <label for="non_compete_duration">Duration (years)</label>
+                    <input type="number" id="non_compete_duration" name="non_compete_duration" min="1" max="10" value="2">
                 </div>
             </div>
 
             <div class="actions">
-                <button type="submit" id="submitBtn">Submit Form</button>
-                <button type="button" id="printBtn" onclick="printForm()">Save as PDF</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">Submit Form</button>
+                <button type="button" class="btn btn-outline" id="printBtn" onclick="printForm()">Save as PDF</button>
             </div>
         </form>
+    </main>
 
-        <script>
-            // Track partner count
-            let partnerCount = 0;
+    <footer>
+      <p>&copy; 2026 Marv &amp; Co Chartered Accountants &middot; <a href="index.html">marvandco</a> &middot; marvandcom@gmail.com &middot; +91 7025173905</p>
+    </footer>
 
-            // Add partner section
-            document.getElementById('addPartnerBtn').addEventListener('click', function() {
-                partnerCount++;
-                const container = document.getElementById('partnersContainer');
+    <script>
+        // Track partner count
+        let partnerCount = 0;
 
-                const partnerHTML = `
-                <div class="partner-section">
-                    <h3>Partner #${partnerCount}</h3>
-                    <label class="required">Full Name</label>
-                    <input type="text" name="partner_name_${partnerCount}" required>
+        // Add partner section
+        document.getElementById('addPartnerBtn').addEventListener('click', function() {
+            partnerCount++;
+            const container = document.getElementById('partnersContainer');
 
-                    <label class="required">Address</label>
-                    <textarea name="partner_address_${partnerCount}" required></textarea>
+            const partnerHTML = `
+            <div class="partner-section">
+                <h3>Partner #${partnerCount}</h3>
+                <label class="required">Full Name</label>
+                <input type="text" name="partner_name_${partnerCount}" required>
 
-                    <label class="required">Contact Information</label>
-                    <input type="tel" name="partner_phone_${partnerCount}" placeholder="Phone" required>
-                    <input type="email" name="partner_email_${partnerCount}" placeholder="Email" required>
+                <label class="required">Address</label>
+                <textarea name="partner_address_${partnerCount}" required></textarea>
 
-                    <label class="required">Capital Contribution</label>
-                    <input type="text" name="partner_capital_${partnerCount}" placeholder="Amount and type (e.g., $10,000 cash)" required>
-                </div>`;
+                <label class="required">Contact Information</label>
+                <input type="tel" name="partner_phone_${partnerCount}" placeholder="Phone" required>
+                <input type="email" name="partner_email_${partnerCount}" placeholder="Email" required>
 
-                container.insertAdjacentHTML('beforeend', partnerHTML);
-            });
+                <label class="required">Capital Contribution</label>
+                <input type="text" name="partner_capital_${partnerCount}" placeholder="Amount and type (e.g., $10,000 cash)" required>
+            </div>`;
 
-            // Show/hide end date based on duration selection
-            document.querySelector('select[name="duration"]').addEventListener('change', function() {
-                const endDateContainer = document.getElementById('endDateContainer');
-                endDateContainer.style.display = this.value === 'fixed' ? 'block' : 'none';
-                if (this.value === 'fixed') {
-                    document.querySelector('input[name="end_date"]').required = true;
-                } else {
-                    document.querySelector('input[name="end_date"]').required = false;
-                }
-            });
+            container.insertAdjacentHTML('beforeend', partnerHTML);
+        });
 
-            // Show/hide non-compete details
-            document.querySelector('input[name="non_compete"]').addEventListener('change', function() {
-                document.getElementById('nonCompeteDetails').style.display = this.checked ? 'block' : 'none';
-            });
-
-            // Print function (Save as PDF)
-            function printForm() {
-                window.print();
+        // Show/hide end date based on duration selection
+        document.querySelector('select[name="duration"]').addEventListener('change', function() {
+            const endDateContainer = document.getElementById('endDateContainer');
+            endDateContainer.style.display = this.value === 'fixed' ? 'block' : 'none';
+            if (this.value === 'fixed') {
+                document.querySelector('input[name="end_date"]').required = true;
+            } else {
+                document.querySelector('input[name="end_date"]').required = false;
             }
+        });
 
-            // Form submission handler
-            document.getElementById('partnershipForm').addEventListener('submit', function(e) {
-                e.preventDefault();
+        // Show/hide non-compete details
+        document.querySelector('input[name="non_compete"]').addEventListener('change', function() {
+            document.getElementById('nonCompeteDetails').style.display = this.checked ? 'block' : 'none';
+        });
 
-                // Show success message
-                document.getElementById('successMessage').style.display = 'block';
+        // Print function (Save as PDF)
+        function printForm() {
+            window.print();
+        }
 
-                // Hide submit button, show print button
-                document.getElementById('submitBtn').style.display = 'none';
-                document.getElementById('printBtn').style.display = 'inline-block';
+        // Form submission handler
+        document.getElementById('partnershipForm').addEventListener('submit', function(e) {
+            e.preventDefault();
 
-                // Scroll to success message
-                document.getElementById('successMessage').scrollIntoView({behavior: 'smooth'});
-            });
+            // Show success message
+            document.getElementById('successMessage').classList.add('is-visible');
 
-            // Add first partner automatically
-            document.getElementById('addPartnerBtn').click();
-        </script>
-    </body>
-    </html>
-    
+            // Hide submit button, show print button
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('printBtn').style.display = 'inline-flex';
+
+            // Scroll to success message
+            document.getElementById('successMessage').scrollIntoView({behavior: 'smooth'});
+        });
+
+        // Add first partner automatically
+        document.getElementById('addPartnerBtn').click();
+    </script>
+</body>
+</html>
