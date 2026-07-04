@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marv & Co Chartered Accountants</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            background: #2c3e50;
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subheading {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .services {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .services h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .tiles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .tile {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eaeaea;
+            cursor: pointer;
+        }
+
+        .tile:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+            border-color: #3498db;
+        }
+
+        .tile-content {
+            padding: 25px;
+            text-align: center;
+        }
+
+        .tile h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .tile p {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+
+        .icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #3498db;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Welcome to Marv & Co Chartered Accountants</h1>
+            <p class="subheading">Your trusted partner for comprehensive financial solutions and business advisory services</p>
+        </header>
+
+        <section class="services">
+            <h2>Incorporation Services</h2>
+            <div class="tiles">
+                <div class="tile" onclick="window.location.href='Partnership_Deed_Form.html'">
+                    <div class="tile-content">
+                        <div class="icon">🤝</div>
+                        <h3>Partnership</h3>
+                        <p>Register your partnership firm with our expert guidance and documentation support</p>
+                    </div>
+                </div>
+
+                <div class="tile" onclick="window.location.href='company_registration.html'">
+                    <div class="tile-content">
+                        <div class="icon">🏢</div>
+                        <h3>Limited Liability Partnership (LLP)</h3>
+                        <p>Incorporate your LLP with limited liability protection and flexible structure</p>
+                    </div>
+                </div>
+
+                <div class="tile" onclick="window.location.href='company_registration.html'">
+                    <div class="tile-content">
+                        <div class="icon">🏛️</div>
+                        <h3>Company</h3>
+                        <p>Register private or public companies with complete compliance support</p>
+                    </div>
+                </div>
+
+                <div class="tile" onclick="window.location.href='gst_registration.html'">
+                    <div class="tile-content">
+                        <div class="icon">📊</div>
+                        <h3>GST Registration</h3>
+                        <p>Get GST registration and filing services for your business</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2023 Marv & Co Chartered Accountants. All rights reserved.</p>
+            <p>Contact: marvandcom@gmail.com | Phone: +91 7025173905</p>
+        </footer>
+    </div>
+</body>
+</html>

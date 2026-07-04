@@ -1,0 +1,200 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Partnership Deed Questionnaire</title>
+        <style>
+            * { box-sizing: border-box; font-family: Arial, sans-serif; }
+            body { max-width: 900px; margin: 20px auto; padding: 20px; }
+            h1 { color: #2c3e50; text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+            h2 { color: #2980b9; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+            .section { background: #f8f9fa; padding: 15px; margin-bottom: 20px; border-radius: 5px; border-left: 4px solid #3498db; }
+            label { display: block; margin: 10px 0 5px; font-weight: bold; }
+            input, select, textarea { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
+            button { background: #3498db; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 4px; cursor: pointer; }
+            button:hover { background: #2980b9; }
+            .partner-section { background: #e8f4fc; padding: 15px; margin: 10px 0; border-radius: 5px; }
+            .actions { text-align: center; margin-top: 20px; }
+            .required::after { content: " *"; color: red; }
+            #printBtn { display: none; background: #27ae60; } /* Initially hidden */
+            #printBtn:hover { background: #219653; }
+            .success-message { display: none; text-align: center; color: #27ae60; font-weight: bold; margin: 20px 0; }
+        </style>
+    </head>
+    <body>
+        <h1>Partnership Deed Questionnaire</h1>
+        <div class="success-message" id="successMessage">Form submitted successfully! Please save as PDF below</div>
+
+        <form id="partnershipForm">
+            <!-- Section 1: Partnership Details -->
+            <div class="section">
+                <h2>I. Partnership Details</h2>
+
+                <label class="required">Proposed Partnership Name</label>
+                <input type="text" name="partnership_name" required>
+
+                <label class="required">Principal Place of Business</label>
+                <input type="text" name="business_address" required>
+
+                <label class="required">Nature of Business</label>
+                <textarea name="business_nature" rows="3" required></textarea>
+
+                <label class="required">Partnership Start Date</label>
+                <input type="date" name="start_date" required>
+
+                <label class="required">Duration</label>
+                <select name="duration" required>
+                    <option value="">Select Duration</option>
+                    <option value="fixed">Fixed Term</option>
+                    <option value="indefinite">Indefinite</option>
+                </select>
+
+                <div id="endDateContainer" style="display:none;">
+                    <label class="required">End Date</label>
+                    <input type="date" name="end_date">
+                </div>
+            </div>
+
+            <!-- Section 2: Partner Information -->
+            <div class="section">
+                <h2>II. Partner Information</h2>
+                <div id="partnersContainer">
+                    <!-- Partner sections will be added here dynamically -->
+                </div>
+                <button type="button" id="addPartnerBtn">+ Add Partner</button>
+            </div>
+
+            <!-- Section 3: Financial Arrangements -->
+            <div class="section">
+                <h2>III. Financial Arrangements</h2>
+
+                <label class="required">Profit/Loss Sharing Ratio (e.g., 50:50)</label>
+                <input type="text" name="profit_sharing" placeholder="Partner1%:Partner2%" required>
+
+                <label>Salary/Remuneration (if any)</label>
+                <input type="text" name="salary" placeholder="Specify amounts per partner">
+
+                <label>Interest on Capital (%)</label>
+                <input type="number" name="interest" min="0" max="100" step="0.1">
+
+                <label class="required">Authorized Bank Signatories</label>
+                <input type="text" name="signatories" placeholder="List partner names" required>
+            </div>
+
+            <!-- Section 4: Management & Responsibilities -->
+            <div class="section">
+                <h2>IV. Management & Responsibilities</h2>
+
+                <label class="required">Decision-Making Process</label>
+                <select name="decision_process" required>
+                    <option value="">Select Method</option>
+                    <option value="unanimous">Unanimous Consent</option>
+                    <option value="majority">Majority Vote</option>
+                    <option value="managing">Managing Partner Decides</option>
+                </select>
+
+                <label>Key Duties</label>
+                <textarea name="key_duties" rows="3" placeholder="Describe responsibilities per partner"></textarea>
+            </div>
+
+            <!-- Section 5: Additional Terms -->
+            <div class="section">
+                <h2>V. Additional Terms</h2>
+
+                <label>Dispute Resolution Method</label>
+                <select name="dispute_resolution">
+                    <option value="">Select Method</option>
+                    <option value="mediation">Mediation</option>
+                    <option value="arbitration">Arbitration</option>
+                    <option value="court">Court Litigation</option>
+                </select>
+
+                <label>
+                    <input type="checkbox" name="non_compete"> Include Non-Compete Clause
+                </label>
+
+                <div id="nonCompeteDetails" style="display:none; margin-left: 20px;">
+                    <label>Duration (years)</label>
+                    <input type="number" name="non_compete_duration" min="1" max="10" value="2">
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="submit" id="submitBtn">Submit Form</button>
+                <button type="button" id="printBtn" onclick="printForm()">Save as PDF</button>
+            </div>
+        </form>
+
+        <script>
+            // Track partner count
+            let partnerCount = 0;
+
+            // Add partner section
+            document.getElementById('addPartnerBtn').addEventListener('click', function() {
+                partnerCount++;
+                const container = document.getElementById('partnersContainer');
+
+                const partnerHTML = `
+                <div class="partner-section">
+                    <h3>Partner #${partnerCount}</h3>
+                    <label class="required">Full Name</label>
+                    <input type="text" name="partner_name_${partnerCount}" required>
+
+                    <label class="required">Address</label>
+                    <textarea name="partner_address_${partnerCount}" required></textarea>
+
+                    <label class="required">Contact Information</label>
+                    <input type="tel" name="partner_phone_${partnerCount}" placeholder="Phone" required>
+                    <input type="email" name="partner_email_${partnerCount}" placeholder="Email" required>
+
+                    <label class="required">Capital Contribution</label>
+                    <input type="text" name="partner_capital_${partnerCount}" placeholder="Amount and type (e.g., $10,000 cash)" required>
+                </div>`;
+
+                container.insertAdjacentHTML('beforeend', partnerHTML);
+            });
+
+            // Show/hide end date based on duration selection
+            document.querySelector('select[name="duration"]').addEventListener('change', function() {
+                const endDateContainer = document.getElementById('endDateContainer');
+                endDateContainer.style.display = this.value === 'fixed' ? 'block' : 'none';
+                if (this.value === 'fixed') {
+                    document.querySelector('input[name="end_date"]').required = true;
+                } else {
+                    document.querySelector('input[name="end_date"]').required = false;
+                }
+            });
+
+            // Show/hide non-compete details
+            document.querySelector('input[name="non_compete"]').addEventListener('change', function() {
+                document.getElementById('nonCompeteDetails').style.display = this.checked ? 'block' : 'none';
+            });
+
+            // Print function (Save as PDF)
+            function printForm() {
+                window.print();
+            }
+
+            // Form submission handler
+            document.getElementById('partnershipForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Show success message
+                document.getElementById('successMessage').style.display = 'block';
+
+                // Hide submit button, show print button
+                document.getElementById('submitBtn').style.display = 'none';
+                document.getElementById('printBtn').style.display = 'inline-block';
+
+                // Scroll to success message
+                document.getElementById('successMessage').scrollIntoView({behavior: 'smooth'});
+            });
+
+            // Add first partner automatically
+            document.getElementById('addPartnerBtn').click();
+        </script>
+    </body>
+    </html>
+    
