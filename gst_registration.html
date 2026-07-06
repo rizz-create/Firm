@@ -307,8 +307,32 @@
         // Initialize - hide print button initially
         document.getElementById('printBtn').style.display = 'none';
 
+        // ============================================================
+        //  SUBMISSION DELIVERY (Formspree) — emails to marvandcom@gmail.com
+        //  Uses the same form ID as the contact page. To change it, edit
+        //  the value below.
+        // ============================================================
+        var FORMSPREE_ENDPOINT = 'https://formspree.io/f/mzdlolbz';
+
+        // Build a labelled payload from every field the user filled in, so the
+        // email reads like a form (uses each field's on-screen label as the key).
+        function collectSubmission(){
+            var fd = new FormData();
+            document.querySelectorAll('.form-section input, .form-section select, .form-section textarea').forEach(function(el){
+                var group = el.closest('.form-group');
+                var label = group ? group.querySelector('label') : null;
+                var key = label ? label.textContent.replace('*','').trim() : (el.id || 'Field');
+                fd.append(key, el.value);
+            });
+            var emailEl = document.getElementById('email');
+            if (emailEl) fd.append('_replyto', emailEl.value);
+            fd.append('_subject', 'New GST registration submission — marvandco website');
+            return fd;
+        }
+
         // Form submission
         document.getElementById('submitBtn').addEventListener('click', function() {
+            var submitBtn = this;
             // Basic validation
             let isValid = true;
             const requiredFields = document.querySelectorAll('input[required], select[required], textarea[required]');
@@ -322,22 +346,36 @@
                 }
             });
 
-            if (isValid) {
-                // Show success message
-                document.getElementById('successMessage').classList.add('is-visible');
-
-                // Change submit button text
-                this.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i> Submitted!';
-                this.disabled = true;
-
-                // Show print button
-                document.getElementById('printBtn').style.display = 'flex';
-
-                // Scroll to success message
-                document.getElementById('successMessage').scrollIntoView({behavior: 'smooth'});
-            } else {
+            if (!isValid) {
                 alert('Please fill in all required fields marked with *');
+                return;
             }
+
+            // Submitting state
+            var originalLabel = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Sending…';
+
+            fetch(FORMSPREE_ENDPOINT, {
+                method: 'POST',
+                body: collectSubmission(),
+                headers: { 'Accept': 'application/json' }
+            }).then(function(response){
+                if (response.ok){
+                    document.getElementById('successMessage').classList.add('is-visible');
+                    submitBtn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i> Submitted!';
+                    document.getElementById('printBtn').style.display = 'flex';
+                    document.getElementById('successMessage').scrollIntoView({behavior: 'smooth'});
+                } else {
+                    throw new Error('Bad response');
+                }
+            }).catch(function(){
+                // Delivery failed — let them print/save and send manually instead.
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalLabel;
+                document.getElementById('printBtn').style.display = 'flex';
+                alert('We could not send this to the office automatically. Please save/print your form below and send it, along with your documents, via WhatsApp or email to marvandcom@gmail.com.');
+            });
         });
     </script>
 </body>

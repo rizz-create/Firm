@@ -332,7 +332,7 @@ footer{background:var(--ink);color:var(--ink-muted);padding-block:var(--sp-6);fo
               </div>
               <div>
                 <h3>Office</h3>
-                <p>[PLACEHOLDER: Street Address], Thrissur, Kerala [PLACEHOLDER: PIN]</p>
+                <p>Punkunnam, Thrissur, Kerala</p>
               </div>
             </div>
             <div class="detail-row">
@@ -341,15 +341,15 @@ footer{background:var(--ink);color:var(--ink-muted);padding-block:var(--sp-6);fo
               </div>
               <div>
                 <h3>Hours</h3>
-                <p>[PLACEHOLDER: Mon&ndash;Sat, 10:00 AM&ndash;6:00 PM]</p>
+                <p>Monday&ndash;Saturday &middot; 10:00 AM&ndash;6:00 PM</p>
               </div>
             </div>
           </div>
 
           <div class="map-placeholder">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21.5s7-6.6 7-12A7 7 0 0 0 5 9.5c0 5.4 7 12 7 12Z"/><circle cx="12" cy="9.5" r="2.3"/></svg>
-            <p>Map preview goes here &mdash; add your Google Maps embed once the office address is confirmed.</p>
-            <a href="https://www.google.com/maps/search/?api=1&amp;query=Marv+%26+Co+Chartered+Accountants+Thrissur" target="_blank" rel="noopener">Search on Google Maps</a>
+            <p>We're in Punkunnam, Thrissur. Open the exact location in Google Maps below.</p>
+            <a href="https://www.google.com/maps/search/?api=1&amp;query=Punkunnam+Thrissur+Kerala" target="_blank" rel="noopener">Open in Google Maps</a>
           </div>
         </div>
 
@@ -392,8 +392,16 @@ footer{background:var(--ink);color:var(--ink-muted);padding-block:var(--sp-6);fo
 })();
 
 (function(){
-  // No backend is wired up yet — flip to true to preview the error banner/state.
-  var DEMO_FORCE_ERROR = false;
+  // ============================================================
+  //  CONTACT FORM DELIVERY (Formspree)
+  //  Messages are emailed to marvandcom@gmail.com through Formspree.
+  //  To activate: create a free form at https://formspree.io using
+  //  marvandcom@gmail.com, copy the form's ID from its endpoint
+  //  (formspree.io/f/XXXXXXXX  ->  the XXXXXXXX part), and paste it
+  //  between the quotes below, replacing YOUR_FORM_ID.
+  // ============================================================
+  var FORMSPREE_ID = 'mzdlolbz';
+  var FORMSPREE_ENDPOINT = 'https://formspree.io/f/' + FORMSPREE_ID;
 
   var form = document.getElementById('contactForm');
   var submitBtn = document.getElementById('submitBtn');
@@ -460,15 +468,27 @@ footer{background:var(--ink);color:var(--ink-muted);padding-block:var(--sp-6);fo
       return;
     }
 
+    if (FORMSPREE_ID === 'YOUR_FORM_ID'){
+      // Delivery isn't configured yet — fail loudly in the console so it's
+      // obvious the Formspree ID still needs to be pasted in above.
+      console.error('Contact form: set FORMSPREE_ID before going live — messages are NOT being delivered.');
+      bannerError.classList.add('is-visible');
+      bannerError.scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+
     setSubmitting(true);
     var nameValue = document.getElementById('name').value.trim();
+    var data = new FormData(form);
+    data.append('_subject', 'New enquiry from ' + nameValue + ' — marvandco website');
 
-    setTimeout(function(){
+    fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      body: data,
+      headers: { 'Accept': 'application/json' }
+    }).then(function(response){
       setSubmitting(false);
-      if (DEMO_FORCE_ERROR){
-        bannerError.classList.add('is-visible');
-        bannerError.scrollIntoView({behavior:'smooth', block:'center'});
-      } else {
+      if (response.ok){
         document.getElementById('successText').textContent =
           'Thanks, ' + nameValue + ' — we\'ve received your message and will get back to you shortly.';
         bannerSuccess.classList.add('is-visible');
@@ -479,8 +499,15 @@ footer{background:var(--ink);color:var(--ink-muted);padding-block:var(--sp-6);fo
           field.wrap.classList.remove('is-invalid');
           field.input.setAttribute('aria-invalid', 'false');
         });
+      } else {
+        bannerError.classList.add('is-visible');
+        bannerError.scrollIntoView({behavior:'smooth', block:'center'});
       }
-    }, 1000);
+    }).catch(function(){
+      setSubmitting(false);
+      bannerError.classList.add('is-visible');
+      bannerError.scrollIntoView({behavior:'smooth', block:'center'});
+    });
   });
 })();
 </script>

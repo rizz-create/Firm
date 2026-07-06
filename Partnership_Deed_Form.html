@@ -283,19 +283,52 @@
             window.print();
         }
 
+        // ============================================================
+        //  SUBMISSION DELIVERY (Formspree) — emails to marvandcom@gmail.com
+        //  Uses the same form ID as the contact page. To change it, edit
+        //  the value below.
+        // ============================================================
+        var FORMSPREE_ENDPOINT = 'https://formspree.io/f/mzdlolbz';
+
         // Form submission handler
         document.getElementById('partnershipForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            // Show success message
-            document.getElementById('successMessage').classList.add('is-visible');
+            var form = this;
+            var submitBtn = document.getElementById('submitBtn');
 
-            // Hide submit button, show print button
-            document.getElementById('submitBtn').style.display = 'none';
-            document.getElementById('printBtn').style.display = 'inline-flex';
+            // This form has real name= fields, so FormData captures everything,
+            // including any dynamically added partner blocks.
+            var data = new FormData(form);
+            var firstEmail = form.querySelector('input[name="partner_email_1"]');
+            if (firstEmail) data.append('_replyto', firstEmail.value);
+            data.append('_subject', 'New partnership deed questionnaire — marvandco website');
 
-            // Scroll to success message
-            document.getElementById('successMessage').scrollIntoView({behavior: 'smooth'});
+            // Submitting state
+            var originalLabel = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending…';
+
+            fetch(FORMSPREE_ENDPOINT, {
+                method: 'POST',
+                body: data,
+                headers: { 'Accept': 'application/json' }
+            }).then(function(response){
+                if (response.ok){
+                    document.getElementById('successMessage').classList.add('is-visible');
+                    submitBtn.style.display = 'none';
+                    document.getElementById('printBtn').style.display = 'inline-flex';
+                    document.getElementById('successMessage').scrollIntoView({behavior: 'smooth'});
+                } else {
+                    throw new Error('Bad response');
+                }
+            }).catch(function(){
+                // Delivery failed — let them save/print and send manually instead.
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalLabel;
+                document.getElementById('printBtn').style.display = 'inline-flex';
+                alert('We could not send this to the office automatically. Please save this form as a PDF below and send it to marvandcom@gmail.com.');
+            });
         });
 
         // Add first partner automatically
