@@ -477,10 +477,13 @@ footer{background:var(--ink);color:var(--ink-muted);padding-block:var(--sp-6);fo
       return;
     }
 
-    setSubmitting(true);
+    // Build the payload BEFORE disabling fields — disabled inputs are
+    // omitted from FormData, which would send an empty submission.
     var nameValue = document.getElementById('name').value.trim();
     var data = new FormData(form);
     data.append('_subject', 'New enquiry from ' + nameValue + ' — marvandco website');
+
+    setSubmitting(true);
 
     fetch(FORMSPREE_ENDPOINT, {
       method: 'POST',
