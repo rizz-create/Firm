@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marv &amp; Co — Compliance Status Board</title>
+
+<!-- ============================================================= -->
+<!--  FIREBASE (free cloud sync). Loads in your browser, not here. -->
+<!-- ============================================================= -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+/* =================================================================
+   >>> PASTE YOUR FIREBASE CONFIG BETWEEN THE { } BELOW <<<
+   Get it from the Firebase console (Project settings > Your apps).
+   Until you paste it, the board runs in this-browser-only mode.
+   ================================================================= */
+window.MARVCO_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBWyFCqM5Q2YSQx-d6MNAtSRajGt7xzkXE",
+  authDomain: "marv-co-board.firebaseapp.com",
+  databaseURL: "https://marv-co-board-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "marv-co-board",
+  appId: "1:170254817950:web:43d1f76dddf31b996ff98f"
+};
+</script>
+<style>
+  :root{
+    --paper:#F4F5F3; --surface:#FFFFFF; --ink:#16211C; --muted:#5C6660; --faint:#8A8F8B;
+    --line:#E3E6E1; --line-strong:#CFD4CE;
+    --brand:#0E4D3A; --brand-2:#0A3A2C; --brand-tint:#E7EFEA;
+    --ns:#7C837E; --ns-bg:#ECEEEB; --dr:#2563EB; --dr-bg:#E8F0FE;
+    --pr:#6D28D9; --pr-bg:#F1EBFB; --rv:#0E7490; --rv-bg:#E0F2F7;
+    --fl:#15803D; --fl-bg:#E6F4EA; --na:#9AA09B; --na-bg:#EEF0EC;
+    --blocked:#C42B2B; --blocked-bg:#FBEAEA; --due:#B45309; --due-bg:#FBF1E3;
+    --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.45;-webkit-text-size-adjust:100%}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 20px 64px}
+  header.mast{border-bottom:2px solid var(--brand);margin-bottom:18px}
+  .mast-inner{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;padding:22px 0 16px}
+  .brand h1{font-family:var(--serif);font-weight:600;font-size:30px;line-height:1;margin:0;letter-spacing:.2px}
+  .brand p{margin:6px 0 0;color:var(--muted);font-size:13px}
+  .mast-controls{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field label{font-size:11px;color:var(--faint);font-weight:600}
+  .field input,.field select{font-family:var(--sans);font-size:14px;padding:7px 9px;border:1px solid var(--line-strong);border-radius:7px;background:var(--surface);color:var(--ink)}
+  .field input:focus,.field select:focus{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .filters input[type=search],.filters select{font-family:var(--sans);font-size:13px;padding:7px 9px;border:1px solid var(--line-strong);border-radius:7px;background:var(--surface);color:var(--ink)}
+  .filters input[type=search]{min-width:170px}
+  .chk{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer;padding:6px 8px;border:1px solid var(--line-strong);border-radius:7px;background:var(--surface)}
+  .actions{display:flex;flex-wrap:wrap;gap:8px}
+  button{font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;border-radius:7px;padding:8px 13px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink)}
+  button:hover{border-color:var(--brand)}
+  button.primary{background:var(--brand);border-color:var(--brand);color:#fff} button.primary:hover{background:var(--brand-2)}
+  button.accent{background:var(--brand-tint);border-color:#BFD6C9;color:var(--brand-2)}
+  button.wa{background:#25D366;border-color:#1FB457;color:#083B27} button.wa:hover{background:#1FB457;border-color:#1FB457}
+  button:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+  .tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 12px;border-bottom:1px solid var(--line);margin-bottom:18px;-webkit-overflow-scrolling:touch}
+  .tab{flex:none;display:flex;align-items:center;gap:8px;padding:8px 13px;border:1px solid var(--line-strong);border-radius:9px;background:var(--surface);cursor:pointer;font-weight:600;font-size:13px;color:var(--ink);white-space:nowrap}
+  .tab:hover{border-color:var(--brand)} .tab.active{background:var(--brand);border-color:var(--brand);color:#fff}
+  .tab .count{font-size:11px;font-weight:600;color:var(--muted)} .tab.active .count{color:#CFE4DA}
+  .tab .ind{width:9px;height:9px;border-radius:50%;flex:none;background:var(--line-strong)}
+  .tab .ind.red{background:var(--blocked)} .tab .ind.amber{background:var(--due)} .tab .ind.green{background:var(--fl)}
+  .tab.overview{font-family:var(--serif);font-weight:600}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+  .panel-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:12px}
+  .panel-h h2{font-family:var(--serif);font-weight:600;font-size:21px;margin:0}
+  .panel-h .sub{color:var(--muted);font-size:13px} .panel-h .sub b{color:var(--ink)}
+  .sub-h{font-size:12px;color:var(--faint);font-weight:700;letter-spacing:.03em;margin:20px 2px 10px}
+  .bar{display:flex;height:14px;border-radius:8px;overflow:hidden;background:var(--ns-bg);border:1px solid var(--line)}
+  .bar span{display:block;height:100%}
+  .seg-ns{background:var(--ns)} .seg-dr{background:var(--dr)} .seg-pr{background:var(--pr)} .seg-rv{background:var(--rv)} .seg-fl{background:var(--fl)}
+  .pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+  .pill{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:9px;background:var(--paper);border:1px solid var(--line);min-width:104px}
+  .pill.sm{padding:6px 10px;min-width:92px} .pill.click{cursor:pointer} .pill.click:hover{border-color:var(--brand)}
+  .pill.active{outline:2px solid var(--brand);outline-offset:1px;background:var(--surface)}
+  .pill .n{font-size:19px;font-weight:700;line-height:1} .pill.sm .n{font-size:16px}
+  .pill .l{font-size:11px;color:var(--muted)} .pill .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .pill.alert{background:var(--blocked-bg);border-color:#F0C9C9} .pill.alert .n{color:var(--blocked)}
+  .pill.warn{background:var(--due-bg);border-color:#EBD6AE} .pill.warn .n{color:var(--due)}
+  .attn{display:flex;flex-direction:column;gap:8px}
+  .attn-item{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:9px;background:var(--surface);cursor:pointer;text-align:left;width:100%;font-family:var(--sans);font-size:13px}
+  .attn-item:hover{border-color:var(--brand)} .attn-item .ac{font-weight:600} .attn-item .at{color:var(--muted)}
+  .attn-item .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px}
+  .tag-blocked{color:var(--blocked);background:var(--blocked-bg)} .tag-due{color:var(--due);background:var(--due-bg)}
+  .tag-ok{color:var(--fl);background:var(--fl-bg)}
+  .attn-item .aw{color:var(--muted);font-size:12px;margin-left:auto;text-align:right}
+  .attn-empty{padding:26px;text-align:center;color:var(--fl);background:var(--fl-bg);border-radius:10px;font-weight:500}
+  .tbl-scroll{overflow-x:auto}
+  table.board{border-collapse:collapse;width:100%;min-width:860px}
+  table.board th{font-size:11px;text-align:left;color:var(--faint);font-weight:600;padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+  table.board td{padding:7px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+  table.board tr:last-child td{border-bottom:none}
+  tr.done td{background:#FBFDFB}
+  tr.overdue .task-name::after,tr.soon .task-name::after{margin-left:8px;font-size:10px;font-weight:700;color:var(--due);background:var(--due-bg);padding:1px 6px;border-radius:6px;vertical-align:middle}
+  tr.overdue .task-name::after{content:"overdue"} tr.soon .task-name::after{content:"due soon"}
+  .task-name{font-weight:500;white-space:nowrap} .due-cell{color:var(--muted);white-space:nowrap;font-size:12px}
+  td input.text{width:100%;min-width:120px;font-family:var(--sans);font-size:13px;padding:5px 7px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--ink)}
+  td input.text:hover{border-color:var(--line)} td input.text:focus{outline:none;border-color:var(--brand);background:var(--surface)}
+  select.status{font-family:var(--sans);font-size:12px;font-weight:600;padding:5px 8px;border-radius:7px;border:1px solid var(--line-strong);cursor:pointer}
+  select.owner-sel{font-family:var(--sans);font-size:12px;padding:5px 7px;border-radius:6px;border:1px solid var(--line-strong);background:var(--surface);max-width:150px;cursor:pointer}
+  select.status:focus,select.owner-sel:focus{outline:2px solid var(--brand);outline-offset:1px}
+  .st-ns{background:var(--ns-bg);color:var(--ns)} .st-dr{background:var(--dr-bg);color:var(--dr)} .st-pr{background:var(--pr-bg);color:var(--pr)}
+  .st-rv{background:var(--rv-bg);color:var(--rv)} .st-fl{background:var(--fl-bg);color:var(--fl)} .st-na{background:var(--na-bg);color:var(--na)}
+  .blk{display:flex;align-items:center;justify-content:center} .blk input{width:17px;height:17px;accent-color:var(--blocked);cursor:pointer}
+  td.blocked-on{background:var(--blocked-bg)} .empty{padding:36px 20px;text-align:center;color:var(--muted)}
+  /* Modal */
+  .overlay{position:fixed;inset:0;background:rgba(20,33,28,.5);display:none;align-items:flex-start;justify-content:center;padding:34px 14px;z-index:50;overflow:auto}
+  .overlay.open{display:flex}
+  .modal{background:var(--surface);border-radius:14px;max-width:880px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.28)}
+  .modal-h{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)}
+  .modal-h h2{font-family:var(--serif);font-size:20px;margin:0}
+  .xbtn{border:none;background:transparent;font-size:20px;cursor:pointer;color:var(--muted);padding:2px 8px}
+  .modal-tabs{display:flex;gap:6px;padding:14px 20px 0;flex-wrap:wrap}
+  .modal-tab{padding:8px 14px;border:1px solid var(--line-strong);border-radius:8px;background:var(--paper);cursor:pointer;font-weight:600;font-size:13px;color:var(--ink)}
+  .modal-tab.active{background:var(--brand);border-color:var(--brand);color:#fff}
+  .modal-body{padding:16px 20px 22px;max-height:64vh;overflow:auto}
+  .muted-note{color:var(--muted);font-size:12.5px;margin:0 0 12px}
+  .mtable{width:100%;border-collapse:collapse}
+  .mtable th{font-size:11px;color:var(--faint);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-weight:600}
+  .mtable td{padding:5px 8px;border-bottom:1px solid var(--line)}
+  .mtable input,.mtable select{font-family:var(--sans);font-size:13px;padding:6px 8px;border:1px solid var(--line-strong);border-radius:6px;width:100%;background:var(--surface);color:var(--ink)}
+  .mtable input:focus,.mtable select:focus{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+  .iconbtn{border:1px solid var(--line-strong);background:var(--surface);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--blocked);font-weight:700}
+  .iconbtn:hover{border-color:var(--blocked)}
+  .addrow{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:12px}
+  .addrow .fld{display:flex;flex-direction:column;gap:4px;min-width:120px}
+  .addrow .fld label{font-size:11px;color:var(--faint);font-weight:600}
+  .addrow .fld input,.addrow .fld select{font-family:var(--sans);font-size:13px;padding:7px 8px;border:1px solid var(--line-strong);border-radius:6px;background:var(--surface)}
+  .addrow .fld.due{min-width:80px;max-width:90px}
+  footer{margin-top:26px;border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:12.5px}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px} .legend span{display:flex;align-items:center;gap:6px} .legend .dot{width:9px;height:9px;border-radius:50%}
+  .help{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 15px;margin-top:6px} .help b{color:var(--ink)}
+  .saved{font-size:12px;color:var(--faint)}
+  .signed{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+  .signed #whoAmiLabel{font-size:12px;color:var(--muted);font-weight:600}
+  .signed #btnSignout{padding:6px 11px;font-size:12px}
+  .overlay.login{align-items:center}
+  .login-modal{max-width:430px}
+  .login-h{padding:20px 22px 6px} .login-h h2{font-family:var(--serif);margin:0 0 4px} .login-h p{margin:0;color:var(--muted);font-size:13px}
+  .role-toggle{display:flex;gap:8px;padding:12px 22px 0}
+  .role-btn{flex:1;padding:10px;border:1px solid var(--line-strong);border-radius:8px;background:var(--paper);cursor:pointer;font-weight:600;font-size:13px;color:var(--ink)}
+  .role-btn.active{background:var(--brand);border-color:var(--brand);color:#fff}
+  .login-body{padding:16px 22px 22px;display:flex;flex-direction:column;gap:12px}
+  .login-body .fld{display:flex;flex-direction:column;gap:5px}
+  .login-body .fld label{font-size:12px;color:var(--faint);font-weight:600}
+  .login-body .fld input,.login-body .fld select{padding:9px 10px;border:1px solid var(--line-strong);border-radius:7px;font-family:var(--sans);font-size:14px;background:var(--surface);color:var(--ink)}
+  .login-body .primary{padding:11px;font-size:14px}
+  .login-err{color:var(--blocked);font-size:12.5px;min-height:15px}
+  .owner-ro{font-size:12px;color:var(--muted)}
+  @media (max-width:640px){ .brand h1{font-size:24px} .wrap{padding:0 12px 48px} .card{padding:14px} }
+  @media print{ .toolbar,.mast-controls,.help,.tabs,.overlay{display:none} body{background:#fff} .card{border-color:#ccc}
+    td input.text,select.status,select.owner-sel{border-color:transparent!important;background:transparent!important;-webkit-appearance:none;appearance:none} }
+</style>
+</head>
+<body>
+<script id="board-data" type="application/json">{"period":"","staff":[],"clients":[],"tasks":[],"board":{}}</script>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="mast-inner">
+      <div class="brand"><h1>Marv &amp; Co</h1><p>Compliance Status Board — who is doing what, what is due, and who is stuck</p></div>
+      <div class="mast-controls">
+        <div class="field"><label for="period">Period</label><input type="month" id="period"></div>
+        <div class="field" id="whoField"><label for="whoami">Your name (for edits)</label><input type="text" id="whoami" placeholder="e.g. Aneesh" autocomplete="off"></div>
+        <div class="signed" id="signedBox"><span id="whoAmiLabel"></span><button id="btnSignout">Sign out</button></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="filters">
+      <input type="search" id="q" placeholder="Search task, owner, notes…" autocomplete="off">
+      <select id="fOwner"><option value="">All owners</option></select>
+      <select id="fClient"><option value="">All clients</option></select>
+      <select id="fTask"><option value="">All tasks</option></select>
+      <label class="chk"><input type="checkbox" id="fBlocked"> Blocked only</label>
+    </div>
+    <div class="actions">
+      <button class="accent" id="btnManage">Manage data</button>
+      <button class="wa" id="btnWhatsapp">Share to WhatsApp</button>
+      <button id="btnExport">Export</button>
+      <button id="btnImport">Import</button>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+      <button id="btnRevert">Revert</button>
+      <button id="btnPrint">Print</button>
+    </div>
+  </div>
+
+  <nav class="tabs" id="tabs"></nav>
+  <main id="panel"></main>
+
+  <footer>
+    <div class="legend" id="legend"></div>
+    <span class="saved" id="saved"></span>
+    <div class="help"><b>How this board works.</b> With your Firebase cloud set up (see the config at the top of this file), this is one <b>shared live board</b> — everyone who opens it sees the same data update in real time, from any computer or phone, with no server and no machine kept on. Until Firebase is configured, it saves in <b>this browser</b> only; <b>Export / Import</b> move data and <b>Revert</b> drops local edits.</div>
+  </footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-h"><h2>Manage data</h2><button class="xbtn" id="mClose" title="Close">×</button></div>
+    <div class="modal-tabs">
+      <button class="modal-tab" data-sec="staff">Staff master</button>
+      <button class="modal-tab" data-sec="clients">Client master</button>
+      <button class="modal-tab" data-sec="tasks">Task master &amp; allocation</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="overlay login" id="loginOverlay">
+  <div class="modal login-modal" role="dialog" aria-modal="true">
+    <div class="login-h"><h2>Marv &amp; Co — Sign in</h2><p>Choose how you're signing in.</p></div>
+    <div class="role-toggle">
+      <button class="role-btn active" data-role="staff">Staff</button>
+      <button class="role-btn" data-role="owner">Owner / Partner</button>
+    </div>
+    <div class="login-body" id="loginBody"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SEED=[
+    {id:"voxar",name:"Voxar LLP",scope:"GST",tasks:[["g1","GSTR-1",11,"stat"],["g3","GSTR-3B",20,"stat"]]},
+    {id:"bhumi",name:"Bhumi",scope:"GST · Accounts · Financials",tasks:[["acc","Accounts",7,"int"],["g1","GSTR-1",11,"stat"],["g3","GSTR-3B",20,"stat"],["fin","Financials (P&L/BS/CF)",25,"int"]]},
+    {id:"colorbuild",name:"Color and Build",scope:"Accounts · P&L",tasks:[["acc","Accounts",7,"int"],["pl","P&L",25,"int"]]},
+    {id:"riseon",name:"Riseon",scope:"GST · TDS · Accounts · P&L",tasks:[["tds","TDS deposit",7,"stat"],["acc","Accounts",7,"int"],["g1","GSTR-1",11,"stat"],["g3","GSTR-3B",20,"stat"],["pl","P&L",25,"int"],["tdsr","TDS return",null,"qtr"]]},
+    {id:"jerucap",name:"Jeru Cap",scope:"GST · TDS",tasks:[["tds","TDS deposit",7,"stat"],["g1","GSTR-1",11,"stat"],["g3","GSTR-3B",20,"stat"],["tdsr","TDS return",null,"qtr"]]},
+    {id:"haulf",name:"Haulf Fix",scope:"GST",tasks:[["g1","GSTR-1",11,"stat"],["g3","GSTR-3B",20,"stat"]]},
+    {id:"mejo",name:"Mejo",scope:"GST · Accounts · P&L",tasks:[["acc","Accounts",7,"int"],["g1","GSTR-1",11,"stat"],["g3","GSTR-3B",20,"stat"],["pl","P&L",25,"int"]]},
+    {id:"amble",name:"Amble",scope:"GST · Accounts",tasks:[["acc","Accounts",7,"int"],["g1","GSTR-1",11,"stat"],["g3","GSTR-3B",20,"stat"]]},
+    {id:"chintha",name:"Chinthamani",scope:"Accounts",tasks:[["acc","Accounts",7,"int"]]},
+    {id:"cups",name:"Cups and Cakes",scope:"GST · QRMP quarterly",tasks:[["iff","IFF (optional)",13,"qrmp"],["pmt","PMT-06",25,"qrmp"],["qg1","Quarterly GSTR-1",13,"qtr"],["qg3","Quarterly GSTR-3B",22,"qtr"]]},
+    {id:"fireworks",name:"Fire Works",scope:"GST",tasks:[["g1","GSTR-1",11,"stat"],["g3","GSTR-3B",20,"stat"]]},
+    {id:"techzone",name:"Tech Zone",scope:"GST",tasks:[["g1","GSTR-1",11,"stat"],["g3","GSTR-3B",20,"stat"]]},
+    {id:"essa",name:"Essa",scope:"GST · QRMP quarterly",tasks:[["iff","IFF (optional)",13,"qrmp"],["pmt","PMT-06",25,"qrmp"],["qg1","Quarterly GSTR-1",13,"qtr"],["qg3","Quarterly GSTR-3B",22,"qtr"]]},
+    {id:"handh",name:"H and H",scope:"GST",tasks:[["g1","GSTR-1",11,"stat"],["g3","GSTR-3B",20,"stat"]]},
+    {id:"muzris",name:"Muzris",scope:"GST · QRMP quarterly",tasks:[["iff","IFF (optional)",13,"qrmp"],["pmt","PMT-06",25,"qrmp"],["qg1","Quarterly GSTR-1",13,"qtr"],["qg3","Quarterly GSTR-3B",22,"qtr"]]}
+  ];
+  var STATUSES=["Not started","Data received","Prepared","Reviewed","Filed / Done","N/A"];
+  var ST_CLASS={"Not started":"st-ns","Data received":"st-dr","Prepared":"st-pr","Reviewed":"st-rv","Filed / Done":"st-fl","N/A":"st-na"};
+  var TYPE_OPTS=[["stat","Statutory (monthly)"],["int","Internal target"],["qtr","Quarterly"],["qrmp","QRMP monthly"]];
+  var LS_KEY="marvco-board-v1", LS_USER="marvco-user", LS_SESSION="marvco-session";
+  var state=null, activeTab="overview", drill="attention", manageSection="staff", loginRole="staff";
+  var session=null, viewer={role:"owner"}, isOwner=true;
+  var serverMode=false, serverStamp="", pollTimer=null, API_BOARD="/api/board";
+  var fbMode=false, fbDb=null, fbSeeded=false, fbRenderT=null;
+  var fbCfg=window.MARVCO_FIREBASE_CONFIG||{}, fbConfigured=!!(fbCfg.apiKey && String(fbCfg.apiKey).indexOf("PASTE")<0);
+
+  function uid(p){ return p+Math.random().toString(36).slice(2,8); }
+  function embedded(){ try{ return JSON.parse(document.getElementById("board-data").textContent)||{}; }catch(e){ return {}; } }
+  function currentPeriod(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
+  function seedClients(){ return SEED.map(function(c){ return {id:c.id,name:c.name,scope:c.scope}; }); }
+  function seedTasks(){ var out=[]; SEED.forEach(function(c){ c.tasks.forEach(function(t){ out.push({id:c.id+":"+t[0],clientId:c.id,name:t[1],due:t[2],type:t[3],ownerId:""}); }); }); return out; }
+
+  function migrate(s){
+    if(!s.staff)s.staff=[];
+    if(!s.settings)s.settings={ownerPin:""};
+    if(!s.clients||!s.clients.length){ s.clients=seedClients(); }
+    if(!s.tasks||!s.tasks.length){
+      s.tasks=seedTasks();
+      // migrate old free-text owners{taskId:name} -> staff + ownerId
+      if(s.owners){
+        Object.keys(s.owners).forEach(function(k){
+          var nm=(s.owners[k]||"").trim(); if(!nm)return;
+          var st=s.staff.filter(function(x){return x.name.toLowerCase()===nm.toLowerCase();})[0];
+          if(!st){ st={id:uid("st"),name:nm,role:""}; s.staff.push(st); }
+          var task=s.tasks.filter(function(x){return x.id===k;})[0];
+          if(task)task.ownerId=st.id;
+        });
+      }
+    }
+    s.tasks.forEach(function(t){ if(t.ownerId===undefined)t.ownerId=""; });
+    delete s.owners;
+    if(!s.board)s.board={}; if(!s.meta)s.meta={}; if(!s.period)s.period=currentPeriod();
+    return s;
+  }
+  function blankState(){ return migrate({period:currentPeriod(),staff:[],clients:[],tasks:[],board:{},meta:{}}); }
+  function load(){
+    var local=null; try{ local=JSON.parse(localStorage.getItem(LS_KEY)); }catch(e){}
+    if(local && (local.board||local.owners||local.tasks)) state=migrate(local);
+    else { var emb=embedded(); state=(emb&&(emb.tasks&&emb.tasks.length))?migrate(emb):blankState(); }
+  }
+  function stampSave(who){ state.meta=state.meta||{}; state.meta.updatedAt=new Date().toISOString(); if(who)state.meta.updatedBy=who; try{ localStorage.setItem(LS_KEY,JSON.stringify(state)); }catch(e){} renderSaved(); }
+  function save(who){ stampSave(who); if(fbMode)pushStateFB(); else if(serverMode)pushState(); }
+  function saveCell(id){ stampSave(whoami()); if(fbMode)writeCellFB(id); else if(serverMode){ apiSend({patch:{type:"cell",period:state.period,id:id,data:cell(id),ts:state.meta.updatedAt}}); serverStamp=state.meta.updatedAt; } }
+  function saveOwner(id){ stampSave(whoami()); if(fbMode)writeOwnerFB(); else if(serverMode){ var t=taskById(id); apiSend({patch:{type:"owner",id:id,ownerId:t?t.ownerId:"",ts:state.meta.updatedAt}}); serverStamp=state.meta.updatedAt; } }
+  function pushState(){ apiSend({state:state}); serverStamp=(state.meta&&state.meta.updatedAt)||serverStamp; }
+  function apiGet(cb,ecb){ try{ fetch(API_BOARD,{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){cb(j);}).catch(function(){ecb&&ecb();}); }catch(e){ ecb&&ecb(); } }
+  function apiSend(body){ try{ fetch(API_BOARD,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).catch(function(){}); }catch(e){} }
+  // ---------- Firebase cloud sync (live, shared, no server) ----------
+  function fbEnc(k){ return String(k).replace(/[.#$\[\]\/]/g,"_"); }
+  function toArr(v){ if(!v)return []; if(Array.isArray(v))return v; return Object.keys(v).map(function(k){return v[k];}); }
+  function initFirebase(){
+    if(typeof firebase==="undefined"){ fbMode=false; renderSaved(); return; }
+    try{ firebase.initializeApp(fbCfg); fbDb=firebase.database(); }
+    catch(e){ fbMode=false; renderSaved(); return; }
+    var go=function(){ fbMode=true; attachFbListeners(); renderSaved(); };
+    try{ firebase.auth().signInAnonymously().then(go).catch(function(){ go(); }); }
+    catch(e){ go(); }
+  }
+  function attachFbListeners(){
+    try{
+      fbDb.ref("boardState").on("value", function(snap){ fbApplyState(snap.val()); }, fbErr);
+      fbDb.ref("cells").on("value", function(snap){ fbApplyCells(snap.val()); }, fbErr);
+    }catch(e){ fbErr(e); }
+  }
+  function fbErr(err){ fbMode=false; var el2=$("#saved"); if(el2)el2.textContent="Cloud not connected — "+((err&&err.message)||"check the database Rules and that Anonymous sign-in is on"); }
+  function fbApplyState(v){
+    if(!v){ if(!fbSeeded){ fbSeeded=true; pushStateFB(); } return; }
+    fbSeeded=true;
+    state.staff=toArr(v.staff); state.clients=toArr(v.clients); state.tasks=toArr(v.tasks);
+    state.settings=v.settings||{ownerPin:""}; state.meta=v.meta||{};
+    state.tasks.forEach(function(t){ if(t.ownerId===undefined)t.ownerId=""; });
+    fbAfterUpdate();
+  }
+  function fbApplyCells(v){ state.board=v||{}; fbAfterUpdate(); }
+  function fbAfterUpdate(){
+    var ae=document.activeElement;
+    if(ae && (ae.tagName==="INPUT"||ae.tagName==="SELECT"||ae.tagName==="TEXTAREA")){ clearTimeout(fbRenderT); fbRenderT=setTimeout(fbAfterUpdate,700); return; }
+    try{ localStorage.setItem(LS_KEY,JSON.stringify(state)); }catch(e){}
+    if(session && session.role==="staff" && !staffById(session.staffId)){ signOut(); return; }
+    applyRole(); refreshFilters(); renderAll(); renderSaved(); if($("#loginOverlay").classList.contains("open"))renderLogin();
+  }
+  function pushStateFB(){ if(!fbDb)return; try{ fbDb.ref("boardState").set({staff:state.staff,clients:state.clients,tasks:state.tasks,settings:state.settings,meta:state.meta}); }catch(e){} }
+  function writeOwnerFB(){ if(!fbDb)return; try{ fbDb.ref("boardState/tasks").set(state.tasks); }catch(e){} }
+  function writeCellFB(id){ if(!fbDb)return; try{ fbDb.ref("cells/"+fbEnc(state.period)+"/"+fbEnc(id)).set(cell(id)); }catch(e){} }
+  function initServer(){ apiGet(function(remote){
+      serverMode=true;
+      if(remote && remote.tasks && remote.tasks.length){ state=migrate(remote); serverStamp=(state.meta&&state.meta.updatedAt)||""; }
+      else { serverStamp=(state.meta&&state.meta.updatedAt)||""; pushState(); }
+      applyRole(); refreshFilters(); renderAll(); renderSaved(); if(session===null)renderLogin(); startPoll();
+    }, function(){ serverMode=false; }); }
+  function startPoll(){ if(pollTimer)clearInterval(pollTimer); pollTimer=setInterval(pollOnce,12000); }
+  function pollOnce(){ if(!serverMode)return; apiGet(function(remote){ if(!remote||!remote.meta||!remote.meta.updatedAt)return; if(remote.meta.updatedAt===serverStamp)return; adoptRemote(remote); }); }
+  function adoptRemote(remote){
+    var ae=document.activeElement; if(ae && (ae.tagName==="INPUT"||ae.tagName==="SELECT"||ae.tagName==="TEXTAREA"))return;
+    state=migrate(remote); serverStamp=(state.meta&&state.meta.updatedAt)||"";
+    try{ localStorage.setItem(LS_KEY,JSON.stringify(state)); }catch(e){}
+    if(session && session.role==="staff" && !staffById(session.staffId)){ signOut(); return; }
+    applyRole(); refreshFilters(); renderAll(); renderSaved(); if($("#loginOverlay").classList.contains("open"))renderLogin();
+  }
+  function whoami(){ return document.getElementById("whoami").value.trim(); }
+
+  // ---------- Roles / access ----------
+  function baseTasks(){ return isOwner?state.tasks:state.tasks.filter(function(t){return t.ownerId===viewer.staffId;}); }
+  function clientTasks(cid){ return baseTasks().filter(function(t){return t.clientId===cid;}); }
+  function visibleClients(){ if(isOwner)return state.clients; var ok={}; baseTasks().forEach(function(t){ok[t.clientId]=1;}); return state.clients.filter(function(c){return ok[c.id];}); }
+  function loadSession(){ try{ session=JSON.parse(localStorage.getItem(LS_SESSION)); }catch(e){ session=null; }
+    if(session && session.role==="staff" && !staffById(session.staffId)) session=null;
+    if(session && session.role!=="owner" && session.role!=="staff") session=null; return session; }
+  function applyViewer(){ if(session && session.role==="staff"){ viewer={role:"staff",staffId:session.staffId}; isOwner=false; } else { viewer={role:"owner"}; isOwner=true; } }
+  function applyRole(){
+    applyViewer();
+    ["#btnManage","#btnExport","#btnImport","#btnRevert","#fOwner"].forEach(function(sel){ var n=$(sel); if(n)n.style.display=isOwner?"":"none"; });
+    var wf=$("#whoField"); if(wf)wf.style.display=isOwner?"":"none";
+    var lbl=$("#whoAmiLabel"); if(lbl)lbl.textContent=isOwner?"Signed in — Owner":("Signed in — "+(staffName(viewer.staffId)||"Staff")+" · Staff");
+    if(!isOwner){ var nm=staffName(viewer.staffId); if(nm){ $("#whoami").value=nm; try{localStorage.setItem(LS_USER,nm);}catch(e){} } }
+  }
+  function setSession(s){ session=s; try{ localStorage.setItem(LS_SESSION,JSON.stringify(s)); }catch(e){} hideLogin(); applyRole(); activeTab="overview"; drill="attention"; refreshFilters(); renderAll(); }
+  function signOut(){ session=null; try{ localStorage.removeItem(LS_SESSION); }catch(e){} showLogin(); }
+  function showLogin(){ loginRole="staff"; renderLogin(); $("#loginOverlay").classList.add("open"); }
+  function hideLogin(){ $("#loginOverlay").classList.remove("open"); }
+  function renderLogin(){
+    Array.prototype.forEach.call(document.querySelectorAll("#loginOverlay .role-btn"),function(b){ b.classList.toggle("active",b.getAttribute("data-role")===loginRole); });
+    var body=$("#loginBody"); body.innerHTML="";
+    if(loginRole==="staff"){
+      if(!state.staff.length){ body.appendChild(el("p","muted-note","No staff have been added yet. Ask a partner to add you in Manage data.")); return; }
+      var f1=el("div","fld"); f1.appendChild(el("label",null,"Your name")); var sel=el("select"); sel.appendChild(opt("","— select —",true));
+      state.staff.slice().sort(function(a,b){return a.name<b.name?-1:1;}).forEach(function(st){ sel.appendChild(opt(st.id,st.name)); }); f1.appendChild(sel); body.appendChild(f1);
+      var f2=el("div","fld"); f2.appendChild(el("label",null,"PIN (if set)")); var pin=el("input"); pin.type="password"; pin.placeholder="leave blank if none"; f2.appendChild(pin); body.appendChild(f2);
+      var err=el("div","login-err"); body.appendChild(err);
+      var btn=el("button","primary","Sign in"); btn.addEventListener("click",function(){ var id=sel.value; if(!id){ err.textContent="Please select your name."; return; } var st=staffById(id); if(st&&st.pin&&st.pin!==pin.value){ err.textContent="Incorrect PIN."; return; } setSession({role:"staff",staffId:id}); }); body.appendChild(btn);
+    } else {
+      var g1=el("div","fld"); g1.appendChild(el("label",null,"Owner passcode")); var pc=el("input"); pc.type="password"; pc.placeholder=(state.settings&&state.settings.ownerPin)?"enter passcode":"none set yet — leave blank"; g1.appendChild(pc); body.appendChild(g1);
+      if(!(state.settings&&state.settings.ownerPin)) body.appendChild(el("p","muted-note","No owner passcode set yet. Sign in, then set one in Manage data → Staff."));
+      var err2=el("div","login-err"); body.appendChild(err2);
+      var btn2=el("button","primary","Sign in as owner"); btn2.addEventListener("click",function(){ var need=state.settings&&state.settings.ownerPin; if(need&&pc.value!==need){ err2.textContent="Incorrect passcode."; return; } setSession({role:"owner"}); }); body.appendChild(btn2);
+    }
+  }
+
+  // lookups
+  function clientById(id){ return state.clients.filter(function(c){return c.id===id;})[0]; }
+  function staffById(id){ return state.staff.filter(function(s){return s.id===id;})[0]; }
+  function staffName(id){ var s=staffById(id); return s?s.name:""; }
+  function tasksForClient(cid){ return state.tasks.filter(function(t){return t.clientId===cid;}); }
+  function taskById(id){ return state.tasks.filter(function(t){return t.id===id;})[0]; }
+  function ord(n){ var s=["th","st","nd","rd"],v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
+  function dueLabel(t){ if(t.type==="qtr")return t.due?ord(t.due)+" · quarterly":"quarterly"; if(t.type==="qrmp")return ord(t.due)+" · monthly"; if(t.type==="int")return (t.due?ord(t.due):"")+" · internal"; return t.due?ord(t.due):"—"; }
+  function periodName(pk){ if(!pk)return ""; var p=pk.split("-"),m=["January","February","March","April","May","June","July","August","September","October","November","December"]; return m[+p[1]-1]+" "+p[0]; }
+  function cell(id){ var pk=state.period; state.board[pk]=state.board[pk]||{}; var c=state.board[pk][id]; if(!c){ c={status:"Not started",blocked:false,waiting:"",notes:""}; state.board[pk][id]=c; } return c; }
+  function dueFlag(t){ if(t.type!=="stat"||!t.due||state.period!==currentPeriod())return ""; var c=cell(t.id); if(c.status==="Filed / Done"||c.status==="N/A")return ""; var p=state.period.split("-"),d=new Date(+p[0],+p[1]-1,t.due),today=new Date(); today.setHours(0,0,0,0); var days=Math.round((d-today)/86400000); if(days<0)return "overdue"; if(days<=3)return "soon"; return ""; }
+
+  var $=function(s){return document.querySelector(s);};
+  function el(tag,cls,txt){ var e=document.createElement(tag); if(cls)e.className=cls; if(txt!=null)e.textContent=txt; return e; }
+  function opt(v,label,sel){ var o=el("option",null,label); o.value=v; if(sel)o.selected=true; return o; }
+
+  function filters(){ return {q:$("#q").value.trim().toLowerCase(),owner:$("#fOwner").value,client:$("#fClient").value,task:$("#fTask").value,blocked:$("#fBlocked").checked}; }
+  function matches(t,f){
+    var c=cell(t.id),client=clientById(t.clientId)||{name:"",scope:""};
+    if(f.owner && t.ownerId!==f.owner)return false;
+    if(f.task && t.name!==f.task)return false;
+    if(f.blocked && !c.blocked)return false;
+    if(f.q){ var hay=(client.name+" "+client.scope+" "+t.name+" "+staffName(t.ownerId)+" "+c.waiting+" "+c.notes).toLowerCase(); if(hay.indexOf(f.q)<0)return false; }
+    return true;
+  }
+  function summaryOf(tasks){
+    var s={total:0,ns:0,dr:0,pr:0,rv:0,fl:0,na:0,blocked:0,attention:0};
+    tasks.forEach(function(t){ var c=cell(t.id); s.total++;
+      if(c.status==="Not started")s.ns++; else if(c.status==="Data received")s.dr++; else if(c.status==="Prepared")s.pr++;
+      else if(c.status==="Reviewed")s.rv++; else if(c.status==="Filed / Done")s.fl++; else if(c.status==="N/A")s.na++;
+      if(c.blocked)s.blocked++; if(dueFlag(t))s.attention++;
+    });
+    s.applicable=s.total-s.na; s.inprog=s.dr+s.pr+s.rv; return s;
+  }
+  function segBar(s){ var bar=el("div","bar"); [["ns",s.ns],["dr",s.dr],["pr",s.pr],["rv",s.rv],["fl",s.fl]].forEach(function(p){ if(!s.applicable||p[1]<=0)return; var seg=el("span","seg-"+p[0]); seg.style.width=(p[1]/s.applicable*100)+"%"; bar.appendChild(seg); }); return bar; }
+  function pillBase(n,label,dotColor,mod,small){ var p=el("div","pill"+(small?" sm":"")+(mod?" "+mod:"")); if(dotColor){var d=el("span","dot");d.style.background=dotColor;p.appendChild(d);} var b=el("div"); b.appendChild(el("div","n",String(n))); b.appendChild(el("div","l",label)); p.appendChild(b); return p; }
+  function dotClass(s){ if(s.blocked>0)return "red"; if(s.attention>0)return "amber"; if(s.applicable>0&&s.fl===s.applicable)return "green"; return ""; }
+
+  function renderTabs(){
+    var tabs=$("#tabs"); tabs.innerHTML="";
+    var all=summaryOf(baseTasks());
+    var ov=el("button","tab overview"+(activeTab==="overview"?" active":"")); ov.appendChild(el("span","ind "+dotClass(all))); ov.appendChild(el("span",null,"Overview")); ov.appendChild(el("span","count",all.fl+"/"+all.applicable));
+    ov.addEventListener("click",function(){ setTab("overview"); }); tabs.appendChild(ov);
+    visibleClients().forEach(function(client){ var s=summaryOf(clientTasks(client.id));
+      var b=el("button","tab"+(activeTab===client.id?" active":"")); b.appendChild(el("span","ind "+dotClass(s))); b.appendChild(el("span",null,client.name)); b.appendChild(el("span","count",s.fl+"/"+s.applicable));
+      b.addEventListener("click",function(){ setTab(client.id); }); tabs.appendChild(b);
+    });
+  }
+  function setTab(id){ activeTab=id; if(id==="overview")drill="attention"; var fc=$("#fClient"); if(fc)fc.value=(id==="overview"?"":id); renderTabs(); renderPanel(); window.scrollTo({top:0,behavior:"smooth"}); }
+  function renderPanel(){ if(activeTab==="overview")renderOverview(); else { var c=clientById(activeTab); if(c)renderClient(c); else { activeTab="overview"; renderOverview(); } } }
+
+  var DRILL={ ns:["Not started"],dr:["Data received"],pr:["Prepared"],rv:["Reviewed"],fl:["Filed / Done"],na:["N/A"],blocked:["Blocked"],due:["Due soon / overdue"] };
+  function drillPred(key,t){ var c=cell(t.id); if(key==="blocked")return c.blocked; if(key==="due")return !!dueFlag(t); if(key==="attention")return c.blocked||!!dueFlag(t); var map={ns:"Not started",dr:"Data received",pr:"Prepared",rv:"Reviewed",fl:"Filed / Done",na:"N/A"}; return c.status===map[key]; }
+  function statusToDrill(v){ return {"Not started":"ns","Data received":"dr","Prepared":"pr","Reviewed":"rv","Filed / Done":"fl","N/A":"na"}[v]||"attention"; }
+  function scopeTask(t,f){ if(f.owner && t.ownerId!==f.owner)return false; if(f.client && t.clientId!==f.client)return false; if(f.task && t.name!==f.task)return false; if(f.q){ var c=cell(t.id),cl=clientById(t.clientId)||{name:"",scope:""}; var hay=(cl.name+" "+cl.scope+" "+t.name+" "+staffName(t.ownerId)+" "+c.waiting+" "+c.notes).toLowerCase(); if(hay.indexOf(f.q)<0)return false; } return true; }
+
+  function renderOverview(){
+    var panel=$("#panel"); panel.innerHTML="";
+    var f=filters();
+    var scoped=baseTasks().filter(function(t){ return scopeTask(t,f); });
+    var s=summaryOf(scoped), pct=s.applicable?Math.round(s.fl/s.applicable*100):0;
+    var card=el("div","card"); var h=el("div","panel-h"); var left=el("div");
+    var tp=[]; if(!isOwner)tp.push(staffName(viewer.staffId)||"My tasks"); else if(f.owner)tp.push(staffName(f.owner)||"Owner"); if(f.task)tp.push(f.task);
+    var title=tp.length?tp.join(" · "):"All clients";
+    left.appendChild(el("h2",null,title));
+    var sub=el("div","sub"); sub.innerHTML=((!isOwner||f.owner)?"Assigned · ":"")+periodName(state.period)+" — <b>"+s.fl+"</b> of <b>"+s.applicable+"</b> done ("+pct+"%)"; left.appendChild(sub); h.appendChild(left); card.appendChild(h);
+    card.appendChild(segBar(s));
+    // clickable pills — scoped to the selected owner / task / search
+    var pills=el("div","pills");
+    [["ns",s.ns,"Not started","var(--ns)",""],["dr",s.dr,"Data received","var(--dr)",""],["pr",s.pr,"Prepared","var(--pr)",""],["rv",s.rv,"Reviewed","var(--rv)",""],["fl",s.fl,"Filed / Done","var(--fl)",""],["blocked",s.blocked,"Blocked",null,s.blocked>0?"alert":""],["due",s.attention,"Due soon / overdue",null,s.attention>0?"warn":""]].forEach(function(p){
+      var pill=pillBase(p[1],p[2],p[3],p[4],false); pill.classList.add("click"); if(drill===p[0])pill.classList.add("active");
+      pill.addEventListener("click",function(){ drill=(drill===p[0]?"attention":p[0]); $("#fBlocked").checked=false; renderOverview(); });
+      pills.appendChild(pill);
+    });
+    card.appendChild(pills); panel.appendChild(card);
+
+    var label = drill==="attention" ? "NEEDS ATTENTION NOW" : (DRILL[drill]?DRILL[drill][0].toUpperCase():"TASKS");
+    var wctx=[]; if(f.owner)wctx.push(staffName(f.owner)); if(f.task)wctx.push(f.task); var who = wctx.length?(" · "+wctx.join(" · ")):"";
+    var items=scoped.filter(function(t){ return drillPred(drill,t); });
+    panel.appendChild(el("div","sub-h",label+who+" — "+items.length));
+    if(!items.length){ panel.appendChild(el("div","attn-empty", drill==="attention"?"Nothing blocked or overdue here. This view is clear.":"No tasks here for the current selection.")); return; }
+    var list=el("div","attn");
+    items.forEach(function(t){
+      var c=cell(t.id),flag=dueFlag(t),client=clientById(t.clientId)||{name:""};
+      var row=el("button","attn-item"); row.appendChild(el("span","ac",client.name)); row.appendChild(el("span","at",t.name));
+      if(drill==="attention"||drill==="blocked"){ if(c.blocked)row.appendChild(el("span","tag tag-blocked","Blocked")); }
+      if(drill==="attention"||drill==="due"){ if(flag)row.appendChild(el("span","tag tag-due",flag==="overdue"?"Overdue":"Due soon")); }
+      if(drill==="fl")row.appendChild(el("span","tag tag-ok","Done"));
+      var meta=[]; if(t.ownerId)meta.push(staffName(t.ownerId)); else meta.push("unassigned"); if(c.waiting)meta.push("waiting on "+c.waiting);
+      row.appendChild(el("span","aw",meta.join(" · ")));
+      row.addEventListener("click",function(){ setTab(t.clientId); }); list.appendChild(row);
+    });
+    panel.appendChild(list);
+  }
+
+  function renderClient(client){
+    var panel=$("#panel"); panel.innerHTML=""; var f=filters();
+    var rows=clientTasks(client.id).filter(function(t){ return matches(t,f); }); var s=summaryOf(rows);
+    var card=el("div","card"); var h=el("div","panel-h"); var left=el("div"); left.appendChild(el("h2",null,client.name)); left.appendChild(el("div","sub",client.scope)); h.appendChild(left);
+    var right=el("div","sub"); right.innerHTML="<b>"+s.fl+"</b>/"+s.applicable+" done · "+periodName(state.period); h.appendChild(right); card.appendChild(h);
+    var pills=el("div","pills");
+    pills.appendChild(pillBase(s.ns,"Not started","var(--ns)",null,true)); pills.appendChild(pillBase(s.dr,"Data received","var(--dr)",null,true));
+    pills.appendChild(pillBase(s.pr,"Prepared","var(--pr)",null,true)); pills.appendChild(pillBase(s.rv,"Reviewed","var(--rv)",null,true));
+    pills.appendChild(pillBase(s.fl,"Filed / Done","var(--fl)",null,true)); pills.appendChild(pillBase(s.blocked,"Blocked",null,s.blocked>0?"alert":"",true));
+    card.appendChild(pills); panel.appendChild(card);
+
+    if(!rows.length){ panel.appendChild(el("div","empty","No tasks match the current filters for "+client.name+".")); return; }
+    var scroll=el("div","tbl-scroll"),tbl=el("table","board"),thead=el("thead"),htr=el("tr");
+    ["Task","Due","Owner","Status","Blocked","Waiting on","Notes"].forEach(function(x){ htr.appendChild(el("th",null,x)); });
+    thead.appendChild(htr); tbl.appendChild(thead); var tb=el("tbody"); rows.forEach(function(t){ tb.appendChild(buildRow(t)); }); tbl.appendChild(tb); scroll.appendChild(tbl); panel.appendChild(scroll);
+  }
+
+  function buildRow(t){
+    var c=cell(t.id),flag=dueFlag(t); var tr=el("tr"); tr.className=c.status==="Filed / Done"?"done":(flag||"");
+    tr.appendChild(el("td","task-name",t.name)); tr.appendChild(el("td","due-cell",dueLabel(t)));
+    var tdO=el("td");
+    if(isOwner){ var os=el("select","owner-sel"); os.appendChild(opt("","— unassigned —",!t.ownerId)); state.staff.forEach(function(st){ os.appendChild(opt(st.id,st.name,t.ownerId===st.id)); }); os.addEventListener("change",function(){ t.ownerId=os.value; saveOwner(t.id); }); tdO.appendChild(os); }
+    else { tdO.appendChild(el("span","owner-ro",t.ownerId?staffName(t.ownerId):"—")); }
+    tr.appendChild(tdO);
+    var tdS=el("td"); var sel=el("select","status "+ST_CLASS[c.status]); STATUSES.forEach(function(x){ sel.appendChild(opt(x,x,x===c.status)); });
+    sel.addEventListener("change",function(){ c.status=sel.value; saveCell(t.id); renderTabs(); renderPanel(); }); tdS.appendChild(sel); tr.appendChild(tdS);
+    var tdB=el("td","blk"+(c.blocked?" blocked-on":"")); var blk=document.createElement("input"); blk.type="checkbox"; blk.checked=!!c.blocked; blk.title="Mark blocked";
+    blk.addEventListener("change",function(){ c.blocked=blk.checked; saveCell(t.id); renderTabs(); renderPanel(); }); tdB.appendChild(blk); tr.appendChild(tdB);
+    var tdW=el("td"); var w=el("input","text"); w.type="text"; w.value=c.waiting; w.placeholder="what / whom you're waiting on"; w.addEventListener("change",function(){ c.waiting=w.value.trim(); saveCell(t.id); }); tdW.appendChild(w); tr.appendChild(tdW);
+    var tdN=el("td"); var nt=el("input","text"); nt.type="text"; nt.value=c.notes; nt.placeholder="—"; nt.addEventListener("change",function(){ c.notes=nt.value.trim(); saveCell(t.id); }); tdN.appendChild(nt); tr.appendChild(tdN);
+    return tr;
+  }
+
+  // ---------- Manage data (masters) ----------
+  function openManage(sec){ if(!isOwner)return; manageSection=sec||manageSection; $("#overlay").classList.add("open"); renderManage(); }
+  function closeManage(){ $("#overlay").classList.remove("open"); refreshFilters(); renderAll(); }
+  function renderManage(){
+    Array.prototype.forEach.call(document.querySelectorAll(".modal-tab"),function(b){ b.classList.toggle("active",b.getAttribute("data-sec")===manageSection); });
+    var body=$("#modalBody"); body.innerHTML="";
+    if(manageSection==="staff")renderStaffSec(body);
+    else if(manageSection==="clients")renderClientsSec(body);
+    else renderTasksSec(body);
+  }
+  function renderStaffSec(body){
+    body.appendChild(el("p","muted-note","Staff you add here become the owner options on the board and in Task allocation. A staff member signs in by name and sees only their allocated clients; set a PIN to stop others picking their name."));
+    var acc=el("div","addrow"); var af=el("div","fld"); af.appendChild(el("label",null,"Owner passcode (partners use this to sign in)")); var ap=el("input"); ap.type="text"; ap.value=(state.settings&&state.settings.ownerPin)||""; ap.placeholder="e.g. a 4-6 digit code"; ap.addEventListener("change",function(){ state.settings=state.settings||{}; state.settings.ownerPin=ap.value.trim(); save(whoami()); }); af.appendChild(ap); acc.appendChild(af); body.appendChild(acc);
+    var t=el("table","mtable"),h=el("tr"); ["Name","Role","PIN",""].forEach(function(x){h.appendChild(el("th",null,x));}); var th=el("thead");th.appendChild(h);t.appendChild(th);
+    var tb=el("tbody");
+    state.staff.forEach(function(st){
+      var tr=el("tr");
+      var c1=el("td"); var n=el("input"); n.type="text"; n.value=st.name; n.addEventListener("change",function(){ st.name=n.value.trim(); save(whoami()); }); c1.appendChild(n); tr.appendChild(c1);
+      var c2=el("td"); var r=el("input"); r.type="text"; r.value=st.role||""; r.placeholder="e.g. Senior, Article"; r.addEventListener("change",function(){ st.role=r.value.trim(); save(whoami()); }); c2.appendChild(r); tr.appendChild(c2);
+      var c3=el("td"); var pn=el("input"); pn.type="text"; pn.value=st.pin||""; pn.placeholder="optional"; pn.addEventListener("change",function(){ st.pin=pn.value.trim(); save(whoami()); }); c3.appendChild(pn); tr.appendChild(c3);
+      var c4=el("td"); var rm=el("button","iconbtn","Remove"); rm.addEventListener("click",function(){ if(!confirm("Remove "+(st.name||"this staff member")+"? Tasks assigned to them become unassigned.")) return; state.tasks.forEach(function(tk){ if(tk.ownerId===st.id)tk.ownerId=""; }); state.staff=state.staff.filter(function(x){return x.id!==st.id;}); save(whoami()); renderManage(); }); c4.appendChild(rm); tr.appendChild(c4);
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); body.appendChild(t);
+    var add=el("div","addrow");
+    var f1=el("div","fld"); f1.appendChild(el("label",null,"Name")); var an=el("input"); an.type="text"; an.placeholder="Staff name"; f1.appendChild(an); add.appendChild(f1);
+    var f2=el("div","fld"); f2.appendChild(el("label",null,"Role")); var ar=el("input"); ar.type="text"; ar.placeholder="Optional"; f2.appendChild(ar); add.appendChild(f2);
+    var f3=el("div","fld"); f3.appendChild(el("label",null,"PIN")); var apn=el("input"); apn.type="text"; apn.placeholder="Optional"; f3.appendChild(apn); add.appendChild(f3);
+    var b=el("button","primary","Add staff"); b.addEventListener("click",function(){ var nm=an.value.trim(); if(!nm){an.focus();return;} state.staff.push({id:uid("st"),name:nm,role:ar.value.trim(),pin:apn.value.trim()}); save(whoami()); renderManage(); }); add.appendChild(b);
+    body.appendChild(add);
+  }
+  function renderClientsSec(body){
+    body.appendChild(el("p","muted-note","Clients appear as tabs on the dashboard. Removing a client also removes its tasks and their history."));
+    var t=el("table","mtable"),h=el("tr"); ["Client","Scope","Tasks",""].forEach(function(x){h.appendChild(el("th",null,x));}); var th=el("thead");th.appendChild(h);t.appendChild(th);
+    var tb=el("tbody");
+    state.clients.forEach(function(cl){
+      var tr=el("tr");
+      var c1=el("td"); var n=el("input"); n.type="text"; n.value=cl.name; n.addEventListener("change",function(){ cl.name=n.value.trim(); save(whoami()); }); c1.appendChild(n); tr.appendChild(c1);
+      var c2=el("td"); var sc=el("input"); sc.type="text"; sc.value=cl.scope||""; sc.placeholder="e.g. GST · Accounts"; sc.addEventListener("change",function(){ cl.scope=sc.value.trim(); save(whoami()); }); c2.appendChild(sc); tr.appendChild(c2);
+      var c3=el("td",null,String(tasksForClient(cl.id).length)); tr.appendChild(c3);
+      var c4=el("td"); var rm=el("button","iconbtn","Remove"); rm.addEventListener("click",function(){ if(!confirm("Remove "+cl.name+" and all its tasks? This cannot be undone.")) return; var ids=tasksForClient(cl.id).map(function(x){return x.id;}); state.tasks=state.tasks.filter(function(x){return x.clientId!==cl.id;}); Object.keys(state.board).forEach(function(pk){ ids.forEach(function(id){ delete state.board[pk][id]; }); }); state.clients=state.clients.filter(function(x){return x.id!==cl.id;}); if(activeTab===cl.id)activeTab="overview"; save(whoami()); renderManage(); }); c4.appendChild(rm); tr.appendChild(c4);
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); body.appendChild(t);
+    var add=el("div","addrow");
+    var f1=el("div","fld"); f1.appendChild(el("label",null,"Client name")); var an=el("input"); an.type="text"; an.placeholder="New client"; f1.appendChild(an); add.appendChild(f1);
+    var f2=el("div","fld"); f2.appendChild(el("label",null,"Scope")); var asc=el("input"); asc.type="text"; asc.placeholder="e.g. GST · Accounts"; f2.appendChild(asc); add.appendChild(f2);
+    var b=el("button","primary","Add client"); b.addEventListener("click",function(){ var nm=an.value.trim(); if(!nm){an.focus();return;} state.clients.push({id:uid("cl"),name:nm,scope:asc.value.trim()}); save(whoami()); renderManage(); }); add.appendChild(b);
+    body.appendChild(add);
+  }
+  function renderTasksSec(body){
+    body.appendChild(el("p","muted-note","Every recurring task, and who it is allocated to. Assign a staff member in the last column (you can also do this on the board)."));
+    if(!state.clients.length){ body.appendChild(el("div","empty","Add a client first, then add tasks here.")); return; }
+    var t=el("table","mtable"),h=el("tr"); ["Client","Task","Due day","Type","Assigned to",""].forEach(function(x){h.appendChild(el("th",null,x));}); var th=el("thead");th.appendChild(h);t.appendChild(th);
+    var tb=el("tbody");
+    var sorted=state.tasks.slice().sort(function(a,b){ var ca=(clientById(a.clientId)||{}).name||"",cb=(clientById(b.clientId)||{}).name||""; return ca<cb?-1:ca>cb?1:0; });
+    sorted.forEach(function(tk){
+      var tr=el("tr");
+      var c1=el("td"); var cs=el("select"); state.clients.forEach(function(cl){ cs.appendChild(opt(cl.id,cl.name,cl.id===tk.clientId)); }); cs.addEventListener("change",function(){ tk.clientId=cs.value; save(whoami()); }); c1.appendChild(cs); tr.appendChild(c1);
+      var c2=el("td"); var nm=el("input"); nm.type="text"; nm.value=tk.name; nm.addEventListener("change",function(){ tk.name=nm.value.trim(); save(whoami()); }); c2.appendChild(nm); tr.appendChild(c2);
+      var c3=el("td"); var du=el("input"); du.type="number"; du.min="1"; du.max="31"; du.value=(tk.due==null?"":tk.due); du.placeholder="—"; du.addEventListener("change",function(){ var v=parseInt(du.value,10); tk.due=isNaN(v)?null:v; save(whoami()); }); c3.appendChild(du); tr.appendChild(c3);
+      var c4=el("td"); var ty=el("select"); TYPE_OPTS.forEach(function(o){ ty.appendChild(opt(o[0],o[1],o[0]===tk.type)); }); ty.addEventListener("change",function(){ tk.type=ty.value; save(whoami()); }); c4.appendChild(ty); tr.appendChild(c4);
+      var c5=el("td"); var as=el("select"); as.appendChild(opt("","— unassigned —",!tk.ownerId)); state.staff.forEach(function(st){ as.appendChild(opt(st.id,st.name,st.id===tk.ownerId)); }); as.addEventListener("change",function(){ tk.ownerId=as.value; save(whoami()); }); c5.appendChild(as); tr.appendChild(c5);
+      var c6=el("td"); var rm=el("button","iconbtn","Remove"); rm.addEventListener("click",function(){ if(!confirm("Remove task \""+tk.name+"\"? Its status history is deleted.")) return; Object.keys(state.board).forEach(function(pk){ delete state.board[pk][tk.id]; }); state.tasks=state.tasks.filter(function(x){return x.id!==tk.id;}); save(whoami()); renderManage(); }); c6.appendChild(rm); tr.appendChild(c6);
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); body.appendChild(t);
+    var add=el("div","addrow");
+    var f1=el("div","fld"); f1.appendChild(el("label",null,"Client")); var ac=el("select"); state.clients.forEach(function(cl){ ac.appendChild(opt(cl.id,cl.name)); }); f1.appendChild(ac); add.appendChild(f1);
+    var f2=el("div","fld"); f2.appendChild(el("label",null,"Task")); var at=el("input"); at.type="text"; at.placeholder="e.g. GSTR-1"; f2.appendChild(at); add.appendChild(f2);
+    var f3=el("div","fld due"); f3.appendChild(el("label",null,"Due day")); var ad=el("input"); ad.type="number"; ad.min="1"; ad.max="31"; ad.placeholder="—"; f3.appendChild(ad); add.appendChild(f3);
+    var f4=el("div","fld"); f4.appendChild(el("label",null,"Type")); var aty=el("select"); TYPE_OPTS.forEach(function(o){ aty.appendChild(opt(o[0],o[1])); }); f4.appendChild(aty); add.appendChild(f4);
+    var f5=el("div","fld"); f5.appendChild(el("label",null,"Assign to")); var aa=el("select"); aa.appendChild(opt("","— unassigned —")); state.staff.forEach(function(st){ aa.appendChild(opt(st.id,st.name)); }); f5.appendChild(aa); add.appendChild(f5);
+    var b=el("button","primary","Add task"); b.addEventListener("click",function(){ var nm=at.value.trim(); if(!nm){at.focus();return;} var v=parseInt(ad.value,10); state.tasks.push({id:uid("tk"),clientId:ac.value,name:nm,due:isNaN(v)?null:v,type:aty.value,ownerId:aa.value}); save(whoami()); renderManage(); }); add.appendChild(b);
+    body.appendChild(add);
+  }
+
+  function refreshOwnerFilter(){ var sel=$("#fOwner"),cur=sel.value; sel.innerHTML='<option value="">All owners</option>'; state.staff.slice().sort(function(a,b){return a.name<b.name?-1:1;}).forEach(function(st){ sel.appendChild(opt(st.id,st.name,st.id===cur)); }); }
+  function refreshClientFilter(){ var sel=$("#fClient"),cur=sel.value; sel.innerHTML='<option value="">All clients</option>'; visibleClients().slice().sort(function(a,b){return a.name<b.name?-1:1;}).forEach(function(c){ sel.appendChild(opt(c.id,c.name,c.id===cur)); }); }
+  function refreshTaskFilter(){ var sel=$("#fTask"),cur=sel.value,seen={},names=[]; baseTasks().forEach(function(t){ if(!seen[t.name]){seen[t.name]=1;names.push(t.name);} }); names.sort(); sel.innerHTML='<option value="">All tasks</option>'; names.forEach(function(n){ sel.appendChild(opt(n,n,n===cur)); }); }
+  function refreshFilters(){ refreshOwnerFilter(); refreshClientFilter(); refreshTaskFilter(); }
+  function renderLegend(){ var lg=$("#legend"); lg.innerHTML=""; [["Not started","var(--ns)"],["Data received","var(--dr)"],["Prepared","var(--pr)"],["Reviewed","var(--rv)"],["Filed / Done","var(--fl)"],["Blocked","var(--blocked)"]].forEach(function(it){ var s=el("span"); var d=el("span","dot"); d.style.background=it[1]; s.appendChild(d); s.appendChild(document.createTextNode(it[0])); lg.appendChild(s); }); }
+  function renderSaved(){ if(fbMode){ $("#saved").textContent="\u25CF Live in the cloud \u2014 shared with your team in real time"; return; } var m=state.meta||{},txt=""; if(m.updatedAt){ var d=new Date(m.updatedAt); txt="Last edited "+d.toLocaleDateString()+" "+d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}); if(m.updatedBy)txt+=" by "+m.updatedBy; txt+=serverMode?" · shared live via server":" · saved in this browser"; } else txt=serverMode?"Connected to shared board":"No local edits yet"; $("#saved").textContent=txt; }
+  function renderAll(){ renderTabs(); renderPanel(); }
+
+  function ordDate(d){ return d.getDate()+" "+["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]; }
+  function buildDigest(){
+    var s=summaryOf(baseTasks()), now=new Date(), lines=[];
+    lines.push("*Marv & Co — Compliance status*"+(isOwner?"":" — "+(staffName(viewer.staffId)||"Staff")));
+    lines.push(periodName(state.period)+" · as of "+ordDate(now));
+    lines.push(s.fl+" of "+s.applicable+" filings done");
+    var blocked=[],due=[],notstarted=[];
+    baseTasks().forEach(function(t){
+      var c=cell(t.id),flag=dueFlag(t),cl=(clientById(t.clientId)||{name:"?"}).name,own=t.ownerId?staffName(t.ownerId):"unassigned";
+      if(c.blocked)blocked.push("• "+cl+" — "+t.name+" · "+own+(c.waiting?(" — waiting on "+c.waiting):""));
+      if(flag)due.push("• "+cl+" — "+t.name+" · due "+dueLabel(t)+(flag==="overdue"?" (OVERDUE)":"")+" · "+own);
+      if(c.status==="Not started")notstarted.push("• "+cl+" — "+t.name+" · "+own);
+    });
+    function section(title,arr,cap){
+      if(!arr.length)return; lines.push(""); lines.push("*"+title+" ("+arr.length+")*");
+      var shown=(cap&&arr.length>cap)?arr.slice(0,cap):arr; lines.push(shown.join("\n"));
+      if(cap&&arr.length>cap)lines.push("…and "+(arr.length-cap)+" more on the dashboard");
+    }
+    section("Blocked",blocked,null); section("Due soon / overdue",due,null); section("Not started",notstarted,20);
+    if(!blocked.length&&!due.length){ lines.push(""); lines.push("No blocked or overdue items right now."); }
+    return lines.join("\n");
+  }
+  function shareWhatsApp(){ var text=buildDigest(); try{ if(navigator.clipboard)navigator.clipboard.writeText(text); }catch(e){} window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank"); }
+
+  function exportData(){ saveBlob(JSON.stringify(state,null,2),"application/json","marv-co-board-"+state.period+".json"); }
+  function saveBlob(text,mime,filename){ var blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); },100); }
+  function importData(file){ var r=new FileReader(); r.onload=function(){ try{ var data=JSON.parse(r.result); if(!data||!(data.board||data.tasks)){ alert("That file doesn't look like a board export. Nothing changed."); return; } state=migrate(data); $("#period").value=state.period; save(whoami()); refreshFilters(); renderAll(); }catch(e){ alert("Could not read that file — it isn't valid board data. Nothing changed."); } }; r.readAsText(file); }
+  function revert(){ if(!confirm("Drop the edits saved in this browser and load the version baked into this file?")) return; try{ localStorage.removeItem(LS_KEY); }catch(e){} var emb=embedded(); state=(emb&&emb.tasks&&emb.tasks.length)?migrate(emb):blankState(); $("#period").value=state.period; activeTab="overview"; refreshFilters(); renderAll(); renderSaved(); }
+
+  function init(){
+    load(); $("#period").value=state.period;
+    try{ var u=localStorage.getItem(LS_USER); if(u)$("#whoami").value=u; }catch(e){}
+    loadSession();
+    $("#period").addEventListener("change",function(){ state.period=$("#period").value||currentPeriod(); save(whoami()); renderAll(); });
+    $("#whoami").addEventListener("change",function(){ try{ localStorage.setItem(LS_USER,whoami()); }catch(e){} });
+    $("#q").addEventListener("input",renderPanel);
+    $("#fOwner").addEventListener("change",renderPanel);
+    $("#fClient").addEventListener("change",function(){ setTab($("#fClient").value||"overview"); });
+    $("#fTask").addEventListener("change",renderPanel);
+    $("#fBlocked").addEventListener("change",function(){ if(activeTab==="overview")drill=$("#fBlocked").checked?"blocked":"attention"; renderPanel(); });
+    $("#btnManage").addEventListener("click",function(){ openManage("staff"); });
+    $("#btnWhatsapp").addEventListener("click",shareWhatsApp);
+    $("#mClose").addEventListener("click",closeManage);
+    $("#overlay").addEventListener("click",function(e){ if(e.target===$("#overlay"))closeManage(); });
+    Array.prototype.forEach.call(document.querySelectorAll(".modal-tab"),function(b){ b.addEventListener("click",function(){ manageSection=b.getAttribute("data-sec"); renderManage(); }); });
+    $("#btnExport").addEventListener("click",exportData);
+    $("#btnImport").addEventListener("click",function(){ $("#importFile").click(); });
+    $("#importFile").addEventListener("change",function(e){ if(e.target.files[0])importData(e.target.files[0]); e.target.value=""; });
+    $("#btnRevert").addEventListener("click",revert); $("#btnPrint").addEventListener("click",function(){ window.print(); });
+    document.addEventListener("keydown",function(e){ if(e.key==="Escape")closeManage(); });
+    Array.prototype.forEach.call(document.querySelectorAll("#loginOverlay .role-btn"),function(b){ b.addEventListener("click",function(){ loginRole=b.getAttribute("data-role"); renderLogin(); }); });
+    $("#btnSignout").addEventListener("click",signOut);
+    applyRole(); refreshFilters(); renderLegend(); renderAll(); renderSaved(); if(!session)showLogin(); if(fbConfigured)initFirebase(); else initServer();
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init); else init();
+})();
+</script>
+</body>
+</html>
