@@ -110,6 +110,13 @@ window.MARVCO_FIREBASE_CONFIG = {
   .chip{font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:16px}
   .chip.blk{background:var(--red-bg);color:var(--red)}
   .tc-wait{font-size:12.5px;color:var(--amber);margin-top:8px}
+  .zsync{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--rv-bg);color:var(--rv);border-radius:10px;padding:10px 12px;font-size:12.5px;font-weight:600;margin-bottom:12px}
+  .mtable select.warn,.mtable input.warn{border-color:var(--red);background:var(--red-bg)}
+  .mtable input[readonly]{background:var(--panel);color:var(--muted)}
+  .zlist{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+  .zrow{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
+  .zrow small{color:var(--muted)}
+  .tc-inv{font-size:12.5px;color:var(--teal);margin-top:6px;font-weight:600} .tc-inv.err{color:var(--red)} .tc-inv.wait{color:var(--muted);font-weight:500}
   .tc-owner{font-size:12.5px;color:var(--muted);margin-top:6px}
   .st-ns{background:var(--ns-bg);color:var(--ns)} .st-dr{background:var(--dr-bg);color:var(--dr)} .st-pr{background:var(--pr-bg);color:var(--pr)}
   .st-rv{background:var(--rv-bg);color:var(--rv)} .st-fl{background:var(--fl-bg);color:#0A6B2E} .st-na{background:var(--na-bg);color:var(--na)}
@@ -393,6 +400,10 @@ window.MARVCO_FIREBASE_CONFIG = {
     try{
       fbDb.ref("boardState").on("value", function(snap){ fbApplyState(snap.val()); }, fbErr);
       fbDb.ref("cells").on("value", function(snap){ fbApplyCells(snap.val()); }, fbErr);
+      fbDb.ref("invoiceLog").on("value", function(snap){ state.invoiceLog=snap.val()||{}; fbAfterUpdate(); }, function(){});
+      fbDb.ref("invoiceConfig").on("value", function(snap){ state.invoiceConfig=snap.val()||null; fbAfterUpdate(); }, function(){});
+      fbDb.ref("zohoMaster").on("value", function(snap){ state.zohoMaster=snap.val()||null; fbAfterUpdate();
+        var ae=document.activeElement; if($("#overlay").classList.contains("open") && !(ae&&(ae.tagName==="INPUT"||ae.tagName==="SELECT"))) renderManage(); }, function(){});
     }catch(e){ fbErr(e); }
   }
   function fbErr(err){ fbMode=false; var el2=$("#saved"); if(el2)el2.textContent="Cloud offline"; }
@@ -412,6 +423,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(ae && (ae.tagName==="INPUT"||ae.tagName==="SELECT"||ae.tagName==="TEXTAREA")){ clearTimeout(fbRenderT); fbRenderT=setTimeout(fbAfterUpdate,700); return; }
     try{ localStorage.setItem(LS_KEY,JSON.stringify(state)); }catch(e){}
     if(session && session.role==="staff" && !staffById(session.staffId)){ signOut(); return; }
+    if(applyZohoNames() && fbSeeded && session && isOwner) pushStateFB();
     applyRole(); refreshFilters(); renderAll(); renderSaved();
     if($("#loginOverlay").classList.contains("open"))renderLogin();
     if(sheetTask)renderSheetBody();
@@ -684,6 +696,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(c.blocked)row.appendChild(el("span","chip blk","⛔ Blocked")); card.appendChild(row);
     if(isReturned(c))card.appendChild(el("div","tc-return","\u21A9 Sent back by "+(c.returnedBy||"partner")+": "+c.returnNote));
     if(c.waiting)card.appendChild(el("div","tc-wait","⏳ Waiting: "+c.waiting));
+    var ii=isOwner?invInfo(t):null; if(ii)card.appendChild(el("div","tc-inv "+ii.k,ii.x));
     if(isOwner)card.appendChild(el("div","tc-owner",(t.ownerId?("👤 "+staffName(t.ownerId)):"👤 Unassigned")));
     card.addEventListener("click",function(){ openSheet(t.id); });
     return card;
@@ -692,6 +705,31 @@ window.MARVCO_FIREBASE_CONFIG = {
   // ---------- edit sheet ----------
   function openSheet(id){ sheetTask=id; $("#sheet").classList.add("open"); renderSheetBody(); }
   function closeSheet(){ sheetTask=null; $("#sheet").classList.remove("open"); }
+  function zm(){ return state.zohoMaster||null; }
+  function zCust(){ return toArr((zm()||{}).customers); }
+  function zItems(){ return toArr((zm()||{}).items); }
+  function zCustById(id){ return zCust().filter(function(c){return String(c.id)===String(id);})[0]; }
+  function zItemById(id){ return zItems().filter(function(c){return String(c.id)===String(id);})[0]; }
+  function applyZohoNames(){ if(!zCust().length)return false; var ch=false;
+    state.clients.forEach(function(c){ if(!c.zohoId)return; var z=zCustById(c.zohoId); if(z&&z.name&&z.name!==c.name){ c.name=z.name; ch=true; } }); return ch; }
+  function money(n){ return "\u20B9"+Number(n||0).toLocaleString("en-IN"); }
+  function zohoStatusEl(){
+    var box=el("div","zsync"), m=zm();
+    if(!m||!m.syncedAt){ box.appendChild(el("span",null,"Zoho Books isn't connected yet. Customers and items will appear here once the invoicing script is running.")); return box; }
+    box.appendChild(el("span",null,"Synced from Zoho Books "+fmtWhen(m.syncedAt)+" \u00B7 "+zCust().length+" customers \u00B7 "+zItems().length+" items"+(m.error?(" \u00B7 \u26A0 last refresh failed: "+m.error):"")));
+    var rq=state.settings&&state.settings.syncRequestedAt, waiting=rq&&rq>m.syncedAt;
+    var b=el("button","clearbtn",waiting?"Refresh requested \u2014 within 5 min":"Refresh from Zoho");
+    b.addEventListener("click",function(){ state.settings=state.settings||{}; state.settings.syncRequestedAt=nowIso(); save(whoami()); renderManage(); });
+    box.appendChild(b); return box;
+  }
+  function invInfo(t){
+    var cfg=state.invoiceConfig; if(!cfg||!cfg.from)return null;
+    var c=cell(t.id); if(c.status!=="Filed / Done"||!c.filedAt||c.filedAt<cfg.from)return null;
+    var L=(state.invoiceLog||{})[fbEnc(state.period)], e=L&&L[fbEnc(t.id)];
+    if(e&&e.invoiceId)return {k:"ok",x:"\uD83E\uDDFE Draft invoice "+(e.number||"created")+(e.amount?(" \u00B7 \u20B9"+Number(e.amount).toLocaleString("en-IN")):"")};
+    if(e&&e.error)return {k:"err",x:"\u26A0 Invoice not created: "+e.error};
+    return {k:"wait",x:"\uD83E\uDDFE Draft invoice on its way (within "+(cfg.every||5)+" min)"};
+  }
   function nowIso(){ return new Date().toISOString(); }
   function fmtWhen(iso){ if(!iso)return ""; var d=new Date(iso); return ordDate(d)+" "+d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}); }
   function commit(t){ saveCell(t.id); renderAll(); renderSheetBody(); }
@@ -717,7 +755,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     b.appendChild(el("div","sheet-lbl","Status"));
     if(c.status==="Filed / Done"){
       var fb=el("div","rbox done"); fb.appendChild(el("b",null,"✓ Filed"+(c.filedBy?(" by "+c.filedBy):"")));
-      if(c.filedAt)fb.appendChild(el("div",null,fmtWhen(c.filedAt))); if(c.arn)fb.appendChild(el("div",null,"ARN / Ack: "+c.arn)); b.appendChild(fb);
+      if(c.filedAt)fb.appendChild(el("div",null,fmtWhen(c.filedAt))); if(c.arn)fb.appendChild(el("div",null,"ARN / Ack: "+c.arn)); var fi=isOwner?invInfo(t):null; if(fi)fb.appendChild(el("div",null,fi.x)); b.appendChild(fb);
     } else if(c.status==="Reviewed"){
       var ab=el("div","rbox ok"); ab.appendChild(el("b",null,"✓ Reviewed"+(c.reviewedBy?(" by "+c.reviewedBy):"")+" — ready to file"));
       if(c.reviewNote)ab.appendChild(el("div",null,"Note: "+c.reviewNote)); b.appendChild(ab);
@@ -824,28 +862,60 @@ window.MARVCO_FIREBASE_CONFIG = {
     body.appendChild(add);
   }
   function renderClientsSec(body){
-    body.appendChild(el("p","muted-note","Clients appear in the chat list. Removing a client also removes its tasks and their history."));
-    var t=el("table","mtable"),h=el("tr"); ["Client","Scope","Tasks",""].forEach(function(x){h.appendChild(el("th",null,x));}); var th=el("thead");th.appendChild(h);t.appendChild(th);
+    body.appendChild(el("p","muted-note","Link each client to its Zoho Books customer. Linked clients take their name from Zoho automatically, and invoices go to that exact customer. Create new customers in Zoho Books first (with GSTIN and address); they then appear below to add. Removing a client also removes its tasks and their history."));
+    body.appendChild(zohoStatusEl());
+    var custs=zCust(), hasZ=custs.length>0;
+    var t=el("table","mtable"),h=el("tr"); ["Client","Scope","Zoho Books customer","Tasks",""].forEach(function(x){h.appendChild(el("th",null,x));}); var th=el("thead");th.appendChild(h);t.appendChild(th);
     var tb=el("tbody");
     state.clients.forEach(function(cl){
-      var tr=el("tr");
-      var c1=el("td"); var n=el("input"); n.type="text"; n.value=cl.name; n.addEventListener("change",function(){ liveClient(cl).name=n.value.trim(); save(whoami()); }); c1.appendChild(n); tr.appendChild(c1);
+      var tr=el("tr"), linked=!!(cl.zohoId&&zCustById(cl.zohoId));
+      var c1=el("td"); var n=el("input"); n.type="text"; n.value=cl.name;
+      if(hasZ&&linked){ n.readOnly=true; n.title="Name comes from Zoho Books"; }
+      n.addEventListener("change",function(){ liveClient(cl).name=n.value.trim(); save(whoami()); }); c1.appendChild(n); tr.appendChild(c1);
       var c2=el("td"); var sc=el("input"); sc.type="text"; sc.value=cl.scope||""; sc.placeholder="e.g. GST · Accounts"; sc.addEventListener("change",function(){ liveClient(cl).scope=sc.value.trim(); save(whoami()); }); c2.appendChild(sc); tr.appendChild(c2);
-      var c3=el("td",null,String(tasksForClient(cl.id).length)); tr.appendChild(c3);
+      var cz=el("td");
+      if(hasZ){
+        var zs=el("select"+""); zs.appendChild(opt("","⚠ not linked",!cl.zohoId));
+        if(cl.zohoId&&!linked)zs.appendChild(opt(cl.zohoId,"⚠ no longer active in Zoho",true));
+        custs.forEach(function(z){ zs.appendChild(opt(z.id,z.name+(z.gstin?(" · "+z.gstin):""),String(z.id)===String(cl.zohoId))); });
+        if(!linked)zs.className="warn";
+        zs.addEventListener("change",function(){ var lc=liveClient(cl); lc.zohoId=zs.value; var z=zCustById(zs.value); if(z)lc.name=z.name; save(whoami()); renderManage(); });
+        cz.appendChild(zs);
+      } else {
+        var zn=el("input"); zn.type="text"; zn.value=cl.zohoName||""; zn.placeholder="Zoho name, if different"; zn.addEventListener("change",function(){ liveClient(cl).zohoName=zn.value.trim(); save(whoami()); }); cz.appendChild(zn);
+      }
+      tr.appendChild(cz);
+      tr.appendChild(el("td",null,String(tasksForClient(cl.id).length)));
       var c4=el("td"); var rm=el("button","iconbtn","Remove"); rm.addEventListener("click",function(){ if(!confirm("Remove "+cl.name+" and all its tasks? This cannot be undone.")) return; var ids=tasksForClient(cl.id).map(function(x){return x.id;}); state.tasks=state.tasks.filter(function(x){return x.clientId!==cl.id;}); Object.keys(state.board).forEach(function(pk){ ids.forEach(function(id){ delete state.board[pk][id]; }); }); state.clients=state.clients.filter(function(x){return x.id!==cl.id;}); if(activeTab===cl.id)activeTab="overview"; save(whoami()); renderManage(); }); c4.appendChild(rm); tr.appendChild(c4);
       tb.appendChild(tr);
     });
     t.appendChild(tb); body.appendChild(t);
-    var add=el("div","addrow");
-    var f1=el("div","fld"); f1.appendChild(el("label",null,"Client name")); var an=el("input"); an.type="text"; an.placeholder="New client"; f1.appendChild(an); add.appendChild(f1);
-    var f2=el("div","fld"); f2.appendChild(el("label",null,"Scope")); var asc=el("input"); asc.type="text"; asc.placeholder="e.g. GST · Accounts"; f2.appendChild(asc); add.appendChild(f2);
-    var b=el("button","primary","Add client"); b.addEventListener("click",function(){ var nm=an.value.trim(); if(!nm){an.focus();return;} state.clients.push({id:uid("cl"),name:nm,scope:asc.value.trim()}); save(whoami()); renderManage(); }); add.appendChild(b);
-    body.appendChild(add);
+    if(hasZ){
+      var used={}; state.clients.forEach(function(c){ if(c.zohoId)used[String(c.zohoId)]=1; });
+      var free=custs.filter(function(z){ return !used[String(z.id)]; });
+      if(free.length){
+        body.appendChild(el("div","sheet-lbl","In Zoho Books, not on the board ("+free.length+")"));
+        var all=el("button","clearbtn","Add all "+free.length);
+        all.addEventListener("click",function(){ if(!confirm("Add all "+free.length+" Zoho customers as clients?"))return; free.forEach(function(z){ state.clients.push({id:uid("cl"),name:z.name,scope:"",zohoId:z.id}); }); save(whoami()); renderManage(); });
+        body.appendChild(all);
+        var zl=el("div","zlist");
+        free.forEach(function(z){ var r=el("div","zrow"); var l=el("div"); l.appendChild(el("div",null,z.name)); if(z.gstin)l.appendChild(el("small",null,z.gstin)); r.appendChild(l);
+          var ab=el("button","primary","Add"); ab.addEventListener("click",function(){ state.clients.push({id:uid("cl"),name:z.name,scope:"",zohoId:z.id}); save(whoami()); renderManage(); }); r.appendChild(ab); zl.appendChild(r); });
+        body.appendChild(zl);
+      }
+    } else {
+      var add=el("div","addrow");
+      var f1=el("div","fld"); f1.appendChild(el("label",null,"Client name")); var an=el("input"); an.type="text"; an.placeholder="New client"; f1.appendChild(an); add.appendChild(f1);
+      var f2=el("div","fld"); f2.appendChild(el("label",null,"Scope")); var asc=el("input"); asc.type="text"; asc.placeholder="e.g. GST · Accounts"; f2.appendChild(asc); add.appendChild(f2);
+      var b=el("button","primary","Add client"); b.addEventListener("click",function(){ var nm=an.value.trim(); if(!nm){an.focus();return;} state.clients.push({id:uid("cl"),name:nm,scope:asc.value.trim()}); save(whoami()); renderManage(); }); add.appendChild(b);
+      body.appendChild(add);
+    }
   }
   function renderTasksSec(body){
-    body.appendChild(el("p","muted-note","Every recurring task, and who it is allocated to. Assign a staff member in the last column (you can also do this by tapping a task on the board)."));
+    body.appendChild(el("p","muted-note","Every recurring task, who does it, and how it is billed. The Fee is the rate on the Zoho invoice; the Zoho item decides the invoice line's item, SAC and GST."));
+    body.appendChild(zohoStatusEl());
     if(!state.clients.length){ body.appendChild(el("div","empty2","Add a client first, then add tasks here.")); return; }
-    var t=el("table","mtable"),h=el("tr"); ["Client","Task","Due day","Type","Assigned to",""].forEach(function(x){h.appendChild(el("th",null,x));}); var th=el("thead");th.appendChild(h);t.appendChild(th);
+    var t=el("table","mtable"),h=el("tr"); ["Client","Task","Due day","Type","Assigned to","Zoho item","Fee (\u20B9)",""].forEach(function(x){h.appendChild(el("th",null,x));}); var th=el("thead");th.appendChild(h);t.appendChild(th);
     var tb=el("tbody");
     var sorted=state.tasks.slice().sort(function(a,b){ var ca=(clientById(a.clientId)||{}).name||"",cb=(clientById(b.clientId)||{}).name||""; return ca<cb?-1:ca>cb?1:0; });
     sorted.forEach(function(tk){
@@ -855,6 +925,15 @@ window.MARVCO_FIREBASE_CONFIG = {
       var c3=el("td"); var du=el("input"); du.type="number"; du.min="1"; du.max="31"; du.value=(tk.due==null?"":tk.due); du.placeholder="—"; du.addEventListener("change",function(){ var v=parseInt(du.value,10); liveTask(tk).due=isNaN(v)?null:v; save(whoami()); }); c3.appendChild(du); tr.appendChild(c3);
       var c4=el("td"); var ty=el("select"); TYPE_OPTS.forEach(function(o){ ty.appendChild(opt(o[0],o[1],o[0]===tk.type)); }); ty.addEventListener("change",function(){ liveTask(tk).type=ty.value; save(whoami()); }); c4.appendChild(ty); tr.appendChild(c4);
       var c5=el("td"); var as=el("select"); as.appendChild(opt("","— unassigned —",!tk.ownerId)); state.staff.forEach(function(st){ as.appendChild(opt(st.id,st.name,st.id===tk.ownerId)); }); as.addEventListener("change",function(){ liveTask(tk).ownerId=as.value; save(whoami()); }); c5.appendChild(as); tr.appendChild(c5);
+      var ci=el("td"), zits=zItems();
+      if(zits.length){ var zi=el("select"); zi.appendChild(opt("","\u2014 default item \u2014",!tk.zohoItemId));
+        if(tk.zohoItemId&&!zItemById(tk.zohoItemId))zi.appendChild(opt(tk.zohoItemId,"\u26A0 no longer active in Zoho",true));
+        zits.forEach(function(z){ zi.appendChild(opt(z.id,z.name+(z.rate?(" ("+money(z.rate)+")"):""),String(z.id)===String(tk.zohoItemId))); });
+        if(tk.zohoItemId&&!zItemById(tk.zohoItemId))zi.className="warn";
+        zi.addEventListener("change",function(){ liveTask(tk).zohoItemId=zi.value; save(whoami()); }); ci.appendChild(zi);
+      } else ci.appendChild(el("span","muted-note","\u2014"));
+      tr.appendChild(ci);
+      var cf=el("td"); var fe=el("input"); fe.type="number"; fe.min="0"; fe.step="1"; fe.value=(tk.fee==null?"":tk.fee); fe.placeholder="\u20B9"; fe.addEventListener("change",function(){ var v=parseFloat(fe.value); liveTask(tk).fee=isNaN(v)?null:v; save(whoami()); }); cf.appendChild(fe); tr.appendChild(cf);
       var c6=el("td"); var rm=el("button","iconbtn","Remove"); rm.addEventListener("click",function(){ if(!confirm("Remove task \""+tk.name+"\"? Its status history is deleted.")) return; Object.keys(state.board).forEach(function(pk){ delete state.board[pk][tk.id]; }); state.tasks=state.tasks.filter(function(x){return x.id!==tk.id;}); save(whoami()); renderManage(); }); c6.appendChild(rm); tr.appendChild(c6);
       tb.appendChild(tr);
     });
@@ -865,7 +944,9 @@ window.MARVCO_FIREBASE_CONFIG = {
     var f3=el("div","fld due"); f3.appendChild(el("label",null,"Due day")); var ad=el("input"); ad.type="number"; ad.min="1"; ad.max="31"; ad.placeholder="—"; f3.appendChild(ad); add.appendChild(f3);
     var f4=el("div","fld"); f4.appendChild(el("label",null,"Type")); var aty=el("select"); TYPE_OPTS.forEach(function(o){ aty.appendChild(opt(o[0],o[1])); }); f4.appendChild(aty); add.appendChild(f4);
     var f5=el("div","fld"); f5.appendChild(el("label",null,"Assign to")); var aa=el("select"); aa.appendChild(opt("","— unassigned —")); state.staff.forEach(function(st){ aa.appendChild(opt(st.id,st.name)); }); f5.appendChild(aa); add.appendChild(f5);
-    var b=el("button","primary","Add task"); b.addEventListener("click",function(){ var nm=at.value.trim(); if(!nm){at.focus();return;} var v=parseInt(ad.value,10); state.tasks.push({id:uid("tk"),clientId:ac.value,name:nm,due:isNaN(v)?null:v,type:aty.value,ownerId:aa.value}); save(whoami()); renderManage(); }); add.appendChild(b);
+    var fi=el("div","fld"); fi.appendChild(el("label",null,"Zoho item")); var azi=el("select"); azi.appendChild(opt("","\u2014 default item \u2014")); zItems().forEach(function(z){ azi.appendChild(opt(z.id,z.name)); }); fi.appendChild(azi); add.appendChild(fi);
+    var ff=el("div","fld due"); ff.appendChild(el("label",null,"Fee (\u20B9)")); var afe=el("input"); afe.type="number"; afe.min="0"; afe.placeholder="\u20B9"; ff.appendChild(afe); add.appendChild(ff);
+    var b=el("button","primary","Add task"); b.addEventListener("click",function(){ var nm=at.value.trim(); if(!nm){at.focus();return;} var v=parseInt(ad.value,10); var fv=parseFloat(afe.value); state.tasks.push({id:uid("tk"),clientId:ac.value,name:nm,due:isNaN(v)?null:v,type:aty.value,ownerId:aa.value,fee:isNaN(fv)?null:fv,zohoItemId:azi.value}); save(whoami()); renderManage(); }); add.appendChild(b);
     body.appendChild(add);
   }
 
