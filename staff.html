@@ -38,13 +38,17 @@ window.MARVCO_FIREBASE_CONFIG = {
   .primary{background:var(--green);color:#fff;border:none;border-radius:8px;padding:10px 14px;font-weight:600;cursor:pointer;font-family:var(--sans)}
   /* app bar */
   .appbar{position:sticky;top:0;z-index:30;background:var(--green);color:#fff;display:flex;align-items:center;gap:4px;padding:9px 6px;min-height:56px}
-  .iconbtn2{background:transparent;border:none;color:#fff;font-size:22px;line-height:1;padding:9px;border-radius:50%;cursor:pointer}
+  .iconbtn2{background:transparent;border:none;color:#fff;font-size:22px;line-height:0;padding:9px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
   .iconbtn2:hover{background:rgba(255,255,255,.13)}
   .bar-title{font-size:19px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:4px}
   /* subbar */
   .subbar{background:var(--green);color:#fff;padding:0 12px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .pill-period{appearance:none;-webkit-appearance:none;background:rgba(255,255,255,.16);border:none;color:#fff;font-family:var(--sans);font-size:13px;font-weight:600;padding:8px 12px;border-radius:20px}
-  .pill-period::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.9}
+  .pill-period option{color:#111}
+  .monthpick{display:flex;align-items:center;gap:6px}
+  .mp-lbl{font-size:11.5px;color:#CFF3E0;font-weight:600;margin-right:2px}
+  .mp-btn{background:rgba(255,255,255,.16);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .mp-btn:hover{background:rgba(255,255,255,.28)}
   .owner-filter{appearance:none;-webkit-appearance:none;background:rgba(255,255,255,.16);border:none;color:#fff;font-size:13px;font-weight:600;padding:8px 12px;border-radius:20px;max-width:150px}
   .owner-filter option{color:#111}
   .filterrow{display:flex;gap:8px;overflow-x:auto;width:100%;-webkit-overflow-scrolling:touch;padding-bottom:2px}
@@ -187,6 +191,34 @@ window.MARVCO_FIREBASE_CONFIG = {
   .login-body .fld input,.login-body .fld select{padding:13px;border:1.5px solid var(--line2);border-radius:10px;font-size:15px;background:#fff;color:var(--ink);font-family:var(--sans)}
   .login-body .primary{padding:14px;font-size:15px}
   .login-err{color:var(--red);font-size:12.5px;min-height:15px}
+  .chatrow:hover,.taskcard:hover,.statchip:hover{filter:brightness(.985)}
+  .taskcard:focus-visible,.chatrow:focus-visible,.statchip:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--bright);outline-offset:2px}
+  @media (min-width:900px){
+    body{font-size:15px}
+    .app{max-width:1200px;box-shadow:0 0 60px rgba(0,0,0,.10)}
+    .appbar{padding:12px 18px;min-height:64px}
+    .bar-title{font-size:21px}
+    .subbar{padding:0 24px 16px;gap:14px;flex-wrap:nowrap}
+    .live{order:3}
+    .filterrow{width:auto;flex:1;overflow:visible;flex-wrap:wrap;order:2}
+    .searchwrap{padding:0 24px 16px}
+    .searchwrap input{max-width:520px}
+    #panel{padding:22px 24px 60px}
+    .summary{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;overflow:visible}
+    .statchip{min-width:0;padding:16px 12px}
+    .statchip .sc-n{font-size:28px}
+    .statchip .sc-l{font-size:12.5px}
+    .chatlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;background:transparent;border-radius:0;overflow:visible}
+    .chatrow{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+    .chatrow:last-child{border-bottom:1px solid var(--line)}
+    .tasklist{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px;align-items:start}
+    .cscreen-hd{padding:0 2px 16px}
+    .menu{right:18px;top:60px}
+    .sheet{align-items:stretch;justify-content:flex-end}
+    .sheet-card{max-width:460px;height:100%;max-height:100vh;border-radius:0;padding:10px 24px 28px;box-shadow:-10px 0 40px rgba(0,0,0,.2)}
+    .sheet-grab{display:none}
+    .opt-grid{grid-template-columns:1fr 1fr}
+  }
   .hidden-inputs{position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
 </style>
 </head>
@@ -195,13 +227,18 @@ window.MARVCO_FIREBASE_CONFIG = {
 
 <div class="app">
   <div class="appbar">
-    <button class="iconbtn2" id="backBtn" title="Back" style="display:none">&#8592;</button>
+    <button class="iconbtn2" id="backBtn" title="Back" aria-label="Back" style="display:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
     <div class="bar-title" id="barTitle">Marv &amp; Co</div>
-    <button class="iconbtn2" id="searchBtn" title="Search">&#128269;</button>
-    <button class="iconbtn2" id="menuBtn" title="Menu">&#8942;</button>
+    <button class="iconbtn2" id="searchBtn" title="Search" aria-label="Search"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
+    <button class="iconbtn2" id="menuBtn" title="Menu" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
   </div>
   <div class="subbar" id="subbar">
-    <input type="month" id="period" class="pill-period">
+    <div class="monthpick">
+      <span class="mp-lbl">Return period</span>
+      <button class="mp-btn" id="prevMonth" title="Previous month" aria-label="Previous month">&#8249;</button>
+      <select id="period" class="pill-period" aria-label="Return period"></select>
+      <button class="mp-btn" id="nextMonth" title="Next month" aria-label="Next month">&#8250;</button>
+    </div>
     <span class="live" id="saved"></span>
     <div class="filterrow">
       <span id="ownerFilterWrap"><select id="fOwner" class="owner-filter"><option value="">All staff</option></select></span>
@@ -447,20 +484,30 @@ window.MARVCO_FIREBASE_CONFIG = {
   function liveClient(x){ return clientById(x.id)||x; } function liveOwner(x){ return ownerById(x.id)||x; }
   function taskById(id){ return state.tasks.filter(function(t){return t.id===id;})[0]; }
   function ord(n){ var s=["th","st","nd","rd"],v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
-  function dueLabel(t){ if(t.type==="qtr")return t.due?ord(t.due)+" · quarterly":"quarterly"; if(t.type==="qrmp")return ord(t.due)+" · monthly"; if(t.type==="int")return (t.due?ord(t.due):"")+" · internal"; return t.due?ord(t.due):"—"; }
+  function dueLabel(t){ if(t.type==="qtr")return t.due?ord(t.due)+" after quarter":"quarterly"; var d=dueDateOf(t); if(!d)return "—"; return fmtDue(d)+(t.type==="int"?" (internal)":""); }
   function periodName(pk){ if(!pk)return ""; var p=pk.split("-"),m=["January","February","March","April","May","June","July","August","September","October","November","December"]; return m[+p[1]-1]+" "+p[0]; }
   function cell(id){ var pk=state.period; state.board[pk]=state.board[pk]||{}; var c=state.board[pk][id]; if(!c){ c={status:"Not started",blocked:false,waiting:"",notes:""}; state.board[pk][id]=c; } return c; }
-  // --- FIXED: overdue now works for past months too ---
+  // Return period = the month the work is FOR. Deadlines fall in the FOLLOWING month
+  // (e.g. September GSTR-1 is due 11 October, GSTR-3B 20 October, TDS 7 October).
+  var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function dueDateOf(t){
+    if(!t.due || t.type==="qtr") return null;
+    var p=String(state.period).split("-"), y=+p[0], m=+p[1];
+    var dy=y, dm=m+1; if(dm>12){ dm=1; dy++; }
+    var day=+t.due;
+    if(m===3 && t.type==="stat" && /tds/i.test(t.name)) day=30;      // March TDS: 30 April
+    var last=new Date(dy,dm,0).getDate(); if(day>last) day=last;
+    return new Date(dy,dm-1,day);
+  }
+  function fmtDue(d){ return d.getDate()+" "+MON[d.getMonth()]; }
   function dueFlag(t){
-    if(!t.due || t.type==="qtr") return "";
+    var d=dueDateOf(t); if(!d) return "";
     var c=cell(t.id); if(c.status==="Filed / Done"||c.status==="N/A") return "";
-    var sel=periodRank(state.period), cur=periodRank(currentPeriod());
-    if(sel>cur) return "";              // a future month — not due yet
-    if(sel<cur) return "overdue";       // a past month — the deadline has gone
-    var p=state.period.split("-"),d=new Date(+p[0],+p[1]-1,t.due),today=new Date(); today.setHours(0,0,0,0);
+    var today=new Date(); today.setHours(0,0,0,0);
     var days=Math.round((d-today)/86400000);
     if(days<0) return "overdue"; if(days<=3) return "soon"; return "";
   }
+
 
   var $=function(s){return document.querySelector(s);};
   function el(tag,cls,txt){ var e=document.createElement(tag); if(cls)e.className=cls; if(txt!=null)e.textContent=txt; return e; }
@@ -509,6 +556,19 @@ window.MARVCO_FIREBASE_CONFIG = {
   function renderAll(){ renderPanel(); }
   function clearAllFilters(){ ["#fOwner","#fClient","#fTask","#q"].forEach(function(sl){ var n=$(sl); if(n)n.value=""; }); renderPanel(); }
   function renderPanel(){ renderTopBar(); if(activeTab==="overview")renderHome(); else { var c=clientById(activeTab); if(c)renderClientScreen(c); else { activeTab="overview"; renderHome(); } } }
+  function rankToPeriod(r){ var y=Math.floor(r/12), m=r%12+1; return y+"-"+String(m).padStart(2,"0"); }
+  function fillPeriods(){
+    var sel=$("#period"); if(!sel)return;
+    var cur=periodRank(currentPeriod()), want=periodRank(state.period||currentPeriod());
+    var lo=Math.min(cur-24,want), hi=Math.max(cur+3,want), key=lo+":"+hi;
+    if(sel.getAttribute("data-range")!==key){
+      sel.innerHTML="";
+      for(var r=hi;r>=lo;r--){ var pk=rankToPeriod(r); sel.appendChild(opt(pk,periodName(pk))); }
+      sel.setAttribute("data-range",key);
+    }
+    sel.value=state.period;
+  }
+  function shiftPeriod(n){ state.period=rankToPeriod(periodRank(state.period)+n); renderAll(); }
   function renderTopBar(){
     var onClient = activeTab!=="overview" && !!clientById(activeTab);
     var back=$("#backBtn"); if(back)back.style.display=onClient?"":"none";
@@ -516,7 +576,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     var sb=$("#subbar"); if(sb)sb.style.display=onClient?"none":"flex";
     var sw=$("#searchwrap"); if(sw&&onClient)sw.classList.remove("open");
     var sbtn=$("#searchBtn"); if(sbtn)sbtn.style.display=onClient?"none":"";
-    var pr=$("#period"); if(pr)pr.value=state.period;
+    fillPeriods();
     ["#fOwner","#fClient","#fTask"].forEach(function(sl){ var n=$(sl); if(n)n.classList.toggle("on",!!n.value); });
     var cf=$("#clearFilters"); if(cf)cf.style.display=hasAnyFilter()?"":"none";
     renderSaved();
@@ -617,7 +677,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     var card=el("button","taskcard"+(mod?(" "+mod):""));
     if(showClient)card.appendChild(el("div","tc-client",client.name));
     var top=el("div","tc-top"); top.appendChild(el("div","tc-name",t.name));
-    var dl=flag==="overdue"?"Overdue":(flag==="soon"?"Due soon":("Due "+dueLabel(t)));
+    var dl=flag==="overdue"?("Overdue \u00B7 "+dueLabel(t)):(flag==="soon"?("Due soon \u00B7 "+dueLabel(t)):("Due "+dueLabel(t)));
     top.appendChild(el("span","tc-due"+(flag?(" "+flag):""),dl)); card.appendChild(top);
     var lbl=stLabel(c.status); if(c.status==="Reviewed"&&c.reviewedBy)lbl+=" \u00B7 \u2713 "+c.reviewedBy; if(c.status==="Filed / Done"&&c.arn)lbl+=" \u00B7 "+c.arn;
     var row=el("div","tc-row"); row.appendChild(el("span","chip "+ST_CLASS[c.status],lbl));
@@ -846,10 +906,12 @@ window.MARVCO_FIREBASE_CONFIG = {
   function saveBlob(text,mime,filename){ var blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); },100); }
 
   function init(){
-    load(); var pr=$("#period"); if(pr)pr.value=state.period;
+    load(); fillPeriods();
     try{ var u=localStorage.getItem(LS_USER); if(u)$("#whoami").value=u; }catch(e){}
     loadSession();
     $("#period").addEventListener("change",function(){ state.period=$("#period").value||currentPeriod(); renderAll(); });
+    $("#prevMonth").addEventListener("click",function(){ shiftPeriod(-1); });
+    $("#nextMonth").addEventListener("click",function(){ shiftPeriod(1); });
     $("#q").addEventListener("input",function(){ renderPanel(); });
     $("#fOwner").addEventListener("change",function(){ renderPanel(); });
     $("#fClient").addEventListener("change",function(){ renderPanel(); });
