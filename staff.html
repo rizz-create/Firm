@@ -252,6 +252,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   .buckets{display:flex;gap:8px;overflow-x:auto;margin:0 0 12px;padding-bottom:4px;-webkit-overflow-scrolling:touch} .bucket{flex:none}
   .grp-row td{background:var(--panel)!important;padding:8px 12px!important;cursor:default}
   .grp-row .grp-h{margin:0}
+  .ferr ul{margin:6px 0 8px 18px;padding:0} .ferr li{margin:2px 0} .ferr .clearbtn{margin:4px 6px 0 0} .ferr-fix{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:6px 0} .ferr-fix .sheet-input{width:120px;margin:0}
   .wabtn{color:#128C4A!important;border-color:#BFE6CF!important;background:#F0FAF4!important;white-space:nowrap}
   .cs-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
   .bucket{display:flex;flex-direction:column;align-items:center;min-width:88px;padding:8px 10px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;font-size:12px;color:var(--muted);font-weight:600;font-family:var(--sans)}
@@ -1004,7 +1005,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   }
 
   // ---------- edit sheet ----------
-  function openSheet(id){ sheetTask=id; $("#sheet").classList.add("open"); renderSheetBody(); }
+  function openSheet(id){ sheetTask=id; fileErr=null; $("#sheet").classList.add("open"); renderSheetBody(); }
   function closeSheet(){ sheetTask=null; $("#sheet").classList.remove("open"); }
   function zm(){ return state.zohoMaster||null; }
   function zCust(){ return toArr((zm()||{}).customers); }
@@ -1039,9 +1040,28 @@ window.MARVCO_FIREBASE_CONFIG = {
   function withdraw(t){ var c=cell(t.id); if(c.status!=="Prepared")return; c.status="Data received"; commit(t); }
   function approve(t,note){ if(!isOwner)return; var c=cell(t.id); c.status="Reviewed"; c.reviewedBy=actor(); c.reviewedAt=nowIso(); c.reviewNote=note||""; c.returnNote=""; commit(t); }
   function sendBack(t,note){ if(!isOwner)return; var c=cell(t.id); c.status="Data received"; c.returnNote=note; c.returnedBy=actor(); c.returnedAt=nowIso(); c.reviewedBy=""; c.reviewedAt=""; commit(t); }
-  function markFiled(t,arn){ var c=cell(t.id); if(!isOwner&&c.status!=="Reviewed")return; c.status="Filed / Done"; c.filedBy=actor(); c.filedAt=nowIso(); c.arn=arn||c.arn||""; commit(t); }
+  // Everything needed to raise the Zoho bill must be in place before a task can be filed.
+  // Returns a list of {msg, fix} problems; empty list = OK to file.
+  function billProblems(t){
+    var out=[], tk=taskById(t.tid||t.id)||t, cl=clientById(tk.clientId), m=zm(), synced=!!(m&&m.syncedAt);
+    if(!cl){ out.push({msg:"This task's client no longer exists.",fix:"clients"}); return out; }
+    if(!(Number(tk.fee)>0)) out.push({msg:"Fee is not set for "+tk.name+" ("+cl.name+").",fix:"tasks"});
+    if(synced){
+      var custs=zCust();
+      if(cl.zohoId){ if(!zCustById(cl.zohoId)) out.push({msg:cl.name+" is linked to a Zoho customer that is no longer active.",fix:"clients"}); }
+      else { var nm=String(cl.zohoName||cl.name).toLowerCase().replace(/\s+/g," ").trim();
+        if(!custs.some(function(z){ return String(z.name).toLowerCase().replace(/\s+/g," ").trim()===nm; })) out.push({msg:cl.name+" is not linked to a Zoho Books customer.",fix:"clients"}); }
+      if(tk.zohoItemId&&!zItemById(tk.zohoItemId)) out.push({msg:"The Zoho item chosen for "+tk.name+" is no longer active in Zoho.",fix:"tasks"});
+    }
+    if(!tk.zohoItemId) out.push({msg:"No Zoho item is selected for "+tk.name+" ("+cl.name+").",fix:"tasks"});
+    return out;
+  }
+  var fileErr=null;   // {id, list} shown in the task panel when filing is refused
+  function canFile(t){ var p=billProblems(t); if(!p.length){ fileErr=null; return true; } fileErr={id:t.id,list:p}; renderSheetBody(); return false; }
+  function markFiled(t,arn){ var c=cell(t.id); if(!isOwner&&c.status!=="Reviewed")return; if(!canFile(t))return; c.status="Filed / Done"; c.filedBy=actor(); c.filedAt=nowIso(); c.arn=arn||c.arn||""; commit(t); }
   function undoApproval(t){ if(!isOwner)return; var c=cell(t.id); c.status="Prepared"; c.reviewedBy=""; c.reviewedAt=""; commit(t); }
   function ownerSet(t,x){ if(!isOwner)return; var c=cell(t.id);
+    if(x==="Filed / Done"&&c.status!=="Filed / Done"&&!canFile(t))return;
     if(x==="Reviewed"&&c.status!=="Reviewed"){ c.reviewedBy=actor(); c.reviewedAt=nowIso(); }
     if(x==="Filed / Done"&&c.status!=="Filed / Done"){ c.filedBy=actor(); c.filedAt=nowIso(); }
     if(x==="Prepared"&&!c.preparedBy){ c.preparedBy=actor(); c.preparedAt=nowIso(); }
@@ -1053,6 +1073,20 @@ window.MARVCO_FIREBASE_CONFIG = {
     b.appendChild(el("div","sheet-title",client.name));
     b.appendChild(el("div","sheet-sub",t.name+" · "+periodLong(t)+" · due "+dueLabel(t)+(t.ownerId?(" · "+staffName(t.ownerId)):"")));
     if(isReturned(c)){ var rb=el("div","rbox back"); rb.appendChild(el("b",null,"↩ Sent back by "+(c.returnedBy||"partner"))); rb.appendChild(el("div",null,c.returnNote)); b.appendChild(rb); }
+    if(fileErr&&fileErr.id===t.id){
+      var eb=el("div","rbox back ferr"); eb.appendChild(el("b",null,"\u26D4 Can't mark as filed \u2014 the bill can't be raised yet"));
+      var ul=el("ul"); fileErr.list.forEach(function(p){ ul.appendChild(el("li",null,p.msg)); }); eb.appendChild(ul);
+      if(isOwner){
+        var tk0=taskById(t.tid);
+        if(tk0&&!(Number(tk0.fee)>0)){ var fr=el("div","ferr-fix"); fr.appendChild(el("span",null,"Fee (\u20B9) for "+tk0.name+":")); var fi2=el("input","sheet-input"); fi2.type="number"; fi2.min="1"; fi2.placeholder="e.g. 1000";
+          var fs=el("button","clearbtn","Save fee"); fs.addEventListener("click",function(){ var v=parseFloat(fi2.value); if(!(v>0)){ fi2.focus(); return; } taskById(t.tid).fee=v; save(whoami()); fileErr.list=billProblems(t); if(!fileErr.list.length)fileErr=null; renderSheetBody(); });
+          fr.appendChild(fi2); fr.appendChild(fs); eb.appendChild(fr); }
+        var secs={}; fileErr.list.forEach(function(p){ if(p.fix)secs[p.fix]=1; });
+        Object.keys(secs).forEach(function(sec){ var ob=el("button","clearbtn",sec==="tasks"?"Open Task master":"Open Client master"); ob.addEventListener("click",function(){ closeSheet(); openManage(sec); }); eb.appendChild(ob); });
+        eb.appendChild(el("div","muted-note2","Fix the above, then tap filed again."));
+      } else eb.appendChild(el("div","muted-note2","Please contact a partner (administrator) to set this up. Your work stays at \u201CReviewed \u2014 ready to file\u201D until then."));
+      b.appendChild(eb);
+    }
     b.appendChild(el("div","sheet-lbl","Status"));
     if(c.status==="Filed / Done"){
       var fb=el("div","rbox done"); fb.appendChild(el("b",null,"✓ Filed"+(c.filedBy?(" by "+c.filedBy):"")));
@@ -1309,10 +1343,10 @@ window.MARVCO_FIREBASE_CONFIG = {
       var c6=el("td"); var ki=el("select"); KIND_OPTS.forEach(function(o){ ki.appendChild(opt(o[0],o[1],o[0]===(tk.type==="int"?"int":"stat"))); }); ki.addEventListener("change",function(){ var lt=liveTask(tk); lt.freq=freqOf(lt); lt.type=ki.value; save(whoami()); }); c6.appendChild(ki); tr.appendChild(c6);
       var c7=el("td"); var as=el("select"); as.appendChild(opt("","— unassigned —",!tk.ownerId)); state.staff.forEach(function(st){ as.appendChild(opt(st.id,st.name,st.id===tk.ownerId)); }); as.addEventListener("change",function(){ liveTask(tk).ownerId=as.value; save(whoami()); }); c7.appendChild(as); tr.appendChild(c7);
       var ci=el("td"), zits=zItems();
-      if(zits.length){ var zi=el("select"); zi.appendChild(opt("","— default item —",!tk.zohoItemId));
+      if(zits.length){ var zi=el("select"); zi.appendChild(opt("","⚠ select an item",!tk.zohoItemId));
         if(tk.zohoItemId&&!zItemById(tk.zohoItemId))zi.appendChild(opt(tk.zohoItemId,"⚠ no longer active in Zoho",true));
         zits.forEach(function(z){ zi.appendChild(opt(z.id,z.name+(z.rate?(" ("+money(z.rate)+")"):""),String(z.id)===String(tk.zohoItemId))); });
-        if(tk.zohoItemId&&!zItemById(tk.zohoItemId))zi.className="warn";
+        if(!tk.zohoItemId||!zItemById(tk.zohoItemId))zi.className="warn";
         zi.addEventListener("change",function(){ liveTask(tk).zohoItemId=zi.value; save(whoami()); }); ci.appendChild(zi);
       } else ci.appendChild(el("span","muted-note","—"));
       tr.appendChild(ci);
@@ -1334,7 +1368,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     var fm=el("div","fld due"); fm.appendChild(el("label",null,"Due month")); var am=monSel(""); fm.appendChild(am); add.appendChild(fm);
     var fdt=el("div","fld"); fdt.appendChild(el("label",null,"Due date")); var adt=el("input"); adt.type="date"; fdt.appendChild(adt); add.appendChild(fdt);
     var f5=el("div","fld"); f5.appendChild(el("label",null,"Assign to")); var aa=el("select"); aa.appendChild(opt("","— unassigned —")); state.staff.forEach(function(st){ aa.appendChild(opt(st.id,st.name)); }); f5.appendChild(aa); add.appendChild(f5);
-    var fi=el("div","fld"); fi.appendChild(el("label",null,"Zoho item")); var azi=el("select"); azi.appendChild(opt("","— default item —")); zItems().forEach(function(z){ azi.appendChild(opt(z.id,z.name)); }); fi.appendChild(azi); add.appendChild(fi);
+    var fi=el("div","fld"); fi.appendChild(el("label",null,"Zoho item")); var azi=el("select"); azi.appendChild(opt("","— select item —")); zItems().forEach(function(z){ azi.appendChild(opt(z.id,z.name)); }); fi.appendChild(azi); add.appendChild(fi);
     var ff=el("div","fld due"); ff.appendChild(el("label",null,"Fee (₹)")); var afe=el("input"); afe.type="number"; afe.min="0"; afe.placeholder="₹"; ff.appendChild(afe); add.appendChild(ff);
     var hint=el("div","muted-note2"); hint.style.flexBasis="100%";
     function sync(){ var f=afq.value; fd.style.display=f==="once"?"none":""; fm.style.display=f==="annual"?"":"none"; fdt.style.display=f==="once"?"":"none";
@@ -1344,7 +1378,7 @@ window.MARVCO_FIREBASE_CONFIG = {
         once:"Becomes pending as soon as you add it."}[f]; }
     afq.addEventListener("change",sync);
     cm.addEventListener("change",function(){ var c=COMMON[+cm.value]; if(!cm.value||!c)return; at.value=c[0]; afq.value=c[1]; ad.value=c[2]||""; am.value=c[3]?String(c[3]):""; sync(); });
-    var b=el("button","primary","Add task"); b.addEventListener("click",function(){ var nm=at.value.trim(); if(!nm){at.focus();return;} var f=afq.value, v=parseInt(ad.value,10), fv=parseFloat(afe.value);
+    var b=el("button","primary","Add task"); b.addEventListener("click",function(){ var nm=at.value.trim(); if(!nm){at.focus();return;} if(zItems().length&&!azi.value){ azi.className="warn"; azi.focus(); hint.textContent="Select the Zoho item this task is billed under."; return; } var f=afq.value, v=parseInt(ad.value,10), fv=parseFloat(afe.value);
       var nt={id:uid("tk"),clientId:ac.value,name:nm,freq:f,type:"stat",due:(f==="once"||isNaN(v))?null:v,dueMonth:f==="annual"&&am.value?+am.value:null,dueDate:f==="once"?(adt.value||""):"",from:f==="once"?"":latestFrom(f),createdAt:nowIso(),ownerId:aa.value,fee:isNaN(fv)?null:fv,zohoItemId:azi.value};
       state.tasks.push(nt); save(whoami()); renderManage(); }); add.appendChild(b);
     add.appendChild(hint); sync();
