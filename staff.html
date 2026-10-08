@@ -202,7 +202,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   .taskcard:focus-visible,.chatrow:focus-visible,.statchip:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--bright);outline-offset:2px}
   @media (min-width:900px){
     body{font-size:15px}
-    .app{max-width:1200px;box-shadow:0 0 60px rgba(0,0,0,.10)}
+    .app{max-width:1600px;box-shadow:0 0 60px rgba(0,0,0,.10)}
     .appbar{padding:12px 18px;min-height:64px}
     .bar-title{font-size:21px}
     .subbar{padding:0 24px 16px;gap:14px;flex-wrap:nowrap}
@@ -211,9 +211,12 @@ window.MARVCO_FIREBASE_CONFIG = {
     .searchwrap{padding:0 24px 16px}
     .searchwrap input{max-width:520px}
     #panel{padding:22px 24px 60px}
-    .summary{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;overflow:visible}
-    .statchip{min-width:0;padding:16px 12px}
-    .statchip .sc-n{font-size:28px}
+    .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;overflow:visible;padding-bottom:12px}
+    .statchip{min-width:0;padding:12px}
+    .statchip .sc-n{font-size:26px}
+    .stbtns{flex-wrap:wrap;overflow:visible}
+    .buckets{flex-wrap:wrap;overflow:visible}
+    .ctabs{flex-wrap:wrap;overflow:visible}
     .statchip .sc-l{font-size:12.5px}
     .chatlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;background:transparent;border-radius:0;overflow:visible}
     .chatrow{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
@@ -226,6 +229,64 @@ window.MARVCO_FIREBASE_CONFIG = {
     .sheet-grab{display:none}
     .opt-grid{grid-template-columns:1fr 1fr}
   }
+  .stages{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:14px}
+  .stages-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
+  .stages-t{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .stages-p{font-size:13px;font-weight:700;color:var(--fl)}
+  .bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--ns-bg)} .bar span{display:block;height:100%}
+  .stbtns{display:flex;gap:8px;margin-top:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+  .stbtn{flex:none;display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--panel);cursor:pointer;font-size:13px;color:var(--ink);font-family:var(--sans)}
+  .stbtn b{font-size:16px} .stbtn .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .stbtn:hover{border-color:var(--line2)} .stbtn.active{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green);background:#fff}
+  .viewtabs{display:flex;gap:4px;margin:2px 0 12px;border-bottom:2px solid var(--line2)}
+  .vtab{background:transparent;border:none;padding:10px 14px;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;font-family:var(--sans)}
+  .vtab:hover{color:var(--ink)} .vtab.active{color:var(--green);border-bottom-color:var(--green)}
+  .buckets{display:flex;gap:8px;overflow-x:auto;margin:0 0 12px;padding-bottom:4px;-webkit-overflow-scrolling:touch} .bucket{flex:none}
+  .grp-row td{background:var(--panel)!important;padding:8px 12px!important;cursor:default}
+  .grp-row .grp-h{margin:0}
+  .bucket{display:flex;flex-direction:column;align-items:center;min-width:88px;padding:8px 10px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;font-size:12px;color:var(--muted);font-weight:600;font-family:var(--sans)}
+  .bucket b{font-size:19px;color:var(--amber);line-height:1.1} .bucket.active{border-color:var(--amber);box-shadow:inset 0 0 0 1px var(--amber)}
+  .bucket.custom{flex-direction:row;gap:6px;align-items:center;cursor:default} .bucket.custom input{width:60px;padding:6px;border:1px solid var(--line2);border-radius:6px;font-size:13px}
+  .ctabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;-webkit-overflow-scrolling:touch}
+  .ctab{flex:none;display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:18px;border:1px solid var(--line2);background:var(--card);cursor:pointer;font-size:13px;font-weight:600;color:var(--ink);font-family:var(--sans)}
+  .ctab b{background:var(--panel);border-radius:10px;padding:1px 7px;font-size:12px} .ctab.active{background:var(--green);border-color:var(--green);color:#fff} .ctab.active b{background:rgba(255,255,255,.22)}
+  .grp{margin-bottom:16px} .grp-h{display:flex;align-items:center;gap:10px;margin:0 2px 8px} .grp-n{font-weight:700;font-size:15px} .grp-c{color:var(--muted);font-size:12.5px;flex:1}
+  .avatar.sm{width:28px;height:28px;font-size:11px}
+  .tt-scroll,.mx-scroll{overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;max-width:100%}
+  .mx-scroll{max-height:calc(100vh - 150px)}
+  .ttable{width:100%;border-collapse:collapse;font-size:13.5px}
+  .ttable th{position:sticky;top:0;background:var(--panel);text-align:left;font-size:11.5px;color:var(--muted);font-weight:700;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;z-index:1}
+  .ttable td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+  .ttable tr:last-child td{border-bottom:none}
+  .trow{cursor:pointer} .trow:hover td{background:#F7F5F0} .trow:focus-visible{outline:2px solid var(--bright);outline-offset:-2px}
+  .trow.ov td:first-child,.trow.bk td:first-child{box-shadow:inset 4px 0 0 var(--red)}
+  .tt-task{font-weight:600;white-space:nowrap} .tt-client{font-weight:600;color:var(--teal)} .tt-due{white-space:nowrap;color:var(--muted)} .tt-due.overdue{color:var(--red);font-weight:700} .tt-due.soon{color:var(--amber);font-weight:700}
+  .tt-notes{color:var(--muted);font-size:12.5px;max-width:340px} .tt-notes.ret{color:var(--red)} .tt-own{white-space:nowrap} .tt-inv{font-size:12.5px;color:var(--teal)} .tt-inv.err{color:var(--red)}
+  .ttable .chip{display:inline-block;margin:1px 4px 1px 0;white-space:nowrap}
+  .ttable .num{text-align:center;width:1%;white-space:nowrap}
+  .numbtn{min-width:36px;padding:5px 9px;border-radius:8px;border:1px solid var(--line2);background:#fff;font-weight:700;font-size:13.5px;cursor:pointer;color:var(--ink);font-family:var(--sans)}
+  .numbtn:hover{border-color:var(--green)} .numbtn.red{color:var(--red);border-color:#F0C2C2;background:var(--red-bg)} .numbtn.amber{color:var(--amber);border-color:#EBD6AE;background:var(--amber-bg)}
+  .zero{color:var(--line2)} .sum-n{font-weight:700;white-space:nowrap}
+  .matrix{border-collapse:separate;border-spacing:0;font-size:13px;min-width:100%}
+  .matrix th{position:sticky;top:0;background:var(--panel);font-size:11.5px;color:var(--muted);font-weight:700;padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:center;z-index:1}
+  .matrix td{padding:5px 6px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
+  .matrix tr:last-child td{border-bottom:none}
+  .matrix .mx-cl{position:sticky;left:0;background:var(--card);text-align:left;z-index:2;min-width:190px;border-right:1px solid var(--line)} .matrix th.mx-cl{background:var(--panel);z-index:3}
+  .matrix tbody tr:hover td{background:#FBFAF6} .matrix tbody tr:hover td.mx-cl{background:#FBFAF6}
+  .mx-client{display:flex;align-items:center;gap:8px;background:transparent;border:none;cursor:pointer;font-weight:700;font-size:13.5px;color:var(--ink);padding:2px;text-align:left;font-family:var(--sans)}
+  .mx-client:hover span:last-child{text-decoration:underline}
+  .mx-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:100%;min-width:90px;padding:6px;border-radius:8px;border:2px solid transparent;cursor:pointer;font-family:var(--sans)}
+  .mx-cell+.mx-cell{margin-top:4px} .mx-cell:hover{filter:brightness(.96)}
+  .mx-cell.overdue{border-color:var(--red)} .mx-cell.soon{border-color:var(--amber)}
+  .mx-st{font-size:12px;font-weight:700;white-space:nowrap} .mx-sub{font-size:10.5px;opacity:.85;white-space:nowrap}
+  .mx-cell.overdue .mx-sub{color:var(--red);font-weight:700;opacity:1}
+  .mx-none{color:var(--line2)}
+  .mx-pg{white-space:nowrap;font-weight:700;font-size:12.5px;min-width:84px;border-right:1px solid var(--line)}
+  .mbar{display:block;height:5px;background:var(--ns-bg);border-radius:3px;margin-top:4px;overflow:hidden;min-width:70px} .mbar span{display:block;height:100%;background:var(--fl)}
+  .legend2{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin:10px 4px} .legend2 i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .lg-ov{color:var(--red)}
+  .cr-bar{display:flex;height:4px;border-radius:2px;overflow:hidden;background:var(--ns-bg);margin-top:6px;max-width:220px} .cr-bar span{display:block;height:100%}
+  .cs-stages{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
   .hidden-inputs{position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
 </style>
 </head>
@@ -542,29 +603,50 @@ window.MARVCO_FIREBASE_CONFIG = {
   function hasAnyFilter(){ return !!((val("#q")||"").trim()||val("#fOwner")||val("#fClient")||val("#fTask")); }
   function passFilter(t,ignoreClient){
     var q=(val("#q")||"").toLowerCase().trim(), ow=val("#fOwner"), cl0=val("#fClient"), tk=val("#fTask");
-    if(ow && t.ownerId!==ow)return false;
+    if(ow==="__none__"){ if(t.ownerId)return false; } else if(ow && t.ownerId!==ow)return false;
     if(cl0 && ignoreClient!==true && t.clientId!==cl0)return false;
     if(tk && t.name!==tk)return false;
     if(q){ var c=cell(t.id),cl=clientById(t.clientId)||{name:"",scope:""}; var hay=(cl.name+" "+cl.scope+" "+t.name+" "+staffName(t.ownerId)+" "+(c.waiting||"")+" "+(c.notes||"")).toLowerCase(); if(hay.indexOf(q)<0)return false; }
     return true;
   }
-  function drillPred(k,t){ var c=cell(t.id);
+  var dueWin=(function(){ try{ var v=parseInt(localStorage.getItem("marvco-duewin"),10); return v>0?v:7; }catch(e){ return 7; } })();
+  var homeView=(function(){ try{ return localStorage.getItem("marvco-view")||"clients"; }catch(e){ return "clients"; } })();
+  var drillClient="";
+  var MQ=window.matchMedia?window.matchMedia("(min-width:900px)"):null;
+  function isDesktop(){ return !!(MQ&&MQ.matches); }
+  function setDueWin(n){ dueWin=Math.max(1,Math.min(365,n|0)); try{localStorage.setItem("marvco-duewin",String(dueWin));}catch(e){} renderPanel(); }
+  function setHomeView(v){ homeView=v; try{localStorage.setItem("marvco-view",v);}catch(e){} renderPanel(); }
+  function isOpen(c){ return c.status!=="Filed / Done"&&c.status!=="N/A"; }
+  function daysLeft(t){ var d=dueDateOf(t); if(!d)return null; var today=new Date(); today.setHours(0,0,0,0); return Math.round((d-today)/86400000); }
+  function dueText(t){ var d=dueDateOf(t); if(!d){ var l=dueLabel(t); return l==="—"?"No due date":"Due "+l; }
+    var n=daysLeft(t), ds=fmtDue(d); if(!isOpen(cell(t.id)))return "Due "+ds;
+    if(n<0)return "Overdue by "+(-n)+(n===-1?" day":" days")+" · "+ds;
+    if(n===0)return "Due today · "+ds; if(n===1)return "Due tomorrow · "+ds; return "Due in "+n+" days · "+ds; }
+  function dueCls(t){ if(!isOpen(cell(t.id)))return ""; var n=daysLeft(t); if(n===null)return ""; if(n<0)return "overdue"; if(n<=3)return "soon"; return ""; }
+  var ST_SHORT={"Not started":"Not started","Data received":"Data recd","Prepared":"Prepared","Reviewed":"Reviewed","Filed / Done":"Filed","N/A":"N/A"};
+  var ST_LONG={"Not started":"Not started","Data received":"Data received","Prepared":"Prepared — awaiting review","Reviewed":"Reviewed — ready to file","Filed / Done":"Filed","N/A":"Not applicable"};
+  var STAGES=[["Not started","ns","var(--ns)"],["Data received","dr","var(--dr)"],["Prepared","pr","var(--pr)"],["Reviewed","rv","var(--rv)"],["Filed / Done","fl","var(--fl)"]];
+  function drillPred(k,t){ var c=cell(t.id), n;
     if(k==="overdue")return dueFlag(t)==="overdue";
-    if(k==="soon")return dueFlag(t)==="soon";
-    if(k==="pending")return c.status!=="Filed / Done"&&c.status!=="N/A";
+    if(k==="soon"){ if(!isOpen(c))return false; n=daysLeft(t); return n!==null&&n>=0&&n<=dueWin; }
+    if(k==="pending")return isOpen(c);
     if(k==="done")return c.status==="Filed / Done";
     if(k==="blocked")return !!c.blocked;
     if(k==="review")return c.status==="Prepared";
     if(k==="ready")return c.status==="Reviewed";
     if(k==="returned")return isReturned(c);
+    if(k.indexOf("st:")===0)return c.status===k.slice(3);
     return true;
   }
   function isReturned(c){ return !!c.returnNote && (c.status==="Not started"||c.status==="Data received"); }
-  function drillLabel(k){ return {overdue:"Overdue",soon:"Due soon",pending:"Pending",done:"Done",blocked:"Blocked",review:"To review",ready:"Ready to file",returned:"Sent back"}[k]||"Tasks"; }
+  function drillLabel(k){ if(k==="soon")return "Due within "+dueWin+(dueWin===1?" day":" days"); if(k.indexOf("st:")===0)return ST_LONG[k.slice(3)]||k.slice(3);
+    return {overdue:"Overdue",pending:"Pending",done:"Filed",blocked:"Blocked",review:"To review",ready:"Ready to file",returned:"Sent back"}[k]||"Tasks"; }
+  function ownerLabel(v){ return v==="__none__"?"Unassigned":staffName(v); }
+  function drillTo(key,f){ f=f||{}; if(f.task!=null)$("#fTask").value=f.task; if(f.owner!=null)$("#fOwner").value=f.owner; drill=key; drillClient=""; renderPanel(); window.scrollTo({top:0}); }
   function byClientName(a,b){ var ca=(clientById(a.clientId)||{}).name||"",cb=(clientById(b.clientId)||{}).name||""; return ca<cb?-1:ca>cb?1:0; }
 
   // ---------- navigation ----------
-  function setTab(id){ activeTab=id; if(id==="overview")drill=""; $("#menu").classList.remove("open"); renderPanel(); window.scrollTo({top:0}); }
+  function setTab(id){ activeTab=id; $("#menu").classList.remove("open"); renderPanel(); window.scrollTo({top:0}); }
   function renderAll(){ renderPanel(); }
   function clearAllFilters(){ ["#fOwner","#fClient","#fTask","#q"].forEach(function(sl){ var n=$(sl); if(n)n.value=""; }); renderPanel(); }
   function renderPanel(){ renderTopBar(); if(activeTab==="overview")renderHome(); else { var c=clientById(activeTab); if(c)renderClientScreen(c); else { activeTab="overview"; renderHome(); } } }
@@ -599,27 +681,43 @@ window.MARVCO_FIREBASE_CONFIG = {
     var c=el("button","statchip "+color+(drill===key?" active":""));
     c.appendChild(el("span","sc-n",String(n)));
     c.appendChild(el("span","sc-l",label));
-    c.addEventListener("click",function(){ drill=(drill===key?"":key); renderPanel(); });
+    c.addEventListener("click",function(){ drill=(drill===key?"":key); drillClient=""; renderPanel(); });
     return c;
+  }
+  function stageBar(s,cls){ var bar=el("div",cls||"bar");
+    STAGES.forEach(function(st){ var n=s[st[1]]; if(!s.applicable||!n)return; var seg=el("span"); seg.style.width=(n/s.applicable*100)+"%"; seg.style.background=st[2]; seg.title=ST_LONG[st[0]]+": "+n; bar.appendChild(seg); });
+    return bar; }
+  function stagePanel(s){
+    var box=el("div","stages"), hd=el("div","stages-h");
+    hd.appendChild(el("span","stages-t","Where the work stands · "+periodName(state.period)));
+    hd.appendChild(el("span","stages-p",(s.applicable?Math.round(s.fl/s.applicable*100):0)+"% filed"));
+    box.appendChild(hd); box.appendChild(stageBar(s));
+    var row=el("div","stbtns");
+    STAGES.forEach(function(st){ var key="st:"+st[0], n=s[st[1]];
+      var b=el("button","stbtn"+(drill===key?" active":"")); var d=el("span","dot"); d.style.background=st[2]; b.appendChild(d);
+      b.appendChild(el("b",null,String(n))); b.appendChild(el("span",null,ST_LONG[st[0]]));
+      b.title="Show tasks that are "+ST_LONG[st[0]].toLowerCase();
+      b.addEventListener("click",function(){ drill=(drill===key?"":key); drillClient=""; renderPanel(); });
+      row.appendChild(b); });
+    box.appendChild(row); return box;
   }
   function clientRowEl(client){
     var tks=clientTasks(client.id).filter(passFilter); var s=summaryOf(tks);
-    var over=0,soon=0,blk=0;
-    var rev=0,rdy=0,ret=0;
+    var over=0,soon=0,blk=0,rev=0,rdy=0,ret=0;
     tks.forEach(function(t){ var f=dueFlag(t),c=cell(t.id); if(f==="overdue")over++; else if(f==="soon")soon++; if(c.blocked)blk++; if(c.status==="Prepared")rev++; if(c.status==="Reviewed")rdy++; if(isReturned(c))ret++; });
     var row=el("button","chatrow");
     var av=el("div","avatar"); av.style.background=colorFor(client.name); av.textContent=initials(client.name); row.appendChild(av);
     var mid=el("div","cr-mid"); mid.appendChild(el("div","cr-name",client.name));
-    var sub=s.applicable?(s.fl+" of "+s.applicable+" done"):"No tasks";
-    var cls="";
+    var sub=s.applicable?(s.fl+" of "+s.applicable+" filed"):"No tasks", cls="";
     if(over){ sub+=" · "+over+" overdue"; cls="danger"; }
     else if(blk){ sub+=" · "+blk+" blocked"; cls="danger"; }
     else if(!isOwner&&ret){ sub+=" · "+ret+" sent back"; cls="danger"; }
     else if(isOwner&&rev){ sub+=" · "+rev+" to review"; cls="warn"; }
     else if(!isOwner&&rdy){ sub+=" · "+rdy+" ready to file"; }
     else if(soon){ sub+=" · "+soon+" due soon"; cls="warn"; }
-    else if(s.applicable&&s.fl===s.applicable){ sub="All done"; }
+    else if(s.applicable&&s.fl===s.applicable){ sub="All filed"; }
     mid.appendChild(el("div","cr-sub"+(cls?(" "+cls):""),sub));
+    if(s.applicable)mid.appendChild(stageBar(s,"cr-bar"));
     row.appendChild(mid);
     var right=el("div","cr-right");
     if(over)right.appendChild(el("span","dotbadge red",String(over)));
@@ -633,68 +731,178 @@ window.MARVCO_FIREBASE_CONFIG = {
     row.addEventListener("click",function(){ setTab(client.id); });
     return row;
   }
+  function renderClientList(panel){
+    var cl=el("div","chatlist"), shown=0, anyF=hasAnyFilter();
+    visibleClients().forEach(function(c){ var tks=clientTasks(c.id).filter(passFilter); if(anyF && !tks.length)return; cl.appendChild(clientRowEl(c)); shown++; });
+    if(!shown) panel.appendChild(el("div","empty2",anyF?"No clients match your filters.":"No clients assigned to you yet."));
+    else panel.appendChild(cl);
+  }
   function renderHome(){
     var panel=$("#panel"); panel.innerHTML="";
-    var scoped=baseTasks().filter(passFilter);
-    var s=summaryOf(scoped), over=0,soon=0;
-    scoped.forEach(function(t){ var f=dueFlag(t); if(f==="overdue")over++; else if(f==="soon")soon++; });
-    var pending=s.applicable-s.fl, ret=0;
-    scoped.forEach(function(t){ if(isReturned(cell(t.id)))ret++; });
+    var scoped=baseTasks().filter(passFilter), s=summaryOf(scoped);
+    var cnt=function(k){ return scoped.filter(function(t){return drillPred(k,t);}).length; };
     var sum=el("div","summary");
     if(isOwner) sum.appendChild(statChip("review",s.pr,"To review","purple"));
-    else { sum.appendChild(statChip("ready",s.rv,"Ready to file","teal")); if(ret||drill==="returned")sum.appendChild(statChip("returned",ret,"Sent back","red")); }
-    sum.appendChild(statChip("overdue",over,"Overdue","red"));
-    sum.appendChild(statChip("soon",soon,"Due soon","amber"));
-    sum.appendChild(statChip("pending",pending,"Pending","grey"));
-    sum.appendChild(statChip("done",s.fl,"Done","green"));
+    else { sum.appendChild(statChip("ready",s.rv,"Ready to file","teal")); var ret=cnt("returned"); if(ret||drill==="returned")sum.appendChild(statChip("returned",ret,"Sent back","red")); }
+    sum.appendChild(statChip("overdue",cnt("overdue"),"Overdue","red"));
+    sum.appendChild(statChip("soon",cnt("soon"),"Due in "+dueWin+(dueWin===1?" day":" days"),"amber"));
+    sum.appendChild(statChip("pending",s.applicable-s.fl,"Pending","grey"));
+    sum.appendChild(statChip("done",s.fl,"Filed","green"));
     sum.appendChild(statChip("blocked",s.blocked,"Blocked","red2"));
     panel.appendChild(sum);
-
-    if(drill){
-      var bar=el("div","clearbar"); bar.appendChild(el("span","clearbar-t",drillLabel(drill)));
-      var cb=el("button","clearbtn","✕ Show clients"); cb.addEventListener("click",function(){ drill=""; renderPanel(); }); bar.appendChild(cb);
-      panel.appendChild(bar);
-      var items=scoped.filter(function(t){return drillPred(drill,t);}).sort(byClientName);
-      if(!items.length){ panel.appendChild(el("div","empty2","Nothing here — all clear.")); return; }
-      var list=el("div","tasklist"); items.forEach(function(t){ list.appendChild(taskCardEl(t,true)); }); panel.appendChild(list);
-      return;
+    panel.appendChild(stagePanel(s));
+    if(drill){ renderDrill(panel,scoped); return; }
+    if(!isOwner && homeView==="staff")homeView="clients";
+    var tabs=el("div","viewtabs"), views=[["clients","By client"],["tasks","By task"]]; if(isOwner)views.push(["staff","By staff"]);
+    views.forEach(function(v){ var b=el("button","vtab"+(homeView===v[0]?" active":""),v[1]); b.addEventListener("click",function(){ setHomeView(v[0]); }); tabs.appendChild(b); });
+    panel.appendChild(tabs);
+    if(homeView==="tasks") renderSummaryTable(panel,scoped,"task");
+    else if(homeView==="staff") renderSummaryTable(panel,scoped,"staff");
+    else if(isDesktop()) renderMatrix(panel,scoped);
+    else renderClientList(panel);
+  }
+  function byDue(a,b){ var da=daysLeft(a),db=daysLeft(b); if(da===null)da=9999; if(db===null)db=9999; if(da!==db)return da-db; return a.name<b.name?-1:1; }
+  function renderDrill(panel,scoped){
+    var items=scoped.filter(function(t){return drillPred(drill,t);});
+    var bar=el("div","clearbar"); bar.appendChild(el("span","clearbar-t",drillLabel(drill)+" · "+items.length));
+    var cb=el("button","clearbtn","✕ Back to overview"); cb.addEventListener("click",function(){ drill=""; drillClient=""; renderPanel(); }); bar.appendChild(cb);
+    panel.appendChild(bar);
+    if(drill==="soon"){
+      var open=scoped.filter(function(t){ return isOpen(cell(t.id)); });
+      var within=function(n){ return open.filter(function(t){ var d=daysLeft(t); return d!==null&&d>=0&&d<=n; }).length; };
+      var PRE=[1,2,3,7,15,30], bk=el("div","buckets");
+      PRE.forEach(function(n){ var b=el("button","bucket"+(dueWin===n?" active":"")); b.appendChild(el("b",null,String(within(n)))); b.appendChild(el("span",null,"within "+n+(n===1?" day":" days"))); b.addEventListener("click",function(){ setDueWin(n); }); bk.appendChild(b); });
+      var custom=PRE.indexOf(dueWin)<0, cu=el("label","bucket custom"+(custom?" active":""));
+      cu.appendChild(el("span",null,"Custom: within")); var ci=el("input"); ci.type="number"; ci.min="1"; ci.max="365"; ci.value=custom?dueWin:""; ci.placeholder="45";
+      ci.addEventListener("change",function(){ var v=parseInt(ci.value,10); if(v>0)setDueWin(v); }); cu.appendChild(ci); cu.appendChild(el("span",null,"days"));
+      if(custom){ var cb2=el("b",null,String(within(dueWin))); cu.insertBefore(cb2,cu.firstChild); }
+      bk.appendChild(cu); panel.appendChild(bk);
     }
-    var cl=el("div","chatlist"), shown=0, anyF=hasAnyFilter();
-    visibleClients().forEach(function(c){
-      var tks=clientTasks(c.id).filter(passFilter);
-      if(anyF && !tks.length) return;
-      cl.appendChild(clientRowEl(c)); shown++;
+    if(!items.length){ panel.appendChild(el("div","empty2","Nothing here — all clear.")); return; }
+    var byC={}; items.forEach(function(t){ (byC[t.clientId]=byC[t.clientId]||[]).push(t); });
+    var cids=Object.keys(byC).sort(function(a,b){ var na=((clientById(a)||{}).name||"").toLowerCase(),nb=((clientById(b)||{}).name||"").toLowerCase(); return na<nb?-1:1; });
+    if(drillClient && !byC[drillClient])drillClient="";
+    var ct=el("div","ctabs");
+    var all=el("button","ctab"+(!drillClient?" active":"")); all.appendChild(el("span",null,"All clients")); all.appendChild(el("b",null,String(items.length))); all.addEventListener("click",function(){ drillClient=""; renderPanel(); }); ct.appendChild(all);
+    cids.forEach(function(id){ var cl=clientById(id)||{name:"?"}; var b=el("button","ctab"+(drillClient===id?" active":"")); b.appendChild(el("span",null,cl.name)); b.appendChild(el("b",null,String(byC[id].length))); b.addEventListener("click",function(){ drillClient=(drillClient===id?"":id); renderPanel(); }); ct.appendChild(b); });
+    panel.appendChild(ct);
+    if(isDesktop()){ var flat=[]; (drillClient?[drillClient]:cids).forEach(function(id){ flat=flat.concat(byC[id].slice().sort(byDue)); }); panel.appendChild(taskTable(flat,false,true)); return; }
+    (drillClient?[drillClient]:cids).forEach(function(id){
+      var cl=clientById(id)||{name:"?"}, list=byC[id].slice().sort(byDue);
+      var g=el("div","grp"), gh=el("div","grp-h");
+      var av=el("span","avatar sm"); av.style.background=colorFor(cl.name); av.textContent=initials(cl.name); gh.appendChild(av);
+      gh.appendChild(el("span","grp-n",cl.name)); gh.appendChild(el("span","grp-c",list.length+(list.length===1?" task":" tasks")));
+      var op=el("button","clearbtn","Open client ›"); op.addEventListener("click",function(){ setTab(id); }); gh.appendChild(op);
+      g.appendChild(gh);
+      if(isDesktop()) g.appendChild(taskTable(list,false));
+      else { var tl=el("div","tasklist"); list.forEach(function(t){ tl.appendChild(taskCardEl(t,false)); }); g.appendChild(tl); }
+      panel.appendChild(g);
     });
-    if(!shown) panel.appendChild(el("div","empty2",anyF?"No clients match your search.":"No clients assigned to you yet."));
-    else panel.appendChild(cl);
+  }
+  function taskTable(list,showClient,grouped){
+    var wrap=el("div","tt-scroll"), t=el("table","ttable"), th=el("thead"), hr=el("tr");
+    var cols=[]; if(showClient)cols.push("Client"); cols.push("Task","Due","Status"); if(isOwner)cols.push("Assigned to"); cols.push("Waiting on / notes"); if(isOwner&&state.invoiceConfig)cols.push("Invoice");
+    cols.forEach(function(x){ hr.appendChild(el("th",null,x)); }); th.appendChild(hr); t.appendChild(th);
+    var tb=el("tbody"), lastC=null, ncol=cols.length;
+    list.forEach(function(tk){
+      if(grouped && tk.clientId!==lastC){ lastC=tk.clientId; var cl=clientById(tk.clientId)||{name:"?"}, n=list.filter(function(x){return x.clientId===tk.clientId;}).length;
+        var gr=el("tr","grp-row"), gd=el("td"); gd.colSpan=ncol; var gh=el("div","grp-h");
+        var av=el("span","avatar sm"); av.style.background=colorFor(cl.name); av.textContent=initials(cl.name); gh.appendChild(av);
+        gh.appendChild(el("span","grp-n",cl.name)); gh.appendChild(el("span","grp-c",n+(n===1?" task":" tasks")));
+        var op=el("button","clearbtn","Open client \u203A"); (function(id){ op.addEventListener("click",function(e){ e.stopPropagation(); setTab(id); }); })(tk.clientId); gh.appendChild(op);
+        gd.appendChild(gh); gr.appendChild(gd); tb.appendChild(gr); }
+      var c=cell(tk.id), dc=dueCls(tk), tr=el("tr","trow"+(c.blocked?" bk":(dc==="overdue"?" ov":""))); tr.tabIndex=0;
+      if(showClient)tr.appendChild(el("td","tt-client",(clientById(tk.clientId)||{name:""}).name));
+      tr.appendChild(el("td","tt-task",tk.name));
+      tr.appendChild(el("td","tt-due "+dc,dueText(tk)));
+      var sc=el("td"), lbl=ST_LONG[c.status]; if(c.status==="Reviewed"&&c.reviewedBy)lbl="Reviewed by "+c.reviewedBy+" — ready to file"; if(c.status==="Filed / Done"&&c.arn)lbl+=" · "+c.arn;
+      sc.appendChild(el("span","chip "+ST_CLASS[c.status],lbl)); if(c.blocked)sc.appendChild(el("span","chip blk","⛔ Blocked")); tr.appendChild(sc);
+      if(isOwner)tr.appendChild(el("td","tt-own",tk.ownerId?staffName(tk.ownerId):"Unassigned"));
+      var nt=[]; if(isReturned(c))nt.push("↩ Sent back: "+c.returnNote); if(c.waiting)nt.push("⏳ "+c.waiting); if(c.notes)nt.push(c.notes);
+      tr.appendChild(el("td","tt-notes"+(isReturned(c)?" ret":""),nt.join(" · ")||"—"));
+      if(isOwner&&state.invoiceConfig){ var ii=invInfo(tk); tr.appendChild(el("td","tt-inv "+(ii?ii.k:""),ii?ii.x:"")); }
+      tr.addEventListener("click",function(){ openSheet(tk.id); });
+      tr.addEventListener("keydown",function(e){ if(e.key==="Enter")openSheet(tk.id); });
+      tb.appendChild(tr); });
+    t.appendChild(tb); wrap.appendChild(t); return wrap;
+  }
+  function colOrder(names,tasks){ var due={}; tasks.forEach(function(t){ var d=(t.type==="qtr"||!t.due)?99:+t.due; if(due[t.name]===undefined||d<due[t.name])due[t.name]=d; });
+    return names.slice().sort(function(a,b){ return (due[a]-due[b])||(a<b?-1:1); }); }
+  function mxCell(tk){ var c=cell(tk.id), dc=dueCls(tk), n=daysLeft(tk);
+    var b=el("button","mx-cell "+ST_CLASS[c.status]+(dc?(" "+dc):""));
+    b.appendChild(el("span","mx-st",(c.blocked?"⛔ ":"")+(isReturned(c)?"↩ ":"")+ST_SHORT[c.status]));
+    var sub=""; if(isOpen(c)&&n!==null){ sub=n<0?((-n)+"d late"):(n===0?"due today":(n===1?"due tomorrow":"due "+fmtDue(dueDateOf(tk)))); } else if(c.status==="Filed / Done"&&c.filedAt){ sub="filed "+fmtDue(new Date(c.filedAt)); }
+    if(sub)b.appendChild(el("span","mx-sub",sub));
+    var tip=[tk.name,dueText(tk),ST_LONG[c.status]]; if(tk.ownerId)tip.push(staffName(tk.ownerId)); if(c.waiting)tip.push("Waiting: "+c.waiting); if(isReturned(c))tip.push("Sent back: "+c.returnNote); b.title=tip.join(" · ");
+    b.addEventListener("click",function(){ openSheet(tk.id); }); return b; }
+  function renderMatrix(panel,scoped){
+    var anyF=hasAnyFilter(), names={}; scoped.forEach(function(t){ names[t.name]=1; });
+    var cols=colOrder(Object.keys(names),scoped);
+    var clients=visibleClients().filter(function(c){ return scoped.some(function(t){return t.clientId===c.id;}); }).slice().sort(function(a,b){ return a.name.toLowerCase()<b.name.toLowerCase()?-1:1; });
+    if(!clients.length){ panel.appendChild(el("div","empty2",anyF?"No clients match your filters.":"No clients assigned yet.")); return; }
+    var wrap=el("div","mx-scroll"), t=el("table","matrix"), th=el("thead"), hr=el("tr");
+    hr.appendChild(el("th","mx-cl","Client")); hr.appendChild(el("th","mx-pg","Filed")); cols.forEach(function(n){ hr.appendChild(el("th",null,n)); }); th.appendChild(hr); t.appendChild(th);
+    var tb=el("tbody");
+    clients.forEach(function(cl){ var tr=el("tr"), mine=scoped.filter(function(t){return t.clientId===cl.id;}), s=summaryOf(mine);
+      var tdc=el("td","mx-cl"), cb=el("button","mx-client"), av=el("span","avatar sm"); av.style.background=colorFor(cl.name); av.textContent=initials(cl.name); cb.appendChild(av); cb.appendChild(el("span",null,cl.name)); cb.title="Open "+cl.name; cb.addEventListener("click",function(){ setTab(cl.id); }); tdc.appendChild(cb); tr.appendChild(tdc);
+      var pg=el("td","mx-pg"); pg.appendChild(el("span",null,s.fl+" / "+s.applicable)); var mb=el("span","mbar"), mf=el("span"); mf.style.width=(s.applicable?s.fl/s.applicable*100:0)+"%"; mb.appendChild(mf); pg.appendChild(mb); tr.appendChild(pg);
+      cols.forEach(function(n){ var td=el("td"); mine.filter(function(t){return t.name===n;}).forEach(function(tk){ td.appendChild(mxCell(tk)); }); if(!td.childNodes.length)td.appendChild(el("span","mx-none","—")); tr.appendChild(td); });
+      tb.appendChild(tr); });
+    t.appendChild(tb); wrap.appendChild(t); panel.appendChild(wrap);
+    var lg=el("div","legend2"); STAGES.forEach(function(st){ var x=el("span"), d=el("i"); d.style.background=st[2]; x.appendChild(d); x.appendChild(document.createTextNode(ST_LONG[st[0]])); lg.appendChild(x); });
+    lg.appendChild(el("span","lg-ov","Red outline = overdue · amber = due within 3 days")); lg.appendChild(el("span",null,"⛔ blocked · ↩ sent back · click a cell to update it"));
+    panel.appendChild(lg);
+  }
+  function renderSummaryTable(panel,scoped,by){
+    var groups={}, order=[];
+    scoped.forEach(function(t){ var k=by==="task"?t.name:(t.ownerId||"__none__"); if(!groups[k]){ groups[k]=[]; order.push(k); } groups[k].push(t); });
+    if(by==="task")order=colOrder(order,scoped);
+    else order.sort(function(a,b){ if(a==="__none__")return 1; if(b==="__none__")return -1; return staffName(a).toLowerCase()<staffName(b).toLowerCase()?-1:1; });
+    if(!order.length){ panel.appendChild(el("div","empty2","Nothing to show for these filters.")); return; }
+    var cols=[["Not started","st:Not started"],["Data received","st:Data received"],["Prepared","st:Prepared"],["Reviewed","st:Reviewed"],["Filed","st:Filed / Done"],["Overdue","overdue"],["Due in "+dueWin+"d","soon"],["Blocked","blocked"]];
+    var wrap=el("div","tt-scroll"), t=el("table","ttable sumtable"), th=el("thead"), hr=el("tr");
+    hr.appendChild(el("th",null,by==="task"?"Task":"Staff")); hr.appendChild(el("th","num","Total")); cols.forEach(function(c){ hr.appendChild(el("th","num",c[0])); }); hr.appendChild(el("th",null,"Progress")); th.appendChild(hr); t.appendChild(th);
+    var tb=el("tbody");
+    order.forEach(function(k){ var list=groups[k], s=summaryOf(list), tr=el("tr");
+      var name=by==="task"?k:(k==="__none__"?"Unassigned":(staffName(k)||"(removed staff)")), f=by==="task"?{task:k}:{owner:k};
+      tr.appendChild(el("td","sum-n",name)); tr.appendChild(el("td","num",String(s.applicable)));
+      cols.forEach(function(c){ var n=list.filter(function(t){return drillPred(c[1],t);}).length, td=el("td","num");
+        if(n){ var b=el("button","numbtn"+(c[1]==="overdue"||c[1]==="blocked"?" red":(c[1]==="soon"?" amber":"")),String(n)); b.title="Show "+name+" — "+c[0]; b.addEventListener("click",function(){ drillTo(c[1],f); }); td.appendChild(b); }
+        else td.appendChild(el("span","zero","·"));
+        tr.appendChild(td); });
+      var pg=el("td","mx-pg"); pg.appendChild(el("span",null,(s.applicable?Math.round(s.fl/s.applicable*100):0)+"% filed")); var mb=el("span","mbar"), mf=el("span"); mf.style.width=(s.applicable?s.fl/s.applicable*100:0)+"%"; mb.appendChild(mf); pg.appendChild(mb); tr.appendChild(pg);
+      tb.appendChild(tr); });
+    t.appendChild(tb); wrap.appendChild(t); panel.appendChild(wrap);
+    panel.appendChild(el("div","legend2",(by==="task"?"Task-wise":"Staff-wise")+" summary for "+periodName(state.period)+". Click any number to see those tasks, client by client."));
   }
 
   // ---------- client screen ----------
   function renderClientScreen(client){
     var panel=$("#panel"); panel.innerHTML="";
-    var tks=clientTasks(client.id).filter(function(t){return passFilter(t,true);}); var s=summaryOf(tks);
+    var tks=clientTasks(client.id).filter(function(t){return passFilter(t,true);}).sort(byDue); var s=summaryOf(tks);
     var hd=el("div","cscreen-hd");
     if(client.scope)hd.appendChild(el("div","cs-scope",client.scope));
-    var pr=el("div","cs-prog"); pr.innerHTML="<b>"+s.fl+"</b> of <b>"+s.applicable+"</b> done · "+periodName(state.period); hd.appendChild(pr);
-    var fp=[]; if(val("#fOwner"))fp.push(staffName(val("#fOwner"))); if(val("#fTask"))fp.push(val("#fTask")); if((val("#q")||"").trim())fp.push("\u201C"+val("#q").trim()+"\u201D");
-    if(fp.length){ var fn=el("div","filtnote"); fn.appendChild(el("span",null,"Showing: "+fp.join(" \u00B7 "))); var fb=el("button",null,"Show all tasks"); fb.addEventListener("click",clearAllFilters); fn.appendChild(fb); hd.appendChild(fn); }
+    var pr=el("div","cs-prog"); pr.innerHTML="<b>"+s.fl+"</b> of <b>"+s.applicable+"</b> filed · "+periodName(state.period); hd.appendChild(pr);
+    if(s.applicable){ var sg=el("div","cs-stages"); STAGES.forEach(function(st){ var n=s[st[1]]; if(!n)return; sg.appendChild(el("span","chip "+ST_CLASS[st[0]],n+" "+ST_LONG[st[0]].toLowerCase())); }); hd.appendChild(sg); }
+    var fp=[]; if(val("#fOwner"))fp.push(ownerLabel(val("#fOwner"))); if(val("#fTask"))fp.push(val("#fTask")); if((val("#q")||"").trim())fp.push("“"+val("#q").trim()+"”");
+    if(fp.length){ var fn=el("div","filtnote"); fn.appendChild(el("span",null,"Showing: "+fp.join(" · "))); var fb=el("button",null,"Show all tasks"); fb.addEventListener("click",clearAllFilters); fn.appendChild(fb); hd.appendChild(fn); }
     panel.appendChild(hd);
     if(!tks.length){ panel.appendChild(el("div","empty2","No tasks for this client.")); return; }
+    if(isDesktop()){ panel.appendChild(taskTable(tks,false)); return; }
     var list=el("div","tasklist"); tks.forEach(function(t){ list.appendChild(taskCardEl(t,false)); }); panel.appendChild(list);
   }
 
   function taskCardEl(t,showClient){
-    var c=cell(t.id),flag=dueFlag(t),client=clientById(t.clientId)||{name:""};
-    var mod=c.blocked?"bk":(flag==="overdue"?"ov":(c.status==="Prepared"?"rv":(c.status==="Reviewed"?"rd":(flag==="soon"?"so":(c.status==="Filed / Done"?"dn":"")))));
+    var c=cell(t.id),flag=dueFlag(t),client=clientById(t.clientId)||{name:""}, dc=dueCls(t);
+    var mod=c.blocked?"bk":(flag==="overdue"?"ov":(c.status==="Prepared"?"rv":(c.status==="Reviewed"?"rd":(dc==="soon"?"so":(c.status==="Filed / Done"?"dn":"")))));
     var card=el("button","taskcard"+(mod?(" "+mod):""));
     if(showClient)card.appendChild(el("div","tc-client",client.name));
     var top=el("div","tc-top"); top.appendChild(el("div","tc-name",t.name));
-    var dl=flag==="overdue"?("Overdue \u00B7 "+dueLabel(t)):(flag==="soon"?("Due soon \u00B7 "+dueLabel(t)):("Due "+dueLabel(t)));
-    top.appendChild(el("span","tc-due"+(flag?(" "+flag):""),dl)); card.appendChild(top);
-    var lbl=stLabel(c.status); if(c.status==="Reviewed"&&c.reviewedBy)lbl+=" \u00B7 \u2713 "+c.reviewedBy; if(c.status==="Filed / Done"&&c.arn)lbl+=" \u00B7 "+c.arn;
+    top.appendChild(el("span","tc-due"+(dc?(" "+dc):""),dueText(t))); card.appendChild(top);
+    var lbl=ST_LONG[c.status]; if(c.status==="Reviewed"&&c.reviewedBy)lbl="Reviewed by "+c.reviewedBy+" — ready to file"; if(c.status==="Filed / Done"&&c.arn)lbl+=" · "+c.arn;
     var row=el("div","tc-row"); row.appendChild(el("span","chip "+ST_CLASS[c.status],lbl));
     if(c.blocked)row.appendChild(el("span","chip blk","⛔ Blocked")); card.appendChild(row);
-    if(isReturned(c))card.appendChild(el("div","tc-return","\u21A9 Sent back by "+(c.returnedBy||"partner")+": "+c.returnNote));
+    if(isReturned(c))card.appendChild(el("div","tc-return","↩ Sent back by "+(c.returnedBy||"partner")+": "+c.returnNote));
     if(c.waiting)card.appendChild(el("div","tc-wait","⏳ Waiting: "+c.waiting));
     var ii=isOwner?invInfo(t):null; if(ii)card.appendChild(el("div","tc-inv "+ii.k,ii.x));
     if(isOwner)card.appendChild(el("div","tc-owner",(t.ownerId?("👤 "+staffName(t.ownerId)):"👤 Unassigned")));
@@ -950,7 +1158,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     body.appendChild(add);
   }
 
-  function refreshOwnerFilter(){ var sel=$("#fOwner"),cur=sel?sel.value:""; if(!sel)return; sel.innerHTML='<option value="">All staff</option>'; state.staff.slice().sort(function(a,b){return a.name<b.name?-1:1;}).forEach(function(st){ sel.appendChild(opt(st.id,st.name,st.id===cur)); }); }
+  function refreshOwnerFilter(){ var sel=$("#fOwner"),cur=sel?sel.value:""; if(!sel)return; sel.innerHTML='<option value="">All staff</option><option value="__none__">Unassigned</option>'; state.staff.slice().sort(function(a,b){return a.name<b.name?-1:1;}).forEach(function(st){ sel.appendChild(opt(st.id,st.name,st.id===cur)); }); }
   function refreshClientFilter(){ var sel=$("#fClient"); if(!sel)return; var cur=sel.value; sel.innerHTML='<option value="">All clients</option>'; visibleClients().slice().sort(function(a,b){return a.name<b.name?-1:1;}).forEach(function(c){ sel.appendChild(opt(c.id,c.name,c.id===cur)); }); }
   function refreshTaskFilter(){ var sel=$("#fTask"); if(!sel)return; var cur=sel.value,seen={},names=[]; baseTasks().forEach(function(t){ if(!seen[t.name]){seen[t.name]=1;names.push(t.name);} }); names.sort(); sel.innerHTML='<option value="">All tasks</option>'; names.forEach(function(n){ sel.appendChild(opt(n,n,n===cur)); }); }
   function refreshFilters(){ refreshOwnerFilter(); refreshClientFilter(); refreshTaskFilter(); }
@@ -987,7 +1195,8 @@ window.MARVCO_FIREBASE_CONFIG = {
   function saveBlob(text,mime,filename){ var blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); },100); }
 
   function init(){
-    load(); fillPeriods();
+    load(); state.period=rankToPeriod(periodRank(currentPeriod())-1); fillPeriods();
+    if(MQ){ var onMQ=function(){ renderPanel(); }; if(MQ.addEventListener)MQ.addEventListener("change",onMQ); else if(MQ.addListener)MQ.addListener(onMQ); }
     try{ var u=localStorage.getItem(LS_USER); if(u)$("#whoami").value=u; }catch(e){}
     loadSession();
     $("#period").addEventListener("change",function(){ state.period=$("#period").value||currentPeriod(); renderAll(); });
