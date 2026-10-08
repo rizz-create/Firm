@@ -167,6 +167,14 @@ window.MARVCO_FIREBASE_CONFIG = {
   .overlay{position:fixed;inset:0;background:rgba(17,27,33,.55);display:none;align-items:flex-start;justify-content:center;padding:24px 12px;z-index:50;overflow:auto}
   .overlay.open{display:flex}
   .overlay.login{align-items:center}
+  .pill-period optgroup{color:#111}
+  .ptag{display:inline-block;font-size:11px;font-weight:700;color:var(--teal);background:#E6F4F1;border-radius:6px;padding:1px 6px;margin-left:6px;white-space:nowrap;vertical-align:1px}
+  .mx-per{font-size:10px;font-weight:700;opacity:.75;white-space:nowrap}
+  .mtable .duebox{display:flex;gap:4px;align-items:center} .mtable .duebox input[type=number]{width:58px} .mtable .duebox select{width:auto}
+  .mtable .fixed{font-size:12px;color:var(--muted);white-space:nowrap}
+  .addrow .fld.wide{min-width:200px}
+  .modal.wide{max-width:1400px}
+  .modal.wide .mtable td:nth-child(1) select{min-width:120px} .modal.wide .mtable td:nth-child(2) input{min-width:160px} .modal.wide .mtable td:nth-child(3) select{min-width:108px} .modal.wide .mtable td:nth-child(5) select{min-width:118px} .modal.wide .mtable td:nth-child(6) select{min-width:122px} .modal.wide .mtable td:nth-child(7) select{min-width:120px} .modal.wide .mtable td:nth-child(9) input{min-width:80px}
   .modal{background:#fff;border-radius:14px;max-width:880px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
   .login-modal{max-width:420px}
   .modal-h{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)}
@@ -302,10 +310,8 @@ window.MARVCO_FIREBASE_CONFIG = {
   </div>
   <div class="subbar" id="subbar">
     <div class="monthpick">
-      <span class="mp-lbl">Return period</span>
-      <button class="mp-btn" id="prevMonth" title="Previous month" aria-label="Previous month">&#8249;</button>
-      <select id="period" class="pill-period" aria-label="Return period"></select>
-      <button class="mp-btn" id="nextMonth" title="Next month" aria-label="Next month">&#8250;</button>
+      <span class="mp-lbl">Show</span>
+      <select id="period" class="pill-period" aria-label="Which work to show"></select>
     </div>
     <span class="live" id="saved"></span>
     <div class="filterrow">
@@ -387,7 +393,16 @@ window.MARVCO_FIREBASE_CONFIG = {
   ];
   var STATUSES=["Not started","Data received","Prepared","Reviewed","Filed / Done","N/A"];
   var ST_CLASS={"Not started":"st-ns","Data received":"st-dr","Prepared":"st-pr","Reviewed":"st-rv","Filed / Done":"st-fl","N/A":"st-na"};
-  var TYPE_OPTS=[["stat","Statutory (monthly)"],["int","Internal target"],["qtr","Quarterly"],["qrmp","QRMP monthly"]];
+  var FREQ_OPTS=[["monthly","Monthly"],["quarterly","Quarterly"],["annual","Annual"],["once","One-time"]];
+  var KIND_OPTS=[["stat","Statutory"],["int","Internal"]];
+  var DEFAULT_START="2026-09";   // first return month tracked when a task has no "Starts from"
+  // Common compliances: [name, freq, due day, due month (annual only)]
+  var COMMON=[
+    ["GSTR-1","monthly",11],["GSTR-3B","monthly",20],["TDS deposit","monthly",7],["PF / ESI","monthly",15],["IFF (optional)","monthly",13],["PMT-06","monthly",25],
+    ["TDS return","quarterly",31],["Quarterly GSTR-1","quarterly",13],["Quarterly GSTR-3B","quarterly",22],
+    ["ITR (non-audit)","annual",31,7],["ITR (audit)","annual",31,10],["Tax audit (3CD)","annual",30,9],["GSTR-9 / 9C","annual",31,12],
+    ["AOC-4","annual",30,10],["MGT-7","annual",29,11],["DIR-3 KYC","annual",30,9],["LLP Form 11","annual",30,5],["LLP Form 8","annual",30,10],["DPT-3","annual",30,6],["Form 16","annual",15,6]
+  ];
   var AV_COLORS=["#0E8A6E","#2563EB","#B4530E","#6D28D9","#0E7490","#BE185D","#15803D","#9A6700","#0F766E","#7C3AED"];
   var LS_KEY="marvco-board-v1", LS_USER="marvco-user", LS_SESSION="marvco-session";
   var state=null, activeTab="overview", drill="", manageSection="staff", loginRole="staff", sheetTask=null;
@@ -440,9 +455,9 @@ window.MARVCO_FIREBASE_CONFIG = {
     else { var emb=embedded(); state=(emb&&(emb.tasks&&emb.tasks.length))?migrate(emb):blankState(); }
   }
   function stampSave(who){ state.meta=state.meta||{}; state.meta.updatedAt=new Date().toISOString(); if(who)state.meta.updatedBy=who; try{ localStorage.setItem(LS_KEY,JSON.stringify(state)); }catch(e){} renderSaved(); }
-  function save(who){ stampSave(who); if(fbMode)pushStateFB(); else if(serverMode)pushState(); }
-  function saveCell(id){ stampSave(whoami()); if(fbMode)writeCellFB(id); else if(serverMode){ apiSend({patch:{type:"cell",period:state.period,id:id,data:cell(id),ts:state.meta.updatedAt}}); serverStamp=state.meta.updatedAt; } }
-  function saveOwner(id){ stampSave(whoami()); if(fbMode)writeOwnerFB(); else if(serverMode){ var t=taskById(id); apiSend({patch:{type:"owner",id:id,ownerId:t?t.ownerId:"",ts:state.meta.updatedAt}}); serverStamp=state.meta.updatedAt; } }
+  function save(who){ invalidateInst(); stampSave(who); if(fbMode)pushStateFB(); else if(serverMode)pushState(); }
+  function saveCell(id){ stampSave(whoami()); if(fbMode)writeCellFB(id); else if(serverMode){ var k=splitId(id); apiSend({patch:{type:"cell",period:k.pk,id:k.tid,data:cell(id),ts:state.meta.updatedAt}}); serverStamp=state.meta.updatedAt; } }
+  function saveOwner(id){ invalidateInst(); stampSave(whoami()); if(fbMode)writeOwnerFB(); else if(serverMode){ var t=taskById(id); apiSend({patch:{type:"owner",id:id,ownerId:t?t.ownerId:"",ts:state.meta.updatedAt}}); serverStamp=state.meta.updatedAt; } }
   function pushState(){ apiSend({state:state}); serverStamp=(state.meta&&state.meta.updatedAt)||serverStamp; }
   function apiGet(cb,ecb){ try{ fetch(API_BOARD,{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){cb(j);}).catch(function(){ecb&&ecb();}); }catch(e){ ecb&&ecb(); } }
   function apiSend(body){ try{ fetch(API_BOARD,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).catch(function(){}); }catch(e){} }
@@ -491,7 +506,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   }
   function pushStateFB(){ if(!fbDb)return; try{ fbDb.ref("boardState").set({staff:state.staff,clients:state.clients,tasks:state.tasks,settings:state.settings,meta:state.meta}); }catch(e){} }
   function writeOwnerFB(){ if(!fbDb)return; try{ fbDb.ref("boardState/tasks").set(state.tasks); }catch(e){} }
-  function writeCellFB(id){ if(!fbDb)return; try{ fbDb.ref("cells/"+fbEnc(state.period)+"/"+fbEnc(id)).set(cell(id)); }catch(e){} }
+  function writeCellFB(id){ if(!fbDb)return; var k=splitId(id); try{ fbDb.ref("cells/"+fbEnc(k.pk)+"/"+fbEnc(k.tid)).set(cell(id)); }catch(e){} }
   function initServer(){ apiGet(function(remote){
       serverMode=true;
       if(remote && remote.tasks && remote.tasks.length){ state=migrate(remote); serverStamp=(state.meta&&state.meta.updatedAt)||""; }
@@ -510,9 +525,11 @@ window.MARVCO_FIREBASE_CONFIG = {
   function whoami(){ return actor(); }
 
   // ---------- Roles / access ----------
-  function baseTasks(){ return isOwner?state.tasks:state.tasks.filter(function(t){return t.ownerId===viewer.staffId;}); }
+  function baseTemplates(){ return isOwner?state.tasks:state.tasks.filter(function(t){return t.ownerId===viewer.staffId;}); }
+  // baseTasks = the task INSTANCES (one per return period) in the current "Show" scope
+  function baseTasks(){ return allInstances().filter(inScope); }
   function clientTasks(cid){ return baseTasks().filter(function(t){return t.clientId===cid;}); }
-  function visibleClients(){ if(isOwner)return state.clients; var ok={}; baseTasks().forEach(function(t){ok[t.clientId]=1;}); return state.clients.filter(function(c){return ok[c.id];}); }
+  function visibleClients(){ if(isOwner)return state.clients; var ok={}; baseTemplates().forEach(function(t){ok[t.clientId]=1;}); return state.clients.filter(function(c){return ok[c.id];}); }
   function loadSession(){ try{ session=JSON.parse(localStorage.getItem(LS_SESSION)); }catch(e){ session=null; }
     if(session && session.role==="staff" && !staffById(session.staffId)) session=null;
     if(session && session.role==="owner" && !ownerById(session.ownerId)) session=null;
@@ -557,22 +574,90 @@ window.MARVCO_FIREBASE_CONFIG = {
   function liveClient(x){ return clientById(x.id)||x; } function liveOwner(x){ return ownerById(x.id)||x; }
   function taskById(id){ return state.tasks.filter(function(t){return t.id===id;})[0]; }
   function ord(n){ var s=["th","st","nd","rd"],v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
-  function dueLabel(t){ if(t.type==="qtr")return t.due?ord(t.due)+" after quarter":"quarterly"; var d=dueDateOf(t); if(!d)return "—"; return fmtDue(d)+(t.type==="int"?" (internal)":""); }
-  function periodName(pk){ if(!pk)return ""; var p=pk.split("-"),m=["January","February","March","April","May","June","July","August","September","October","November","December"]; return m[+p[1]-1]+" "+p[0]; }
-  function cell(id){ var pk=state.period; state.board[pk]=state.board[pk]||{}; var c=state.board[pk][id]; if(!c){ c={status:"Not started",blocked:false,waiting:"",notes:""}; state.board[pk][id]=c; } return c; }
-  // Return period = the month the work is FOR. Deadlines fall in the FOLLOWING month
-  // (e.g. September GSTR-1 is due 11 October, GSTR-3B 20 October, TDS 7 October).
-  var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  function dueDateOf(t){
-    if(!t.due || t.type==="qtr") return null;
-    var p=String(state.period).split("-"), y=+p[0], m=+p[1];
-    var dy=y, dm=m+1; if(dm>12){ dm=1; dy++; }
-    var day=+t.due;
-    if(m===3 && t.type==="stat" && /tds/i.test(t.name)) day=30;      // March TDS: 30 April
-    var last=new Date(dy,dm,0).getDate(); if(day>last) day=last;
-    return new Date(dy,dm-1,day);
+  function dueLabel(t){ var d=dueDateOf(t); if(!d)return "—"; return fmtDue(d)+(t.type==="int"?" (internal)":""); }
+  var MONTHS_L=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  function periodName(pk){ if(!pk)return ""; var p=pk.split("-"); return MONTHS_L[+p[1]-1]+" "+p[0]; }
+
+  // ===== Recurring tasks =====
+  // A task in the Task master is a TEMPLATE. Each return period it covers becomes an INSTANCE
+  // with its own status. An instance becomes pending on the day its period closes:
+  //   monthly   - 1st of the next month       (Sep GSTR-1 pending 1 Oct, due 11 Oct)
+  //   quarterly - 1st after the quarter ends   (Jul-Sep TDS return pending 1 Oct, due 31 Oct)
+  //   annual    - 1 April, start of next FY    (FY 2025-26 GSTR-9 pending 1 Apr 2026, due 31 Dec 2026)
+  //   one-time  - the moment it is created
+  // Period keys: monthly "2026-09" · quarterly "2026-09" (quarter-end month) · annual "FY2025-26" · one-time "ONCE"
+  function freqOf(t){ if(t.freq)return t.freq; return t.type==="qtr"?"quarterly":"monthly"; }
+  function rankOf(y,m){ return y*12+(m-1); }
+  function pkOfRank(r){ return rankToPeriod(r); }
+  function fyKey(y){ return "FY"+y+"-"+String((y+1)%100).padStart(2,"0"); }
+  function fyStart(pk){ return +String(pk).slice(2,6); }
+  function fyOfMonth(pk){ var p=pk.split("-"),y=+p[0],m=+p[1]; return m>=4?y:y-1; }
+  function startPeriod(){ var s=(state.settings||{}).startPeriod; return /^\d{4}-\d{2}$/.test(s||"")?s:DEFAULT_START; }
+  function defaultFrom(f){ var sp=startPeriod(); return f==="annual"?fyKey(fyOfMonth(sp)-1):sp; }
+  function fromOf(t){ var f=freqOf(t), v=t.from||"";
+    if(f==="annual") return /^FY\d{4}-\d{2}$/.test(v)?v:defaultFrom(f);
+    return /^\d{4}-\d{2}$/.test(v)?v:defaultFrom(f); }
+  function latestFrom(f){ var cur=periodRank(currentPeriod());
+    if(f==="annual"){ var y=fyOfMonth(currentPeriod()); return fyKey(y-1); }
+    if(f==="quarterly"){ for(var r=cur-1;r>cur-4;r--){ if(((r%12)+1)%3===0)return pkOfRank(r); } }
+    return pkOfRank(cur-1); }
+  function clampDay(y,m,d){ var last=new Date(y,m,0).getDate(); return new Date(y,m-1,Math.min(d,last)); }
+  function isTds(t){ return /tds/i.test(t.name||""); }
+  function instDue(t,f,pk){
+    if(f==="once"){ var s=String(t.dueDate||""); if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return null; var q=s.split("-"); return new Date(+q[0],+q[1]-1,+q[2]); }
+    if(f==="annual"){ if(!t.due||!t.dueMonth)return null; var y0=fyStart(pk), dm0=+t.dueMonth; return clampDay(dm0>=4?y0+1:y0+2,dm0,+t.due); }
+    var p=pk.split("-"), y=+p[0], m=+p[1], dy=y, dm=m+1; if(dm>12){ dm=1; dy++; }
+    var day=+t.due||0;
+    if(f==="quarterly"){ if(!day&&isTds(t))day=31; if(m===3&&isTds(t)){ dm=5; day=31; } }   // Q4 TDS return: 31 May
+    else if(m===3&&isTds(t)&&t.type!=="int") day=30;                                      // March TDS deposit: 30 April
+    if(!day)return null;
+    return clampDay(dy,dm,day);
   }
-  function fmtDue(d){ return d.getDate()+" "+MON[d.getMonth()]; }
+  function periodLong(x){ var f=x.freq, pk=x.pk;
+    if(f==="once")return "One-time"; if(f==="annual")return "FY "+pk.slice(2);
+    if(f==="quarterly"){ var p=pk.split("-"),m=+p[1]; return MON[m-3]+"–"+MON[m-1]+" "+p[0]; }
+    return periodName(pk); }
+  function periodShort(x){ var f=x.freq, pk=x.pk;
+    if(f==="once")return "One-time"; if(f==="annual")return "FY "+pk.slice(4);
+    var p=pk.split("-"),m=+p[1],yy="’"+p[0].slice(2);
+    if(f==="quarterly")return MON[m-3]+"–"+MON[m-1]+" "+yy;
+    return MON[m-1]+" "+yy; }
+  function makeInst(t,pk){ var f=freqOf(t), x=Object.create(t);
+    x.id=pk+"|"+t.id; x.tid=t.id; x.pk=pk; x.freq=f; x.dueAt=instDue(t,f,pk); return x; }
+  function periodsOf(t){ var f=freqOf(t), cur=periodRank(currentPeriod()), out=[], r, lo;
+    if(f==="once")return ["ONCE"];
+    if(f==="annual"){ var y1=fyOfMonth(currentPeriod())-1, y0=Math.max(fyStart(fromOf(t)),y1-3); for(var y=y0;y<=y1;y++)out.push(fyKey(y)); return out; }
+    lo=Math.max(periodRank(fromOf(t)),cur-36);
+    for(r=lo;r<=cur-1;r++){ if(f==="quarterly"&&((r%12)+1)%3!==0)continue; out.push(pkOfRank(r)); }
+    return out; }
+  var _instKey=null,_instVal=null;
+  function allInstances(){
+    var k=[state.tasks.length,startPeriod(),currentPeriod(),isOwner?"o":viewer.staffId].join("|");
+    if(_instVal&&_instKey===k&&_instVal.src===state.tasks)return _instVal.list;
+    var list=[]; baseTemplates().forEach(function(t){ periodsOf(t).forEach(function(pk){ list.push(makeInst(t,pk)); }); });
+    _instKey=k; _instVal={src:state.tasks,list:list}; return list; }
+  function invalidateInst(){ _instVal=null; }
+  function splitId(id){ var s=String(id), i=s.indexOf("|"); if(i<0)return {pk:latestFrom("monthly"),tid:s}; return {pk:s.slice(0,i),tid:s.slice(i+1)}; }
+  function instById(id){ var k=splitId(id), t=taskById(k.tid); return t?makeInst(t,k.pk):null; }
+  // "Show" scope: "" = all open work (+ anything filed this month) · "M:2026-09" · "Q:2026-09" · "FY2025-26" · "ONCE"
+  var showKey="";
+  function filedThisMonth(c){ if(c.status!=="Filed / Done"||!c.filedAt)return false; var d=new Date(c.filedAt); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")===currentPeriod(); }
+  function inScope(x){ var k=showKey;
+    if(!k){ var c=cell(x.id); return isOpen(c)||filedThisMonth(c); }
+    if(k==="ONCE")return x.freq==="once";
+    if(k.indexOf("FY")===0)return x.freq==="annual"&&x.pk===k;
+    if(k.indexOf("M:")===0)return x.freq==="monthly"&&x.pk===k.slice(2);
+    if(k.indexOf("Q:")===0)return x.freq==="quarterly"&&x.pk===k.slice(2);
+    return true; }
+  function scopeName(){ var k=showKey; if(!k)return "All open work";
+    if(k==="ONCE")return "One-time tasks"; if(k.indexOf("FY")===0)return "Annual · FY "+k.slice(2);
+    if(k.indexOf("M:")===0)return "Monthly · "+periodName(k.slice(2));
+    if(k.indexOf("Q:")===0)return "Quarterly · "+periodLong({freq:"quarterly",pk:k.slice(2)});
+    return ""; }
+  function cell(id){ var k=splitId(id), pk=fbEnc(k.pk), tk=fbEnc(k.tid); state.board[pk]=state.board[pk]||{}; var c=state.board[pk][tk]; if(!c){ c={status:"Not started",blocked:false,waiting:"",notes:""}; state.board[pk][tk]=c; } return c; }
+  var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function dueDateOf(t){ return t.dueAt||null; }
+  function fmtDue(d){ var s=d.getDate()+" "+MON[d.getMonth()]; if(d.getFullYear()!==new Date().getFullYear())s+=" "+d.getFullYear(); return s; }
   function dueFlag(t){
     var d=dueDateOf(t); if(!d) return "";
     var c=cell(t.id); if(c.status==="Filed / Done"||c.status==="N/A") return "";
@@ -640,7 +725,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   }
   function isReturned(c){ return !!c.returnNote && (c.status==="Not started"||c.status==="Data received"); }
   function drillLabel(k){ if(k==="soon")return "Due within "+dueWin+(dueWin===1?" day":" days"); if(k.indexOf("st:")===0)return ST_LONG[k.slice(3)]||k.slice(3);
-    return {overdue:"Overdue",pending:"Pending",done:"Filed",blocked:"Blocked",review:"To review",ready:"Ready to file",returned:"Sent back"}[k]||"Tasks"; }
+    return {overdue:"Overdue",pending:"Pending",done:showKey?"Filed":"Filed this month",blocked:"Blocked",review:"To review",ready:"Ready to file",returned:"Sent back"}[k]||"Tasks"; }
   function ownerLabel(v){ return v==="__none__"?"Unassigned":staffName(v); }
   function drillTo(key,f){ f=f||{}; if(f.task!=null)$("#fTask").value=f.task; if(f.owner!=null)$("#fOwner").value=f.owner; drill=key; drillClient=""; renderPanel(); window.scrollTo({top:0}); }
   function byClientName(a,b){ var ca=(clientById(a.clientId)||{}).name||"",cb=(clientById(b.clientId)||{}).name||""; return ca<cb?-1:ca>cb?1:0; }
@@ -649,20 +734,24 @@ window.MARVCO_FIREBASE_CONFIG = {
   function setTab(id){ activeTab=id; $("#menu").classList.remove("open"); renderPanel(); window.scrollTo({top:0}); }
   function renderAll(){ renderPanel(); }
   function clearAllFilters(){ ["#fOwner","#fClient","#fTask","#q"].forEach(function(sl){ var n=$(sl); if(n)n.value=""; }); renderPanel(); }
-  function renderPanel(){ renderTopBar(); if(activeTab==="overview")renderHome(); else { var c=clientById(activeTab); if(c)renderClientScreen(c); else { activeTab="overview"; renderHome(); } } }
+  function renderPanel(){ invalidateInst(); renderTopBar(); if(activeTab==="overview")renderHome(); else { var c=clientById(activeTab); if(c)renderClientScreen(c); else { activeTab="overview"; renderHome(); } } }
   function rankToPeriod(r){ var y=Math.floor(r/12), m=r%12+1; return y+"-"+String(m).padStart(2,"0"); }
   function fillPeriods(){
     var sel=$("#period"); if(!sel)return;
-    var cur=periodRank(currentPeriod()), want=periodRank(state.period||currentPeriod());
-    var lo=Math.min(cur-24,want), hi=Math.max(cur+3,want), key=lo+":"+hi;
+    var cur=periodRank(currentPeriod()), key=currentPeriod();
     if(sel.getAttribute("data-range")!==key){
-      sel.innerHTML="";
-      for(var r=hi;r>=lo;r--){ var pk=rankToPeriod(r); sel.appendChild(opt(pk,periodName(pk))); }
+      sel.innerHTML=""; sel.appendChild(opt("","All open work"));
+      var gm=document.createElement("optgroup"); gm.label="Monthly returns for";
+      for(var r=cur-1;r>=cur-18;r--){ var pk=rankToPeriod(r); gm.appendChild(opt("M:"+pk,periodName(pk))); }
+      var gq=document.createElement("optgroup"); gq.label="Quarterly returns for"; var n=0;
+      for(var r2=cur-1;n<6;r2--){ if(((r2%12)+1)%3!==0)continue; var qk=rankToPeriod(r2); gq.appendChild(opt("Q:"+qk,periodLong({freq:"quarterly",pk:qk}))); n++; }
+      var ga=document.createElement("optgroup"); ga.label="Annual returns for"; var fy=fyOfMonth(currentPeriod())-1;
+      for(var y=fy;y>fy-4;y--){ ga.appendChild(opt(fyKey(y),"FY "+fyKey(y).slice(2))); }
+      sel.appendChild(gm); sel.appendChild(gq); sel.appendChild(ga); sel.appendChild(opt("ONCE","One-time tasks"));
       sel.setAttribute("data-range",key);
     }
-    sel.value=state.period;
+    sel.value=showKey;
   }
-  function shiftPeriod(n){ state.period=rankToPeriod(periodRank(state.period)+n); renderAll(); }
   function renderTopBar(){
     var onClient = activeTab!=="overview" && !!clientById(activeTab);
     var back=$("#backBtn"); if(back)back.style.display=onClient?"":"none";
@@ -689,8 +778,8 @@ window.MARVCO_FIREBASE_CONFIG = {
     return bar; }
   function stagePanel(s){
     var box=el("div","stages"), hd=el("div","stages-h");
-    hd.appendChild(el("span","stages-t","Where the work stands · "+periodName(state.period)));
-    hd.appendChild(el("span","stages-p",(s.applicable?Math.round(s.fl/s.applicable*100):0)+"% filed"));
+    hd.appendChild(el("span","stages-t","Where the work stands · "+scopeName()));
+    hd.appendChild(el("span","stages-p",showKey?((s.applicable?Math.round(s.fl/s.applicable*100):0)+"% filed"):((s.applicable-s.fl)+" pending · "+s.fl+" filed this month")));
     box.appendChild(hd); box.appendChild(stageBar(s));
     var row=el("div","stbtns");
     STAGES.forEach(function(st){ var key="st:"+st[0], n=s[st[1]];
@@ -708,7 +797,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     var row=el("button","chatrow");
     var av=el("div","avatar"); av.style.background=colorFor(client.name); av.textContent=initials(client.name); row.appendChild(av);
     var mid=el("div","cr-mid"); mid.appendChild(el("div","cr-name",client.name));
-    var sub=s.applicable?(s.fl+" of "+s.applicable+" filed"):"No tasks", cls="";
+    var pend=s.applicable-s.fl, sub=showKey?(s.applicable?(s.fl+" of "+s.applicable+" filed"):"No tasks"):(pend?(pend+" pending"+(s.fl?(" · "+s.fl+" filed this month"):"")):(s.fl?(s.fl+" filed this month"):"Nothing pending")), cls="";
     if(over){ sub+=" · "+over+" overdue"; cls="danger"; }
     else if(blk){ sub+=" · "+blk+" blocked"; cls="danger"; }
     else if(!isOwner&&ret){ sub+=" · "+ret+" sent back"; cls="danger"; }
@@ -747,7 +836,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     sum.appendChild(statChip("overdue",cnt("overdue"),"Overdue","red"));
     sum.appendChild(statChip("soon",cnt("soon"),"Due in "+dueWin+(dueWin===1?" day":" days"),"amber"));
     sum.appendChild(statChip("pending",s.applicable-s.fl,"Pending","grey"));
-    sum.appendChild(statChip("done",s.fl,"Filed","green"));
+    sum.appendChild(statChip("done",s.fl,showKey?"Filed":"Filed this month","green"));
     sum.appendChild(statChip("blocked",s.blocked,"Blocked","red2"));
     panel.appendChild(sum);
     panel.appendChild(stagePanel(s));
@@ -813,7 +902,7 @@ window.MARVCO_FIREBASE_CONFIG = {
         gd.appendChild(gh); gr.appendChild(gd); tb.appendChild(gr); }
       var c=cell(tk.id), dc=dueCls(tk), tr=el("tr","trow"+(c.blocked?" bk":(dc==="overdue"?" ov":""))); tr.tabIndex=0;
       if(showClient)tr.appendChild(el("td","tt-client",(clientById(tk.clientId)||{name:""}).name));
-      tr.appendChild(el("td","tt-task",tk.name));
+      var tdn=el("td","tt-task",tk.name); tdn.appendChild(el("span","ptag",periodLong(tk))); tr.appendChild(tdn);
       tr.appendChild(el("td","tt-due "+dc,dueText(tk)));
       var sc=el("td"), lbl=ST_LONG[c.status]; if(c.status==="Reviewed"&&c.reviewedBy)lbl="Reviewed by "+c.reviewedBy+" — ready to file"; if(c.status==="Filed / Done"&&c.arn)lbl+=" · "+c.arn;
       sc.appendChild(el("span","chip "+ST_CLASS[c.status],lbl)); if(c.blocked)sc.appendChild(el("span","chip blk","⛔ Blocked")); tr.appendChild(sc);
@@ -826,14 +915,15 @@ window.MARVCO_FIREBASE_CONFIG = {
       tb.appendChild(tr); });
     t.appendChild(tb); wrap.appendChild(t); return wrap;
   }
-  function colOrder(names,tasks){ var due={}; tasks.forEach(function(t){ var d=(t.type==="qtr"||!t.due)?99:+t.due; if(due[t.name]===undefined||d<due[t.name])due[t.name]=d; });
+  function colOrder(names,tasks){ var due={}, FB={monthly:0,quarterly:100,annual:200,once:300}; tasks.forEach(function(t){ var f=freqOf(t), d=FB[f]+(f==="annual"?(((+t.dueMonth||3)+8)%12)*31:0)+(+t.due||31); if(due[t.name]===undefined||d<due[t.name])due[t.name]=d; });
     return names.slice().sort(function(a,b){ return (due[a]-due[b])||(a<b?-1:1); }); }
   function mxCell(tk){ var c=cell(tk.id), dc=dueCls(tk), n=daysLeft(tk);
     var b=el("button","mx-cell "+ST_CLASS[c.status]+(dc?(" "+dc):""));
+    b.appendChild(el("span","mx-per",periodShort(tk)));
     b.appendChild(el("span","mx-st",(c.blocked?"⛔ ":"")+(isReturned(c)?"↩ ":"")+ST_SHORT[c.status]));
     var sub=""; if(isOpen(c)&&n!==null){ sub=n<0?((-n)+"d late"):(n===0?"due today":(n===1?"due tomorrow":"due "+fmtDue(dueDateOf(tk)))); } else if(c.status==="Filed / Done"&&c.filedAt){ sub="filed "+fmtDue(new Date(c.filedAt)); }
     if(sub)b.appendChild(el("span","mx-sub",sub));
-    var tip=[tk.name,dueText(tk),ST_LONG[c.status]]; if(tk.ownerId)tip.push(staffName(tk.ownerId)); if(c.waiting)tip.push("Waiting: "+c.waiting); if(isReturned(c))tip.push("Sent back: "+c.returnNote); b.title=tip.join(" · ");
+    var tip=[tk.name+" \u00B7 "+periodLong(tk),dueText(tk),ST_LONG[c.status]]; if(tk.ownerId)tip.push(staffName(tk.ownerId)); if(c.waiting)tip.push("Waiting: "+c.waiting); if(isReturned(c))tip.push("Sent back: "+c.returnNote); b.title=tip.join(" · ");
     b.addEventListener("click",function(){ openSheet(tk.id); }); return b; }
   function renderMatrix(panel,scoped){
     var anyF=hasAnyFilter(), names={}; scoped.forEach(function(t){ names[t.name]=1; });
@@ -841,12 +931,12 @@ window.MARVCO_FIREBASE_CONFIG = {
     var clients=visibleClients().filter(function(c){ return scoped.some(function(t){return t.clientId===c.id;}); }).slice().sort(function(a,b){ return a.name.toLowerCase()<b.name.toLowerCase()?-1:1; });
     if(!clients.length){ panel.appendChild(el("div","empty2",anyF?"No clients match your filters.":"No clients assigned yet.")); return; }
     var wrap=el("div","mx-scroll"), t=el("table","matrix"), th=el("thead"), hr=el("tr");
-    hr.appendChild(el("th","mx-cl","Client")); hr.appendChild(el("th","mx-pg","Filed")); cols.forEach(function(n){ hr.appendChild(el("th",null,n)); }); th.appendChild(hr); t.appendChild(th);
+    hr.appendChild(el("th","mx-cl","Client")); hr.appendChild(el("th","mx-pg",showKey?"Filed":"Filed this month")); cols.forEach(function(n){ hr.appendChild(el("th",null,n)); }); th.appendChild(hr); t.appendChild(th);
     var tb=el("tbody");
     clients.forEach(function(cl){ var tr=el("tr"), mine=scoped.filter(function(t){return t.clientId===cl.id;}), s=summaryOf(mine);
       var tdc=el("td","mx-cl"), cb=el("button","mx-client"), av=el("span","avatar sm"); av.style.background=colorFor(cl.name); av.textContent=initials(cl.name); cb.appendChild(av); cb.appendChild(el("span",null,cl.name)); cb.title="Open "+cl.name; cb.addEventListener("click",function(){ setTab(cl.id); }); tdc.appendChild(cb); tr.appendChild(tdc);
       var pg=el("td","mx-pg"); pg.appendChild(el("span",null,s.fl+" / "+s.applicable)); var mb=el("span","mbar"), mf=el("span"); mf.style.width=(s.applicable?s.fl/s.applicable*100:0)+"%"; mb.appendChild(mf); pg.appendChild(mb); tr.appendChild(pg);
-      cols.forEach(function(n){ var td=el("td"); mine.filter(function(t){return t.name===n;}).forEach(function(tk){ td.appendChild(mxCell(tk)); }); if(!td.childNodes.length)td.appendChild(el("span","mx-none","—")); tr.appendChild(td); });
+      cols.forEach(function(n){ var td=el("td"); mine.filter(function(t){return t.name===n;}).sort(byDue).forEach(function(tk){ td.appendChild(mxCell(tk)); }); if(!td.childNodes.length)td.appendChild(el("span","mx-none","—")); tr.appendChild(td); });
       tb.appendChild(tr); });
     t.appendChild(tb); wrap.appendChild(t); panel.appendChild(wrap);
     var lg=el("div","legend2"); STAGES.forEach(function(st){ var x=el("span"), d=el("i"); d.style.background=st[2]; x.appendChild(d); x.appendChild(document.createTextNode(ST_LONG[st[0]])); lg.appendChild(x); });
@@ -873,7 +963,7 @@ window.MARVCO_FIREBASE_CONFIG = {
       var pg=el("td","mx-pg"); pg.appendChild(el("span",null,(s.applicable?Math.round(s.fl/s.applicable*100):0)+"% filed")); var mb=el("span","mbar"), mf=el("span"); mf.style.width=(s.applicable?s.fl/s.applicable*100:0)+"%"; mb.appendChild(mf); pg.appendChild(mb); tr.appendChild(pg);
       tb.appendChild(tr); });
     t.appendChild(tb); wrap.appendChild(t); panel.appendChild(wrap);
-    panel.appendChild(el("div","legend2",(by==="task"?"Task-wise":"Staff-wise")+" summary for "+periodName(state.period)+". Click any number to see those tasks, client by client."));
+    panel.appendChild(el("div","legend2",(by==="task"?"Task-wise":"Staff-wise")+" summary \u00B7 "+scopeName()+". Click any number to see those tasks, client by client."));
   }
 
   // ---------- client screen ----------
@@ -882,12 +972,12 @@ window.MARVCO_FIREBASE_CONFIG = {
     var tks=clientTasks(client.id).filter(function(t){return passFilter(t,true);}).sort(byDue); var s=summaryOf(tks);
     var hd=el("div","cscreen-hd");
     if(client.scope)hd.appendChild(el("div","cs-scope",client.scope));
-    var pr=el("div","cs-prog"); pr.innerHTML="<b>"+s.fl+"</b> of <b>"+s.applicable+"</b> filed · "+periodName(state.period); hd.appendChild(pr);
+    var pr=el("div","cs-prog"); pr.innerHTML=showKey?("<b>"+s.fl+"</b> of <b>"+s.applicable+"</b> filed · "+scopeName()):("<b>"+(s.applicable-s.fl)+"</b> pending · <b>"+s.fl+"</b> filed this month"); hd.appendChild(pr);
     if(s.applicable){ var sg=el("div","cs-stages"); STAGES.forEach(function(st){ var n=s[st[1]]; if(!n)return; sg.appendChild(el("span","chip "+ST_CLASS[st[0]],n+" "+ST_LONG[st[0]].toLowerCase())); }); hd.appendChild(sg); }
     var fp=[]; if(val("#fOwner"))fp.push(ownerLabel(val("#fOwner"))); if(val("#fTask"))fp.push(val("#fTask")); if((val("#q")||"").trim())fp.push("“"+val("#q").trim()+"”");
     if(fp.length){ var fn=el("div","filtnote"); fn.appendChild(el("span",null,"Showing: "+fp.join(" · "))); var fb=el("button",null,"Show all tasks"); fb.addEventListener("click",clearAllFilters); fn.appendChild(fb); hd.appendChild(fn); }
     panel.appendChild(hd);
-    if(!tks.length){ panel.appendChild(el("div","empty2","No tasks for this client.")); return; }
+    if(!tks.length){ panel.appendChild(el("div","empty2",showKey?"No tasks for this client in "+scopeName()+".":"Nothing pending for this client.")); return; }
     if(isDesktop()){ panel.appendChild(taskTable(tks,false)); return; }
     var list=el("div","tasklist"); tks.forEach(function(t){ list.appendChild(taskCardEl(t,false)); }); panel.appendChild(list);
   }
@@ -897,7 +987,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     var mod=c.blocked?"bk":(flag==="overdue"?"ov":(c.status==="Prepared"?"rv":(c.status==="Reviewed"?"rd":(dc==="soon"?"so":(c.status==="Filed / Done"?"dn":"")))));
     var card=el("button","taskcard"+(mod?(" "+mod):""));
     if(showClient)card.appendChild(el("div","tc-client",client.name));
-    var top=el("div","tc-top"); top.appendChild(el("div","tc-name",t.name));
+    var top=el("div","tc-top"), tn=el("div","tc-name",t.name); tn.appendChild(el("span","ptag",periodShort(t))); top.appendChild(tn);
     top.appendChild(el("span","tc-due"+(dc?(" "+dc):""),dueText(t))); card.appendChild(top);
     var lbl=ST_LONG[c.status]; if(c.status==="Reviewed"&&c.reviewedBy)lbl="Reviewed by "+c.reviewedBy+" — ready to file"; if(c.status==="Filed / Done"&&c.arn)lbl+=" · "+c.arn;
     var row=el("div","tc-row"); row.appendChild(el("span","chip "+ST_CLASS[c.status],lbl));
@@ -933,7 +1023,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   function invInfo(t){
     var cfg=state.invoiceConfig; if(!cfg||!cfg.from)return null;
     var c=cell(t.id); if(c.status!=="Filed / Done"||!c.filedAt||c.filedAt<cfg.from)return null;
-    var L=(state.invoiceLog||{})[fbEnc(state.period)], e=L&&L[fbEnc(t.id)];
+    var L=(state.invoiceLog||{})[fbEnc(t.pk)], e=L&&L[fbEnc(t.tid)];
     if(e&&e.invoiceId)return {k:"ok",x:"\uD83E\uDDFE Draft invoice "+(e.number||"created")+(e.amount?(" \u00B7 \u20B9"+Number(e.amount).toLocaleString("en-IN")):"")};
     if(e&&e.error)return {k:"err",x:"\u26A0 Invoice not created: "+e.error};
     return {k:"wait",x:"\uD83E\uDDFE Draft invoice on its way (within "+(cfg.every||5)+" min)"};
@@ -954,11 +1044,11 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(x==="Prepared"&&!c.preparedBy){ c.preparedBy=actor(); c.preparedAt=nowIso(); }
     c.status=x; commit(t); }
   function renderSheetBody(){
-    if(!sheetTask)return; var t=taskById(sheetTask); if(!t){ closeSheet(); return; }
+    if(!sheetTask)return; var t=instById(sheetTask); if(!t){ closeSheet(); return; }
     var c=cell(t.id),client=clientById(t.clientId)||{name:""};
     var b=$("#sheetBody"); b.innerHTML="";
     b.appendChild(el("div","sheet-title",client.name));
-    b.appendChild(el("div","sheet-sub",t.name+" · due "+dueLabel(t)+(t.ownerId?(" · "+staffName(t.ownerId)):"")));
+    b.appendChild(el("div","sheet-sub",t.name+" · "+periodLong(t)+" · due "+dueLabel(t)+(t.ownerId?(" · "+staffName(t.ownerId)):"")));
     if(isReturned(c)){ var rb=el("div","rbox back"); rb.appendChild(el("b",null,"↩ Sent back by "+(c.returnedBy||"partner"))); rb.appendChild(el("div",null,c.returnNote)); b.appendChild(rb); }
     b.appendChild(el("div","sheet-lbl","Status"));
     if(c.status==="Filed / Done"){
@@ -984,7 +1074,7 @@ window.MARVCO_FIREBASE_CONFIG = {
         var wd=el("button","bigbtn ghost","Withdraw — I need to change something"); wd.addEventListener("click",function(){ withdraw(t); }); b.appendChild(wd);
       }
     } else if(c.status==="N/A"){
-      b.appendChild(el("div","rbox","Not applicable this month"));
+      b.appendChild(el("div","rbox","Not applicable for "+periodLong(t)));
     } else {
       var grid=el("div","opt-grid");
       ["Not started","Data received"].forEach(function(x){ var o=el("button","opt "+ST_CLASS[x]+(c.status===x?" sel":""),x); o.addEventListener("click",function(){ setWork(t,x); }); grid.appendChild(o); });
@@ -1011,7 +1101,8 @@ window.MARVCO_FIREBASE_CONFIG = {
       b.appendChild(el("div","sheet-lbl","Assigned to"));
       var as=el("select","sheet-input"); as.appendChild(opt("","— unassigned —",!t.ownerId));
       state.staff.forEach(function(st){ as.appendChild(opt(st.id,st.name,t.ownerId===st.id)); });
-      as.addEventListener("change",function(){ liveTask(t).ownerId=as.value; saveOwner(t.id); renderAll(); }); b.appendChild(as);
+      as.addEventListener("change",function(){ liveTask({id:t.tid}).ownerId=as.value; saveOwner(t.tid); renderAll(); renderSheetBody(); }); b.appendChild(as);
+      b.appendChild(el("div","muted-note2","Applies to every period of this task."));
     }
     var hist=[];
     if(c.preparedBy)hist.push("Prepared by "+c.preparedBy+(c.preparedAt?(" · "+fmtWhen(c.preparedAt)):""));
@@ -1027,7 +1118,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   function closeManage(){ $("#overlay").classList.remove("open"); refreshFilters(); renderAll(); }
   function renderManage(){
     Array.prototype.forEach.call(document.querySelectorAll(".modal-tab"),function(b){ b.classList.toggle("active",b.getAttribute("data-sec")===manageSection); });
-    var body=$("#modalBody"); body.innerHTML="";
+    var body=$("#modalBody"); body.innerHTML=""; var md=document.querySelector("#overlay .modal"); if(md)md.classList.toggle("wide",manageSection==="tasks");
     if(manageSection==="staff")renderStaffSec(body);
     else if(manageSection==="clients")renderClientsSec(body);
     else renderTasksSec(body);
@@ -1094,7 +1185,7 @@ window.MARVCO_FIREBASE_CONFIG = {
       }
       tr.appendChild(cz);
       tr.appendChild(el("td",null,String(tasksForClient(cl.id).length)));
-      var c4=el("td"); var rm=el("button","iconbtn","Remove"); rm.addEventListener("click",function(){ if(!confirm("Remove "+cl.name+" and all its tasks? This cannot be undone.")) return; var ids=tasksForClient(cl.id).map(function(x){return x.id;}); state.tasks=state.tasks.filter(function(x){return x.clientId!==cl.id;}); Object.keys(state.board).forEach(function(pk){ ids.forEach(function(id){ delete state.board[pk][id]; }); }); state.clients=state.clients.filter(function(x){return x.id!==cl.id;}); if(activeTab===cl.id)activeTab="overview"; save(whoami()); renderManage(); }); c4.appendChild(rm); tr.appendChild(c4);
+      var c4=el("td"); var rm=el("button","iconbtn","Remove"); rm.addEventListener("click",function(){ if(!confirm("Remove "+cl.name+" and all its tasks? This cannot be undone.")) return; var ids=tasksForClient(cl.id).map(function(x){return x.id;}); state.tasks=state.tasks.filter(function(x){return x.clientId!==cl.id;}); Object.keys(state.board).forEach(function(pk){ ids.forEach(function(id){ delete state.board[pk][fbEnc(id)]; }); }); state.clients=state.clients.filter(function(x){return x.id!==cl.id;}); if(activeTab===cl.id)activeTab="overview"; save(whoami()); renderManage(); }); c4.appendChild(rm); tr.appendChild(c4);
       tb.appendChild(tr);
     });
     t.appendChild(tb); body.appendChild(t);
@@ -1119,48 +1210,96 @@ window.MARVCO_FIREBASE_CONFIG = {
       body.appendChild(add);
     }
   }
+  function monthOpts(sel,cur){ var c=periodRank(currentPeriod()); for(var r=c+3;r>=c-24;r--){ var pk=rankToPeriod(r); sel.appendChild(opt(pk,MON[+pk.slice(5)-1]+" "+pk.slice(0,4),pk===cur)); } }
+  function quarterOpts(sel,cur){ var c=periodRank(currentPeriod()); for(var r=c+3;r>=c-24;r--){ if(((r%12)+1)%3!==0)continue; var pk=rankToPeriod(r); sel.appendChild(opt(pk,periodLong({freq:"quarterly",pk:pk}),pk===cur)); } }
+  function fyOpts(sel,cur){ var y=fyOfMonth(currentPeriod()); for(var i=y;i>=y-5;i--){ var k=fyKey(i); sel.appendChild(opt(k,"FY "+k.slice(2),k===cur)); } }
+  function monSel(cur){ var s=el("select"); s.appendChild(opt("","month",!cur)); MONTHS_L.forEach(function(m,i){ s.appendChild(opt(String(i+1),m.slice(0,3),+cur===i+1)); }); return s; }
+  function dueEditor(tk){
+    var f=freqOf(tk), box=el("div","duebox");
+    if(f==="once"){ var dd=el("input"); dd.type="date"; dd.value=tk.dueDate||""; dd.addEventListener("change",function(){ liveTask(tk).dueDate=dd.value||""; save(whoami()); }); box.appendChild(dd); return box; }
+    var d=el("input"); d.type="number"; d.min="1"; d.max="31"; d.value=(tk.due==null?"":tk.due); d.placeholder=(f==="quarterly"&&isTds(tk))?"31":"day";
+    d.addEventListener("change",function(){ var v=parseInt(d.value,10); liveTask(tk).due=isNaN(v)?null:v; save(whoami()); }); box.appendChild(d);
+    if(f==="annual"){ var ms=monSel(tk.dueMonth); ms.addEventListener("change",function(){ liveTask(tk).dueMonth=ms.value?+ms.value:null; save(whoami()); }); box.appendChild(ms); }
+    else box.appendChild(el("span","fixed",f==="quarterly"?"after qtr":"next month"));
+    return box;
+  }
+  function fromEditor(tk){
+    var f=freqOf(tk);
+    if(f==="once"){ return el("span","fixed",tk.createdAt?("Created "+ordDate(new Date(tk.createdAt))):"Pending now"); }
+    var s=el("select"), cur=fromOf(tk);
+    if(f==="annual")fyOpts(s,cur); else if(f==="quarterly")quarterOpts(s,cur); else monthOpts(s,cur);
+    if(s.value!==cur)s.appendChild(opt(cur,cur,true));
+    s.title="First return period tracked on the board";
+    s.addEventListener("change",function(){ liveTask(tk).from=s.value; save(whoami()); });
+    return s;
+  }
+  function setFreq(t,f){ t.freq=f; t.from=""; if(t.type!=="int")t.type="stat";
+    if(f==="once"&&!t.createdAt)t.createdAt=nowIso();
+    if(f==="annual"&&t.dueMonth==null)t.dueMonth=null; }
   function renderTasksSec(body){
-    body.appendChild(el("p","muted-note","Every recurring task, who does it, and how it is billed. The Fee is the rate on the Zoho invoice; the Zoho item decides the invoice line's item, SAC and GST."));
+    body.appendChild(el("p","muted-note","Every task, how often it repeats, and who does it. A monthly task becomes pending on the 1st of the next month, a quarterly one on the 1st after the quarter ends, an annual one on 1 April (start of the next FY), and a one-time task as soon as you add it. “Starts from” is the first return period the board tracks. Fee is the rate on the Zoho invoice."));
     body.appendChild(zohoStatusEl());
     if(!state.clients.length){ body.appendChild(el("div","empty2","Add a client first, then add tasks here.")); return; }
-    var t=el("table","mtable"),h=el("tr"); ["Client","Task","Due day","Type","Assigned to","Zoho item","Fee (\u20B9)",""].forEach(function(x){h.appendChild(el("th",null,x));}); var th=el("thead");th.appendChild(h);t.appendChild(th);
+    var t=el("table","mtable"),h=el("tr"); ["Client","Task","Repeats","Due","Starts from","Kind","Assigned to","Zoho item","Fee (₹)",""].forEach(function(x){h.appendChild(el("th",null,x));}); var th=el("thead");th.appendChild(h);t.appendChild(th);
     var tb=el("tbody");
-    var sorted=state.tasks.slice().sort(function(a,b){ var ca=(clientById(a.clientId)||{}).name||"",cb=(clientById(b.clientId)||{}).name||""; return ca<cb?-1:ca>cb?1:0; });
+    var FO={monthly:0,quarterly:1,annual:2,once:3};
+    var sorted=state.tasks.slice().sort(function(a,b){ var ca=(clientById(a.clientId)||{}).name||"",cb=(clientById(b.clientId)||{}).name||""; if(ca!==cb)return ca<cb?-1:1; return FO[freqOf(a)]-FO[freqOf(b)]; });
     sorted.forEach(function(tk){
       var tr=el("tr");
       var c1=el("td"); var cs=el("select"); state.clients.forEach(function(cl){ cs.appendChild(opt(cl.id,cl.name,cl.id===tk.clientId)); }); cs.addEventListener("change",function(){ liveTask(tk).clientId=cs.value; save(whoami()); }); c1.appendChild(cs); tr.appendChild(c1);
       var c2=el("td"); var nm=el("input"); nm.type="text"; nm.value=tk.name; nm.addEventListener("change",function(){ liveTask(tk).name=nm.value.trim(); save(whoami()); }); c2.appendChild(nm); tr.appendChild(c2);
-      var c3=el("td"); var du=el("input"); du.type="number"; du.min="1"; du.max="31"; du.value=(tk.due==null?"":tk.due); du.placeholder="—"; du.addEventListener("change",function(){ var v=parseInt(du.value,10); liveTask(tk).due=isNaN(v)?null:v; save(whoami()); }); c3.appendChild(du); tr.appendChild(c3);
-      var c4=el("td"); var ty=el("select"); TYPE_OPTS.forEach(function(o){ ty.appendChild(opt(o[0],o[1],o[0]===tk.type)); }); ty.addEventListener("change",function(){ liveTask(tk).type=ty.value; save(whoami()); }); c4.appendChild(ty); tr.appendChild(c4);
-      var c5=el("td"); var as=el("select"); as.appendChild(opt("","— unassigned —",!tk.ownerId)); state.staff.forEach(function(st){ as.appendChild(opt(st.id,st.name,st.id===tk.ownerId)); }); as.addEventListener("change",function(){ liveTask(tk).ownerId=as.value; save(whoami()); }); c5.appendChild(as); tr.appendChild(c5);
+      var c3=el("td"); var fq=el("select"); FREQ_OPTS.forEach(function(o){ fq.appendChild(opt(o[0],o[1],o[0]===freqOf(tk))); });
+      fq.addEventListener("change",function(){ if(!confirm("Change how often \""+tk.name+"\" repeats? Status already recorded for earlier periods stays, but the periods shown will change."))return renderManage(); setFreq(liveTask(tk),fq.value); save(whoami()); renderManage(); }); c3.appendChild(fq); tr.appendChild(c3);
+      var c4=el("td"); c4.appendChild(dueEditor(tk)); tr.appendChild(c4);
+      var c5=el("td"); c5.appendChild(fromEditor(tk)); tr.appendChild(c5);
+      var c6=el("td"); var ki=el("select"); KIND_OPTS.forEach(function(o){ ki.appendChild(opt(o[0],o[1],o[0]===(tk.type==="int"?"int":"stat"))); }); ki.addEventListener("change",function(){ var lt=liveTask(tk); lt.freq=freqOf(lt); lt.type=ki.value; save(whoami()); }); c6.appendChild(ki); tr.appendChild(c6);
+      var c7=el("td"); var as=el("select"); as.appendChild(opt("","— unassigned —",!tk.ownerId)); state.staff.forEach(function(st){ as.appendChild(opt(st.id,st.name,st.id===tk.ownerId)); }); as.addEventListener("change",function(){ liveTask(tk).ownerId=as.value; save(whoami()); }); c7.appendChild(as); tr.appendChild(c7);
       var ci=el("td"), zits=zItems();
-      if(zits.length){ var zi=el("select"); zi.appendChild(opt("","\u2014 default item \u2014",!tk.zohoItemId));
-        if(tk.zohoItemId&&!zItemById(tk.zohoItemId))zi.appendChild(opt(tk.zohoItemId,"\u26A0 no longer active in Zoho",true));
+      if(zits.length){ var zi=el("select"); zi.appendChild(opt("","— default item —",!tk.zohoItemId));
+        if(tk.zohoItemId&&!zItemById(tk.zohoItemId))zi.appendChild(opt(tk.zohoItemId,"⚠ no longer active in Zoho",true));
         zits.forEach(function(z){ zi.appendChild(opt(z.id,z.name+(z.rate?(" ("+money(z.rate)+")"):""),String(z.id)===String(tk.zohoItemId))); });
         if(tk.zohoItemId&&!zItemById(tk.zohoItemId))zi.className="warn";
         zi.addEventListener("change",function(){ liveTask(tk).zohoItemId=zi.value; save(whoami()); }); ci.appendChild(zi);
-      } else ci.appendChild(el("span","muted-note","\u2014"));
+      } else ci.appendChild(el("span","muted-note","—"));
       tr.appendChild(ci);
-      var cf=el("td"); var fe=el("input"); fe.type="number"; fe.min="0"; fe.step="1"; fe.value=(tk.fee==null?"":tk.fee); fe.placeholder="\u20B9"; fe.addEventListener("change",function(){ var v=parseFloat(fe.value); liveTask(tk).fee=isNaN(v)?null:v; save(whoami()); }); cf.appendChild(fe); tr.appendChild(cf);
-      var c6=el("td"); var rm=el("button","iconbtn","Remove"); rm.addEventListener("click",function(){ if(!confirm("Remove task \""+tk.name+"\"? Its status history is deleted.")) return; Object.keys(state.board).forEach(function(pk){ delete state.board[pk][tk.id]; }); state.tasks=state.tasks.filter(function(x){return x.id!==tk.id;}); save(whoami()); renderManage(); }); c6.appendChild(rm); tr.appendChild(c6);
+      var cf=el("td"); var fe=el("input"); fe.type="number"; fe.min="0"; fe.step="1"; fe.value=(tk.fee==null?"":tk.fee); fe.placeholder="₹"; fe.addEventListener("change",function(){ var v=parseFloat(fe.value); liveTask(tk).fee=isNaN(v)?null:v; save(whoami()); }); cf.appendChild(fe); tr.appendChild(cf);
+      var c8=el("td"); var rm=el("button","iconbtn","Remove"); rm.addEventListener("click",function(){ if(!confirm("Remove task \""+tk.name+"\"? It disappears from every period, including its status history.")) return; Object.keys(state.board).forEach(function(pk){ delete state.board[pk][fbEnc(tk.id)]; }); state.tasks=state.tasks.filter(function(x){return x.id!==tk.id;}); save(whoami()); renderManage(); }); c8.appendChild(rm); tr.appendChild(c8);
       tb.appendChild(tr);
     });
-    t.appendChild(tb); body.appendChild(t);
+    t.appendChild(tb); var tw=el("div","tt-scroll"); tw.style.border="none"; tw.appendChild(t); body.appendChild(tw);
+    // ---- add a task ----
+    body.appendChild(el("div","sheet-lbl","Add a task"));
     var add=el("div","addrow");
     var f1=el("div","fld"); f1.appendChild(el("label",null,"Client")); var ac=el("select"); state.clients.forEach(function(cl){ ac.appendChild(opt(cl.id,cl.name)); }); f1.appendChild(ac); add.appendChild(f1);
+    var fc=el("div","fld wide"); fc.appendChild(el("label",null,"Common compliance (fills the rest)")); var cm=el("select"); cm.appendChild(opt("","— pick, or type your own —"));
+    [["monthly","Monthly"],["quarterly","Quarterly"],["annual","Annual"]].forEach(function(g){ var og=document.createElement("optgroup"); og.label=g[1]; COMMON.forEach(function(c,i){ if(c[1]===g[0])og.appendChild(opt(String(i),c[0])); }); cm.appendChild(og); });
+    fc.appendChild(cm); add.appendChild(fc);
     var f2=el("div","fld"); f2.appendChild(el("label",null,"Task")); var at=el("input"); at.type="text"; at.placeholder="e.g. GSTR-1"; f2.appendChild(at); add.appendChild(f2);
-    var f3=el("div","fld due"); f3.appendChild(el("label",null,"Due day")); var ad=el("input"); ad.type="number"; ad.min="1"; ad.max="31"; ad.placeholder="—"; f3.appendChild(ad); add.appendChild(f3);
-    var f4=el("div","fld"); f4.appendChild(el("label",null,"Type")); var aty=el("select"); TYPE_OPTS.forEach(function(o){ aty.appendChild(opt(o[0],o[1])); }); f4.appendChild(aty); add.appendChild(f4);
+    var f3=el("div","fld"); f3.appendChild(el("label",null,"Repeats")); var afq=el("select"); FREQ_OPTS.forEach(function(o){ afq.appendChild(opt(o[0],o[1])); }); f3.appendChild(afq); add.appendChild(f3);
+    var fd=el("div","fld due"); fd.appendChild(el("label",null,"Due day")); var ad=el("input"); ad.type="number"; ad.min="1"; ad.max="31"; ad.placeholder="—"; fd.appendChild(ad); add.appendChild(fd);
+    var fm=el("div","fld due"); fm.appendChild(el("label",null,"Due month")); var am=monSel(""); fm.appendChild(am); add.appendChild(fm);
+    var fdt=el("div","fld"); fdt.appendChild(el("label",null,"Due date")); var adt=el("input"); adt.type="date"; fdt.appendChild(adt); add.appendChild(fdt);
     var f5=el("div","fld"); f5.appendChild(el("label",null,"Assign to")); var aa=el("select"); aa.appendChild(opt("","— unassigned —")); state.staff.forEach(function(st){ aa.appendChild(opt(st.id,st.name)); }); f5.appendChild(aa); add.appendChild(f5);
-    var fi=el("div","fld"); fi.appendChild(el("label",null,"Zoho item")); var azi=el("select"); azi.appendChild(opt("","\u2014 default item \u2014")); zItems().forEach(function(z){ azi.appendChild(opt(z.id,z.name)); }); fi.appendChild(azi); add.appendChild(fi);
-    var ff=el("div","fld due"); ff.appendChild(el("label",null,"Fee (\u20B9)")); var afe=el("input"); afe.type="number"; afe.min="0"; afe.placeholder="\u20B9"; ff.appendChild(afe); add.appendChild(ff);
-    var b=el("button","primary","Add task"); b.addEventListener("click",function(){ var nm=at.value.trim(); if(!nm){at.focus();return;} var v=parseInt(ad.value,10); var fv=parseFloat(afe.value); state.tasks.push({id:uid("tk"),clientId:ac.value,name:nm,due:isNaN(v)?null:v,type:aty.value,ownerId:aa.value,fee:isNaN(fv)?null:fv,zohoItemId:azi.value}); save(whoami()); renderManage(); }); add.appendChild(b);
+    var fi=el("div","fld"); fi.appendChild(el("label",null,"Zoho item")); var azi=el("select"); azi.appendChild(opt("","— default item —")); zItems().forEach(function(z){ azi.appendChild(opt(z.id,z.name)); }); fi.appendChild(azi); add.appendChild(fi);
+    var ff=el("div","fld due"); ff.appendChild(el("label",null,"Fee (₹)")); var afe=el("input"); afe.type="number"; afe.min="0"; afe.placeholder="₹"; ff.appendChild(afe); add.appendChild(ff);
+    var hint=el("div","muted-note2"); hint.style.flexBasis="100%";
+    function sync(){ var f=afq.value; fd.style.display=f==="once"?"none":""; fm.style.display=f==="annual"?"":"none"; fdt.style.display=f==="once"?"":"none";
+      hint.textContent={monthly:"Becomes pending on the 1st of each month for the month just ended; the first one is "+periodName(latestFrom("monthly"))+".",
+        quarterly:"Becomes pending on the 1st after each quarter ends; the first one is "+periodLong({freq:"quarterly",pk:latestFrom("quarterly")})+".",
+        annual:"Becomes pending on 1 April for the FY just ended; the first one is FY "+latestFrom("annual").slice(2)+".",
+        once:"Becomes pending as soon as you add it."}[f]; }
+    afq.addEventListener("change",sync);
+    cm.addEventListener("change",function(){ var c=COMMON[+cm.value]; if(!cm.value||!c)return; at.value=c[0]; afq.value=c[1]; ad.value=c[2]||""; am.value=c[3]?String(c[3]):""; sync(); });
+    var b=el("button","primary","Add task"); b.addEventListener("click",function(){ var nm=at.value.trim(); if(!nm){at.focus();return;} var f=afq.value, v=parseInt(ad.value,10), fv=parseFloat(afe.value);
+      var nt={id:uid("tk"),clientId:ac.value,name:nm,freq:f,type:"stat",due:(f==="once"||isNaN(v))?null:v,dueMonth:f==="annual"&&am.value?+am.value:null,dueDate:f==="once"?(adt.value||""):"",from:f==="once"?"":latestFrom(f),createdAt:nowIso(),ownerId:aa.value,fee:isNaN(fv)?null:fv,zohoItemId:azi.value};
+      state.tasks.push(nt); save(whoami()); renderManage(); }); add.appendChild(b);
+    add.appendChild(hint); sync();
     body.appendChild(add);
   }
 
   function refreshOwnerFilter(){ var sel=$("#fOwner"),cur=sel?sel.value:""; if(!sel)return; sel.innerHTML='<option value="">All staff</option><option value="__none__">Unassigned</option>'; state.staff.slice().sort(function(a,b){return a.name<b.name?-1:1;}).forEach(function(st){ sel.appendChild(opt(st.id,st.name,st.id===cur)); }); }
   function refreshClientFilter(){ var sel=$("#fClient"); if(!sel)return; var cur=sel.value; sel.innerHTML='<option value="">All clients</option>'; visibleClients().slice().sort(function(a,b){return a.name<b.name?-1:1;}).forEach(function(c){ sel.appendChild(opt(c.id,c.name,c.id===cur)); }); }
-  function refreshTaskFilter(){ var sel=$("#fTask"); if(!sel)return; var cur=sel.value,seen={},names=[]; baseTasks().forEach(function(t){ if(!seen[t.name]){seen[t.name]=1;names.push(t.name);} }); names.sort(); sel.innerHTML='<option value="">All tasks</option>'; names.forEach(function(n){ sel.appendChild(opt(n,n,n===cur)); }); }
+  function refreshTaskFilter(){ var sel=$("#fTask"); if(!sel)return; var cur=sel.value,seen={},names=[]; baseTemplates().forEach(function(t){ if(!seen[t.name]){seen[t.name]=1;names.push(t.name);} }); names.sort(); sel.innerHTML='<option value="">All tasks</option>'; names.forEach(function(n){ sel.appendChild(opt(n,n,n===cur)); }); }
   function refreshFilters(){ refreshOwnerFilter(); refreshClientFilter(); refreshTaskFilter(); }
   function renderSaved(){ var n=$("#saved"); if(!n)return; if(fbMode){ n.textContent="● Live"; return; } var m=state.meta||{}; if(serverMode)n.textContent="● Shared"; else n.textContent=m.updatedAt?"Saved on this device":"Offline"; }
 
@@ -1168,16 +1307,16 @@ window.MARVCO_FIREBASE_CONFIG = {
   function buildDigest(){
     var s=summaryOf(baseTasks()), now=new Date(), lines=[];
     lines.push("*Marv & Co — Compliance status*"+(isOwner?"":" — "+(staffName(viewer.staffId)||"Staff")));
-    lines.push(periodName(state.period)+" · as of "+ordDate(now));
-    lines.push(s.fl+" of "+s.applicable+" filings done");
+    lines.push(scopeName()+" · as of "+ordDate(now));
+    lines.push(showKey?(s.fl+" of "+s.applicable+" filings done"):((s.applicable-s.fl)+" pending · "+s.fl+" filed this month"));
     var blocked=[],due=[],notstarted=[],toreview=[],ready=[];
     baseTasks().forEach(function(t){
-      var c=cell(t.id),flag=dueFlag(t),cl=(clientById(t.clientId)||{name:"?"}).name,own=t.ownerId?staffName(t.ownerId):"unassigned";
-      if(c.blocked)blocked.push("• "+cl+" — "+t.name+" · "+own+(c.waiting?(" — waiting on "+c.waiting):""));
-      if(flag)due.push("• "+cl+" — "+t.name+" · due "+dueLabel(t)+(flag==="overdue"?" (OVERDUE)":"")+" · "+own);
-      if(c.status==="Prepared")toreview.push("• "+cl+" — "+t.name+" · prepared by "+(c.preparedBy||own));
-      if(c.status==="Reviewed")ready.push("• "+cl+" — "+t.name+" · "+own+(c.reviewedBy?(" · ✓ "+c.reviewedBy):""));
-      if(c.status==="Not started")notstarted.push("• "+cl+" — "+t.name+" · "+own);
+      var c=cell(t.id),flag=dueFlag(t),cl=(clientById(t.clientId)||{name:"?"}).name,tn=t.name+" ("+periodShort(t)+")",own=t.ownerId?staffName(t.ownerId):"unassigned";
+      if(c.blocked)blocked.push("• "+cl+" — "+tn+" · "+own+(c.waiting?(" — waiting on "+c.waiting):""));
+      if(flag)due.push("• "+cl+" — "+tn+" · due "+dueLabel(t)+(flag==="overdue"?" (OVERDUE)":"")+" · "+own);
+      if(c.status==="Prepared")toreview.push("• "+cl+" — "+tn+" · prepared by "+(c.preparedBy||own));
+      if(c.status==="Reviewed")ready.push("• "+cl+" — "+tn+" · "+own+(c.reviewedBy?(" · ✓ "+c.reviewedBy):""));
+      if(c.status==="Not started")notstarted.push("• "+cl+" — "+tn+" · "+own);
     });
     function section(title,arr,cap){
       if(!arr.length)return; lines.push(""); lines.push("*"+title+" ("+arr.length+")*");
@@ -1191,17 +1330,15 @@ window.MARVCO_FIREBASE_CONFIG = {
   }
   function shareWhatsApp(){ var text=buildDigest(); try{ if(navigator.clipboard)navigator.clipboard.writeText(text); }catch(e){} window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank"); }
 
-  function exportData(){ saveBlob(JSON.stringify(state,null,2),"application/json","marv-co-board-"+state.period+".json"); }
+  function exportData(){ saveBlob(JSON.stringify(state,null,2),"application/json","marv-co-board-"+new Date().toISOString().slice(0,10)+".json"); }
   function saveBlob(text,mime,filename){ var blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); },100); }
 
   function init(){
-    load(); state.period=rankToPeriod(periodRank(currentPeriod())-1); fillPeriods();
+    load(); fillPeriods();
     if(MQ){ var onMQ=function(){ renderPanel(); }; if(MQ.addEventListener)MQ.addEventListener("change",onMQ); else if(MQ.addListener)MQ.addListener(onMQ); }
     try{ var u=localStorage.getItem(LS_USER); if(u)$("#whoami").value=u; }catch(e){}
     loadSession();
-    $("#period").addEventListener("change",function(){ state.period=$("#period").value||currentPeriod(); renderAll(); });
-    $("#prevMonth").addEventListener("click",function(){ shiftPeriod(-1); });
-    $("#nextMonth").addEventListener("click",function(){ shiftPeriod(1); });
+    $("#period").addEventListener("change",function(){ showKey=$("#period").value||""; drill=""; drillClient=""; renderAll(); });
     $("#q").addEventListener("input",function(){ renderPanel(); });
     $("#fOwner").addEventListener("change",function(){ renderPanel(); });
     $("#fClient").addEventListener("change",function(){ renderPanel(); });
