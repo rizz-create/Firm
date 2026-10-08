@@ -593,12 +593,12 @@ window.MARVCO_FIREBASE_CONFIG = {
   function fyStart(pk){ return +String(pk).slice(2,6); }
   function fyOfMonth(pk){ var p=pk.split("-"),y=+p[0],m=+p[1]; return m>=4?y:y-1; }
   function startPeriod(){ var s=(state.settings||{}).startPeriod; return /^\d{4}-\d{2}$/.test(s||"")?s:DEFAULT_START; }
-  function defaultFrom(f){ var sp=startPeriod(); return f==="annual"?fyKey(fyOfMonth(sp)-1):sp; }
+  function defaultFrom(f){ var sp=startPeriod(); return f==="annual"?fyKey(fyOfMonth(currentPeriod())):sp; }
   function fromOf(t){ var f=freqOf(t), v=t.from||"";
     if(f==="annual") return /^FY\d{4}-\d{2}$/.test(v)?v:defaultFrom(f);
     return /^\d{4}-\d{2}$/.test(v)?v:defaultFrom(f); }
   function latestFrom(f){ var cur=periodRank(currentPeriod());
-    if(f==="annual"){ var y=fyOfMonth(currentPeriod()); return fyKey(y-1); }
+    if(f==="annual"){ return fyKey(fyOfMonth(currentPeriod())); }   // current FY: pending on 1 April of next FY
     if(f==="quarterly"){ for(var r=cur-1;r>cur-4;r--){ if(((r%12)+1)%3===0)return pkOfRank(r); } }
     return pkOfRank(cur-1); }
   function clampDay(y,m,d){ var last=new Date(y,m,0).getDate(); return new Date(y,m-1,Math.min(d,last)); }
@@ -1337,7 +1337,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     function sync(){ var f=afq.value; fd.style.display=f==="once"?"none":""; fm.style.display=f==="annual"?"":"none"; fdt.style.display=f==="once"?"":"none";
       hint.textContent={monthly:"Becomes pending on the 1st of each month for the month just ended; the first one is "+periodName(latestFrom("monthly"))+".",
         quarterly:"Becomes pending on the 1st after each quarter ends; the first one is "+periodLong({freq:"quarterly",pk:latestFrom("quarterly")})+".",
-        annual:"Becomes pending on 1 April for the FY just ended; the first one is FY "+latestFrom("annual").slice(2)+".",
+        annual:"Becomes pending on 1 April, the first day of the next FY. The first one is FY "+latestFrom("annual").slice(2)+", pending from 1 April "+(fyStart(latestFrom("annual"))+1)+". To track an FY that has already ended, change \u201CStarts from\u201D after adding.",
         once:"Becomes pending as soon as you add it."}[f]; }
     afq.addEventListener("change",sync);
     cm.addEventListener("change",function(){ var c=COMMON[+cm.value]; if(!cm.value||!c)return; at.value=c[0]; afq.value=c[1]; ad.value=c[2]||""; am.value=c[3]?String(c[3]):""; sync(); });
