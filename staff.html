@@ -634,16 +634,16 @@ window.MARVCO_FIREBASE_CONFIG = {
   function allInstances(){
     var k=[state.tasks.length,startPeriod(),currentPeriod(),isOwner?"o":viewer.staffId].join("|");
     if(_instVal&&_instKey===k&&_instVal.src===state.tasks)return _instVal.list;
-    var list=[]; baseTemplates().forEach(function(t){ periodsOf(t).forEach(function(pk){ list.push(makeInst(t,pk)); }); });
+    var list=[]; baseTemplates().forEach(function(t){ var ps=periodsOf(t); ps.forEach(function(pk,i){ var x=makeInst(t,pk); x.cur=(i===ps.length-1); list.push(x); }); });
     _instKey=k; _instVal={src:state.tasks,list:list}; return list; }
   function invalidateInst(){ _instVal=null; }
   function splitId(id){ var s=String(id), i=s.indexOf("|"); if(i<0)return {pk:latestFrom("monthly"),tid:s}; return {pk:s.slice(0,i),tid:s.slice(i+1)}; }
   function instById(id){ var k=splitId(id), t=taskById(k.tid); return t?makeInst(t,k.pk):null; }
-  // "Show" scope: "" = all open work (+ anything filed this month) · "M:2026-09" · "Q:2026-09" · "FY2025-26" · "ONCE"
+  // Scope "" (the normal view) = everything tracked up to this moment: all filed + all pending · "M:2026-09" · "Q:2026-09" · "FY2025-26" · "ONCE"
   var showKey="";
   function filedThisMonth(c){ if(c.status!=="Filed / Done"||!c.filedAt)return false; var d=new Date(c.filedAt); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")===currentPeriod(); }
   function inScope(x){ var k=showKey;
-    if(!k){ var c=cell(x.id); return isOpen(c)||filedThisMonth(c); }
+    if(!k)return true;   // as of this moment: every period tracked so far, filed or pending
     if(k==="ONCE")return x.freq==="once";
     if(k.indexOf("FY")===0)return x.freq==="annual"&&x.pk===k;
     if(k.indexOf("M:")===0)return x.freq==="monthly"&&x.pk===k.slice(2);
@@ -727,7 +727,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   }
   function isReturned(c){ return !!c.returnNote && (c.status==="Not started"||c.status==="Data received"); }
   function drillLabel(k){ if(k==="overdue"&&overMin)return "Overdue by more than "+overMin+" days"; if(k==="soon")return "Due within "+dueWin+(dueWin===1?" day":" days"); if(k.indexOf("st:")===0)return ST_LONG[k.slice(3)]||k.slice(3);
-    return {overdue:"Overdue",pending:"Pending",done:showKey?"Filed":"Filed this month",blocked:"Blocked",review:"To review",ready:"Ready to file",returned:"Sent back"}[k]||"Tasks"; }
+    return {overdue:"Overdue",pending:"Pending",done:"Filed so far",blocked:"Blocked",review:"To review",ready:"Ready to file",returned:"Sent back"}[k]||"Tasks"; }
   function ownerLabel(v){ return v==="__none__"?"Unassigned":staffName(v); }
   function drillTo(key,f){ f=f||{}; overMin=0; if(f.task!=null)$("#fTask").value=f.task; if(f.owner!=null)$("#fOwner").value=f.owner; drill=key; drillClient=""; renderPanel(); window.scrollTo({top:0}); }
   function byClientName(a,b){ var ca=(clientById(a.clientId)||{}).name||"",cb=(clientById(b.clientId)||{}).name||""; return ca<cb?-1:ca>cb?1:0; }
@@ -782,7 +782,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   function stagePanel(s){
     var box=el("div","stages"), hd=el("div","stages-h");
     hd.appendChild(el("span","stages-t","Where the work stands · "+scopeName()));
-    hd.appendChild(el("span","stages-p",showKey?((s.applicable?Math.round(s.fl/s.applicable*100):0)+"% filed"):((s.applicable-s.fl)+" pending · "+s.fl+" filed this month")));
+    hd.appendChild(el("span","stages-p",showKey?((s.applicable?Math.round(s.fl/s.applicable*100):0)+"% filed"):((s.applicable-s.fl)+" pending · "+s.fl+" filed so far")));
     box.appendChild(hd); box.appendChild(stageBar(s));
     var row=el("div","stbtns");
     STAGES.forEach(function(st){ var key="st:"+st[0], n=s[st[1]];
@@ -800,7 +800,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     var row=el("button","chatrow");
     var av=el("div","avatar"); av.style.background=colorFor(client.name); av.textContent=initials(client.name); row.appendChild(av);
     var mid=el("div","cr-mid"); mid.appendChild(el("div","cr-name",client.name));
-    var pend=s.applicable-s.fl, sub=showKey?(s.applicable?(s.fl+" of "+s.applicable+" filed"):"No tasks"):(pend?(pend+" pending"+(s.fl?(" · "+s.fl+" filed this month"):"")):(s.fl?(s.fl+" filed this month"):"Nothing pending")), cls="";
+    var pend=s.applicable-s.fl, sub=showKey?(s.applicable?(s.fl+" of "+s.applicable+" filed"):"No tasks"):(pend?(pend+" pending"+(s.fl?(" · "+s.fl+" filed"):"")):(s.fl?("All "+s.fl+" filed"):"Nothing pending")), cls="";
     if(over){ sub+=" · "+over+" overdue"; cls="danger"; }
     else if(blk){ sub+=" · "+blk+" blocked"; cls="danger"; }
     else if(!isOwner&&ret){ sub+=" · "+ret+" sent back"; cls="danger"; }
@@ -823,10 +823,11 @@ window.MARVCO_FIREBASE_CONFIG = {
     row.addEventListener("click",function(){ setTab(client.id); });
     return row;
   }
+  function emptyMsg(anyF){ var fc=val("#fClient"), c=fc&&clientById(fc); if(c&&!tasksForClient(fc).length)return c.name+" has no tasks set up yet. Add its tasks in Manage data \u2192 Task master."; return anyF?"No clients match your filters.":"No clients assigned yet."; }
   function renderClientList(panel){
     var cl=el("div","chatlist"), shown=0, anyF=hasAnyFilter();
     visibleClients().forEach(function(c){ var tks=clientTasks(c.id).filter(passFilter); if(anyF && !tks.length)return; cl.appendChild(clientRowEl(c)); shown++; });
-    if(!shown) panel.appendChild(el("div","empty2",anyF?"No clients match your filters.":"No clients assigned to you yet."));
+    if(!shown) panel.appendChild(el("div","empty2",emptyMsg(anyF)));
     else panel.appendChild(cl);
   }
   function renderHome(){
@@ -839,7 +840,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     sum.appendChild(statChip("overdue",scoped.filter(function(t){return dueFlag(t)==="overdue";}).length,"Overdue","red"));
     sum.appendChild(statChip("soon",cnt("soon"),"Due in "+dueWin+(dueWin===1?" day":" days"),"amber"));
     sum.appendChild(statChip("pending",s.applicable-s.fl,"Pending","grey"));
-    sum.appendChild(statChip("done",s.fl,showKey?"Filed":"Filed this month","green"));
+    sum.appendChild(statChip("done",s.fl,"Filed so far","green"));
     sum.appendChild(statChip("blocked",s.blocked,"Blocked","red2"));
     panel.appendChild(sum);
     panel.appendChild(stagePanel(s));
@@ -944,13 +945,13 @@ window.MARVCO_FIREBASE_CONFIG = {
     var anyF=hasAnyFilter(), names={}; scoped.forEach(function(t){ names[t.name]=1; });
     var cols=colOrder(Object.keys(names),scoped);
     var clients=visibleClients().filter(function(c){ return scoped.some(function(t){return t.clientId===c.id;}); }).slice().sort(function(a,b){ return a.name.toLowerCase()<b.name.toLowerCase()?-1:1; });
-    if(!clients.length){ panel.appendChild(el("div","empty2",anyF?"No clients match your filters.":"No clients assigned yet.")); return; }
+    if(!clients.length){ panel.appendChild(el("div","empty2",emptyMsg(anyF))); return; }
     var wrap=el("div","mx-scroll"), t=el("table","matrix"), th=el("thead"), hr=el("tr");
     hr.appendChild(el("th","mx-cl","Client")); hr.appendChild(el("th","mx-pg",showKey?"Filed":"Pending · filed")); cols.forEach(function(n){ hr.appendChild(el("th",null,n)); }); th.appendChild(hr); t.appendChild(th);
     var tb=el("tbody");
     clients.forEach(function(cl){ var tr=el("tr"), mine=scoped.filter(function(t){return t.clientId===cl.id;}), s=summaryOf(mine);
       var tdc=el("td","mx-cl"), cb=el("button","mx-client"), av=el("span","avatar sm"); av.style.background=colorFor(cl.name); av.textContent=initials(cl.name); cb.appendChild(av); cb.appendChild(el("span",null,cl.name)); cb.title="Open "+cl.name; cb.addEventListener("click",function(){ setTab(cl.id); }); tdc.appendChild(cb); tr.appendChild(tdc);
-      var pg=el("td","mx-pg"); pg.appendChild(el("span",null,showKey?(s.fl+" / "+s.applicable):((s.applicable-s.fl)+" pending"))); if(!showKey)pg.appendChild(el("div","mx-sub",s.fl+" filed this month")); var mb=el("span","mbar"), mf=el("span"); mf.style.width=(s.applicable?s.fl/s.applicable*100:0)+"%"; mb.appendChild(mf); pg.appendChild(mb); tr.appendChild(pg);
+      var pg=el("td","mx-pg"); pg.appendChild(el("span",null,showKey?(s.fl+" / "+s.applicable):((s.applicable-s.fl)+" pending"))); if(!showKey)pg.appendChild(el("div","mx-sub",s.fl+" filed")); var mb=el("span","mbar"), mf=el("span"); mf.style.width=(s.applicable?s.fl/s.applicable*100:0)+"%"; mb.appendChild(mf); pg.appendChild(mb); tr.appendChild(pg);
       cols.forEach(function(n){ var td=el("td"); mine.filter(function(t){return t.name===n;}).sort(byDue).forEach(function(tk){ td.appendChild(mxCell(tk)); }); if(!td.childNodes.length)td.appendChild(el("span","mx-none","—")); tr.appendChild(td); });
       tb.appendChild(tr); });
     t.appendChild(tb); wrap.appendChild(t); panel.appendChild(wrap);
@@ -988,7 +989,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     var hd=el("div","cscreen-hd");
     if(client.scope)hd.appendChild(el("div","cs-scope",client.scope));
     if(client.phone){ var csa=el("div","cs-actions"), call=el("a","clearbtn","\uD83D\uDCDE Call "+client.phone); call.href="tel:"+String(client.phone).replace(/[^\d+]/g,""); csa.appendChild(call); hd.appendChild(csa); }
-    var pr=el("div","cs-prog"); pr.innerHTML=showKey?("<b>"+s.fl+"</b> of <b>"+s.applicable+"</b> filed · "+scopeName()):("<b>"+(s.applicable-s.fl)+"</b> pending · <b>"+s.fl+"</b> filed this month"); hd.appendChild(pr);
+    var pr=el("div","cs-prog"); pr.innerHTML=showKey?("<b>"+s.fl+"</b> of <b>"+s.applicable+"</b> filed · "+scopeName()):("<b>"+(s.applicable-s.fl)+"</b> pending · <b>"+s.fl+"</b> filed so far"); hd.appendChild(pr);
     if(s.applicable){ var sg=el("div","cs-stages"); STAGES.forEach(function(st){ var n=s[st[1]]; if(!n)return; sg.appendChild(el("span","chip "+ST_CLASS[st[0]],n+" "+ST_LONG[st[0]].toLowerCase())); }); hd.appendChild(sg); }
     var fp=[]; if(val("#fOwner"))fp.push(ownerLabel(val("#fOwner"))); if(val("#fTask"))fp.push(val("#fTask")); if((val("#q")||"").trim())fp.push("“"+val("#q").trim()+"”");
     if(fp.length){ var fn=el("div","filtnote"); fn.appendChild(el("span",null,"Showing: "+fp.join(" · "))); var fb=el("button",null,"Show all tasks"); fb.addEventListener("click",clearAllFilters); fn.appendChild(fb); hd.appendChild(fn); }
@@ -1358,7 +1359,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     var s=summaryOf(baseTasks()), now=new Date(), lines=[];
     lines.push("*Marv & Co — Compliance status*"+(isOwner?"":" — "+(staffName(viewer.staffId)||"Staff")));
     lines.push(scopeName()+" · as of "+ordDate(now));
-    lines.push(showKey?(s.fl+" of "+s.applicable+" filings done"):((s.applicable-s.fl)+" pending · "+s.fl+" filed this month"));
+    lines.push(showKey?(s.fl+" of "+s.applicable+" filings done"):((s.applicable-s.fl)+" pending · "+s.fl+" filed"));
     var blocked=[],due=[],notstarted=[],toreview=[],ready=[];
     baseTasks().forEach(function(t){
       var c=cell(t.id),flag=dueFlag(t),cl=(clientById(t.clientId)||{name:"?"}).name,tn=t.name+" ("+periodShort(t)+")",own=t.ownerId?staffName(t.ownerId):"unassigned";
