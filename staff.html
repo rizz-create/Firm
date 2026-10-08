@@ -256,6 +256,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   .cs-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
   .bucket{display:flex;flex-direction:column;align-items:center;min-width:88px;padding:8px 10px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;font-size:12px;color:var(--muted);font-weight:600;font-family:var(--sans)}
   .bucket b{font-size:19px;color:var(--amber);line-height:1.1} .bucket.active{border-color:var(--amber);box-shadow:inset 0 0 0 1px var(--amber)}
+  .bucket.red b{color:var(--red)} .bucket.red.active{border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
   .bucket.custom{flex-direction:row;gap:6px;align-items:center;cursor:default} .bucket.custom input{width:60px;padding:6px;border:1px solid var(--line2);border-radius:6px;font-size:13px}
   .ctabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;-webkit-overflow-scrolling:touch}
   .ctab{flex:none;display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:18px;border:1px solid var(--line2);background:var(--card);cursor:pointer;font-size:13px;font-weight:600;color:var(--ink);font-family:var(--sans)}
@@ -311,10 +312,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     <button class="iconbtn2" id="menuBtn" title="Menu" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
   </div>
   <div class="subbar" id="subbar">
-    <div class="monthpick">
-      <span class="mp-lbl">Show</span>
-      <select id="period" class="pill-period" aria-label="Which work to show"></select>
-    </div>
+    <div class="monthpick"><span class="mp-lbl" id="asOf"></span></div>
     <span class="live" id="saved"></span>
     <div class="filterrow">
       <span id="ownerFilterWrap"><select id="fOwner" class="owner-filter"><option value="">All staff</option></select></span>
@@ -651,7 +649,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(k.indexOf("M:")===0)return x.freq==="monthly"&&x.pk===k.slice(2);
     if(k.indexOf("Q:")===0)return x.freq==="quarterly"&&x.pk===k.slice(2);
     return true; }
-  function scopeName(){ var k=showKey; if(!k)return "All open work";
+  function scopeName(){ var k=showKey; if(!k)return "As of today";
     if(k==="ONCE")return "One-time tasks"; if(k.indexOf("FY")===0)return "Annual · FY "+k.slice(2);
     if(k.indexOf("M:")===0)return "Monthly · "+periodName(k.slice(2));
     if(k.indexOf("Q:")===0)return "Quarterly · "+periodLong({freq:"quarterly",pk:k.slice(2)});
@@ -696,6 +694,8 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(q){ var c=cell(t.id),cl=clientById(t.clientId)||{name:"",scope:""}; var hay=(cl.name+" "+cl.scope+" "+t.name+" "+staffName(t.ownerId)+" "+(c.waiting||"")+" "+(c.notes||"")).toLowerCase(); if(hay.indexOf(q)<0)return false; }
     return true;
   }
+  var overMin=0;   // overdue drill: show only items late by MORE than this many days (0 = all overdue)
+  function setOverMin(n){ overMin=Math.max(0,Math.min(999,n|0)); renderPanel(); }
   var dueWin=(function(){ try{ var v=parseInt(localStorage.getItem("marvco-duewin"),10); return v>0?v:7; }catch(e){ return 7; } })();
   var homeView=(function(){ try{ return localStorage.getItem("marvco-view")||"clients"; }catch(e){ return "clients"; } })();
   var drillClient="";
@@ -714,7 +714,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   var ST_LONG={"Not started":"Not started","Data received":"Data received","Prepared":"Prepared — awaiting review","Reviewed":"Reviewed — ready to file","Filed / Done":"Filed","N/A":"Not applicable"};
   var STAGES=[["Not started","ns","var(--ns)"],["Data received","dr","var(--dr)"],["Prepared","pr","var(--pr)"],["Reviewed","rv","var(--rv)"],["Filed / Done","fl","var(--fl)"]];
   function drillPred(k,t){ var c=cell(t.id), n;
-    if(k==="overdue")return dueFlag(t)==="overdue";
+    if(k==="overdue"){ if(dueFlag(t)!=="overdue")return false; return drill!=="overdue"||-daysLeft(t)>overMin; }
     if(k==="soon"){ if(!isOpen(c))return false; n=daysLeft(t); return n!==null&&n>=0&&n<=dueWin; }
     if(k==="pending")return isOpen(c);
     if(k==="done")return c.status==="Filed / Done";
@@ -726,10 +726,10 @@ window.MARVCO_FIREBASE_CONFIG = {
     return true;
   }
   function isReturned(c){ return !!c.returnNote && (c.status==="Not started"||c.status==="Data received"); }
-  function drillLabel(k){ if(k==="soon")return "Due within "+dueWin+(dueWin===1?" day":" days"); if(k.indexOf("st:")===0)return ST_LONG[k.slice(3)]||k.slice(3);
+  function drillLabel(k){ if(k==="overdue"&&overMin)return "Overdue by more than "+overMin+" days"; if(k==="soon")return "Due within "+dueWin+(dueWin===1?" day":" days"); if(k.indexOf("st:")===0)return ST_LONG[k.slice(3)]||k.slice(3);
     return {overdue:"Overdue",pending:"Pending",done:showKey?"Filed":"Filed this month",blocked:"Blocked",review:"To review",ready:"Ready to file",returned:"Sent back"}[k]||"Tasks"; }
   function ownerLabel(v){ return v==="__none__"?"Unassigned":staffName(v); }
-  function drillTo(key,f){ f=f||{}; if(f.task!=null)$("#fTask").value=f.task; if(f.owner!=null)$("#fOwner").value=f.owner; drill=key; drillClient=""; renderPanel(); window.scrollTo({top:0}); }
+  function drillTo(key,f){ f=f||{}; overMin=0; if(f.task!=null)$("#fTask").value=f.task; if(f.owner!=null)$("#fOwner").value=f.owner; drill=key; drillClient=""; renderPanel(); window.scrollTo({top:0}); }
   function byClientName(a,b){ var ca=(clientById(a.clientId)||{}).name||"",cb=(clientById(b.clientId)||{}).name||""; return ca<cb?-1:ca>cb?1:0; }
 
   // ---------- navigation ----------
@@ -739,6 +739,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   function renderPanel(){ invalidateInst(); renderTopBar(); if(activeTab==="overview")renderHome(); else { var c=clientById(activeTab); if(c)renderClientScreen(c); else { activeTab="overview"; renderHome(); } } }
   function rankToPeriod(r){ var y=Math.floor(r/12), m=r%12+1; return y+"-"+String(m).padStart(2,"0"); }
   function fillPeriods(){
+    var ao=$("#asOf"); if(ao)ao.textContent="As of today \u00B7 "+ordDate(new Date())+" "+new Date().getFullYear();
     var sel=$("#period"); if(!sel)return;
     var cur=periodRank(currentPeriod()), key=currentPeriod();
     if(sel.getAttribute("data-range")!==key){
@@ -772,7 +773,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     var c=el("button","statchip "+color+(drill===key?" active":""));
     c.appendChild(el("span","sc-n",String(n)));
     c.appendChild(el("span","sc-l",label));
-    c.addEventListener("click",function(){ drill=(drill===key?"":key); drillClient=""; renderPanel(); });
+    c.addEventListener("click",function(){ drill=(drill===key?"":key); drillClient=""; overMin=0; renderPanel(); });
     return c;
   }
   function stageBar(s,cls){ var bar=el("div",cls||"bar");
@@ -835,7 +836,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     var sum=el("div","summary");
     if(isOwner) sum.appendChild(statChip("review",s.pr,"To review","purple"));
     else { sum.appendChild(statChip("ready",s.rv,"Ready to file","teal")); var ret=cnt("returned"); if(ret||drill==="returned")sum.appendChild(statChip("returned",ret,"Sent back","red")); }
-    sum.appendChild(statChip("overdue",cnt("overdue"),"Overdue","red"));
+    sum.appendChild(statChip("overdue",scoped.filter(function(t){return dueFlag(t)==="overdue";}).length,"Overdue","red"));
     sum.appendChild(statChip("soon",cnt("soon"),"Due in "+dueWin+(dueWin===1?" day":" days"),"amber"));
     sum.appendChild(statChip("pending",s.applicable-s.fl,"Pending","grey"));
     sum.appendChild(statChip("done",s.fl,showKey?"Filed":"Filed this month","green"));
@@ -858,6 +859,18 @@ window.MARVCO_FIREBASE_CONFIG = {
     var bar=el("div","clearbar"); bar.appendChild(el("span","clearbar-t",drillLabel(drill)+" · "+items.length));
     var cb=el("button","clearbtn","✕ Back to overview"); cb.addEventListener("click",function(){ drill=""; drillClient=""; renderPanel(); }); bar.appendChild(cb);
     panel.appendChild(bar);
+    if(drill==="overdue"){
+      var late=scoped.filter(function(t){ return dueFlag(t)==="overdue"; });
+      var over=function(n){ return late.filter(function(t){ return -daysLeft(t)>n; }).length; };
+      var OPRE=[0,10,30,60,90], ob=el("div","buckets");
+      OPRE.forEach(function(n){ var b=el("button","bucket red"+(overMin===n?" active":"")); b.appendChild(el("b",null,String(over(n)))); b.appendChild(el("span",null,n?("more than "+n+" days"):"all overdue")); b.addEventListener("click",function(){ setOverMin(n); }); ob.appendChild(b); });
+      var oc=OPRE.indexOf(overMin)<0, ou=el("label","bucket custom red"+(oc?" active":""));
+      if(oc)ou.appendChild(el("b",null,String(over(overMin))));
+      ou.appendChild(el("span",null,"Custom: more than")); var oi=el("input"); oi.type="number"; oi.min="1"; oi.max="999"; oi.value=oc?overMin:""; oi.placeholder="45";
+      oi.addEventListener("change",function(){ var v=parseInt(oi.value,10); if(v>0)setOverMin(v); }); ou.appendChild(oi); ou.appendChild(el("span",null,"days"));
+      ob.appendChild(ou); panel.appendChild(ob);
+      items.sort(function(a,b){ return daysLeft(a)-daysLeft(b); });
+    }
     if(drill==="soon"){
       var open=scoped.filter(function(t){ return isOpen(cell(t.id)); });
       var within=function(n){ return open.filter(function(t){ var d=daysLeft(t); return d!==null&&d>=0&&d<=n; }).length; };
@@ -933,11 +946,11 @@ window.MARVCO_FIREBASE_CONFIG = {
     var clients=visibleClients().filter(function(c){ return scoped.some(function(t){return t.clientId===c.id;}); }).slice().sort(function(a,b){ return a.name.toLowerCase()<b.name.toLowerCase()?-1:1; });
     if(!clients.length){ panel.appendChild(el("div","empty2",anyF?"No clients match your filters.":"No clients assigned yet.")); return; }
     var wrap=el("div","mx-scroll"), t=el("table","matrix"), th=el("thead"), hr=el("tr");
-    hr.appendChild(el("th","mx-cl","Client")); hr.appendChild(el("th","mx-pg",showKey?"Filed":"Filed this month")); cols.forEach(function(n){ hr.appendChild(el("th",null,n)); }); th.appendChild(hr); t.appendChild(th);
+    hr.appendChild(el("th","mx-cl","Client")); hr.appendChild(el("th","mx-pg",showKey?"Filed":"Pending · filed")); cols.forEach(function(n){ hr.appendChild(el("th",null,n)); }); th.appendChild(hr); t.appendChild(th);
     var tb=el("tbody");
     clients.forEach(function(cl){ var tr=el("tr"), mine=scoped.filter(function(t){return t.clientId===cl.id;}), s=summaryOf(mine);
       var tdc=el("td","mx-cl"), cb=el("button","mx-client"), av=el("span","avatar sm"); av.style.background=colorFor(cl.name); av.textContent=initials(cl.name); cb.appendChild(av); cb.appendChild(el("span",null,cl.name)); cb.title="Open "+cl.name; cb.addEventListener("click",function(){ setTab(cl.id); }); tdc.appendChild(cb); tr.appendChild(tdc);
-      var pg=el("td","mx-pg"); pg.appendChild(el("span",null,s.fl+" / "+s.applicable)); var mb=el("span","mbar"), mf=el("span"); mf.style.width=(s.applicable?s.fl/s.applicable*100:0)+"%"; mb.appendChild(mf); pg.appendChild(mb); tr.appendChild(pg);
+      var pg=el("td","mx-pg"); pg.appendChild(el("span",null,showKey?(s.fl+" / "+s.applicable):((s.applicable-s.fl)+" pending"))); if(!showKey)pg.appendChild(el("div","mx-sub",s.fl+" filed this month")); var mb=el("span","mbar"), mf=el("span"); mf.style.width=(s.applicable?s.fl/s.applicable*100:0)+"%"; mb.appendChild(mf); pg.appendChild(mb); tr.appendChild(pg);
       cols.forEach(function(n){ var td=el("td"); mine.filter(function(t){return t.name===n;}).sort(byDue).forEach(function(tk){ td.appendChild(mxCell(tk)); }); if(!td.childNodes.length)td.appendChild(el("span","mx-none","—")); tr.appendChild(td); });
       tb.appendChild(tr); });
     t.appendChild(tb); wrap.appendChild(t); panel.appendChild(wrap);
@@ -1375,7 +1388,6 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(MQ){ var onMQ=function(){ renderPanel(); }; if(MQ.addEventListener)MQ.addEventListener("change",onMQ); else if(MQ.addListener)MQ.addListener(onMQ); }
     try{ var u=localStorage.getItem(LS_USER); if(u)$("#whoami").value=u; }catch(e){}
     loadSession();
-    $("#period").addEventListener("change",function(){ showKey=$("#period").value||""; drill=""; drillClient=""; renderAll(); });
     $("#q").addEventListener("input",function(){ renderPanel(); });
     $("#fOwner").addEventListener("change",function(){ renderPanel(); });
     $("#fClient").addEventListener("change",function(){ renderPanel(); });
