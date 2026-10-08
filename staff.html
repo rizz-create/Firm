@@ -253,7 +253,6 @@ window.MARVCO_FIREBASE_CONFIG = {
   .grp-row td{background:var(--panel)!important;padding:8px 12px!important;cursor:default}
   .grp-row .grp-h{margin:0}
   .ferr ul{margin:6px 0 8px 18px;padding:0} .ferr li{margin:2px 0} .ferr .clearbtn{margin:4px 6px 0 0} .ferr-fix{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:6px 0} .ferr-fix .sheet-input{width:120px;margin:0}
-  .wabtn{color:#128C4A!important;border-color:#BFE6CF!important;background:#F0FAF4!important;white-space:nowrap}
   .cs-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
   .bucket{display:flex;flex-direction:column;align-items:center;min-width:88px;padding:8px 10px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;font-size:12px;color:var(--muted);font-weight:600;font-family:var(--sans)}
   .bucket b{font-size:19px;color:var(--amber);line-height:1.1} .bucket.active{border-color:var(--amber);box-shadow:inset 0 0 0 1px var(--amber)}
@@ -884,7 +883,7 @@ window.MARVCO_FIREBASE_CONFIG = {
       var g=el("div","grp"), gh=el("div","grp-h");
       var av=el("span","avatar sm"); av.style.background=colorFor(cl.name); av.textContent=initials(cl.name); gh.appendChild(av);
       gh.appendChild(el("span","grp-n",cl.name)); gh.appendChild(el("span","grp-c",list.length+(list.length===1?" task":" tasks")));
-      gh.appendChild(waBtn(id)); var op=el("button","clearbtn","Open client ›"); op.addEventListener("click",function(){ setTab(id); }); gh.appendChild(op);
+      var op=el("button","clearbtn","Open client ›"); op.addEventListener("click",function(){ setTab(id); }); gh.appendChild(op);
       g.appendChild(gh);
       if(isDesktop()) g.appendChild(taskTable(list,false));
       else { var tl=el("div","tasklist"); list.forEach(function(t){ tl.appendChild(taskCardEl(t,false)); }); g.appendChild(tl); }
@@ -901,7 +900,7 @@ window.MARVCO_FIREBASE_CONFIG = {
         var gr=el("tr","grp-row"), gd=el("td"); gd.colSpan=ncol; var gh=el("div","grp-h");
         var av=el("span","avatar sm"); av.style.background=colorFor(cl.name); av.textContent=initials(cl.name); gh.appendChild(av);
         gh.appendChild(el("span","grp-n",cl.name)); gh.appendChild(el("span","grp-c",n+(n===1?" task":" tasks")));
-        gh.appendChild(waBtn(tk.clientId)); var op=el("button","clearbtn","Open client \u203A"); (function(id){ op.addEventListener("click",function(e){ e.stopPropagation(); setTab(id); }); })(tk.clientId); gh.appendChild(op);
+        var op=el("button","clearbtn","Open client \u203A"); (function(id){ op.addEventListener("click",function(e){ e.stopPropagation(); setTab(id); }); })(tk.clientId); gh.appendChild(op);
         gd.appendChild(gh); gr.appendChild(gd); tb.appendChild(gr); }
       var c=cell(tk.id), dc=dueCls(tk), tr=el("tr","trow"+(c.blocked?" bk":(dc==="overdue"?" ov":""))); tr.tabIndex=0;
       if(showClient)tr.appendChild(el("td","tt-client",(clientById(tk.clientId)||{name:""}).name));
@@ -974,8 +973,8 @@ window.MARVCO_FIREBASE_CONFIG = {
     var panel=$("#panel"); panel.innerHTML="";
     var tks=clientTasks(client.id).filter(function(t){return passFilter(t,true);}).sort(byDue); var s=summaryOf(tks);
     var hd=el("div","cscreen-hd");
-    if(client.scope)hd.appendChild(el("div","cs-scope",client.scope+(client.phone?(" \u00B7 \uD83D\uDCF1 "+client.phone):"")));
-    var csa=el("div","cs-actions"); csa.appendChild(waBtn(client.id)); hd.appendChild(csa);
+    if(client.scope)hd.appendChild(el("div","cs-scope",client.scope));
+    if(client.phone){ var csa=el("div","cs-actions"), call=el("a","clearbtn","\uD83D\uDCDE Call "+client.phone); call.href="tel:"+String(client.phone).replace(/[^\d+]/g,""); csa.appendChild(call); hd.appendChild(csa); }
     var pr=el("div","cs-prog"); pr.innerHTML=showKey?("<b>"+s.fl+"</b> of <b>"+s.applicable+"</b> filed · "+scopeName()):("<b>"+(s.applicable-s.fl)+"</b> pending · <b>"+s.fl+"</b> filed this month"); hd.appendChild(pr);
     if(s.applicable){ var sg=el("div","cs-stages"); STAGES.forEach(function(st){ var n=s[st[1]]; if(!n)return; sg.appendChild(el("span","chip "+ST_CLASS[st[0]],n+" "+ST_LONG[st[0]].toLowerCase())); }); hd.appendChild(sg); }
     var fp=[]; if(val("#fOwner"))fp.push(ownerLabel(val("#fOwner"))); if(val("#fTask"))fp.push(val("#fTask")); if((val("#q")||"").trim())fp.push("“"+val("#q").trim()+"”");
@@ -1141,13 +1140,6 @@ window.MARVCO_FIREBASE_CONFIG = {
       as.addEventListener("change",function(){ liveTask({id:t.tid}).ownerId=as.value; saveOwner(t.tid); renderAll(); renderSheetBody(); }); b.appendChild(as);
       b.appendChild(el("div","muted-note2","Applies to every period of this task."));
     }
-    if(isOwner){
-      b.appendChild(el("div","sheet-lbl","Documents to ask the client for"));
-      var dc=el("input","sheet-input"); dc.type="text"; dc.value=t.docs||""; dc.placeholder=docsFor({name:t.name})||"e.g. bank statement, sales invoices";
-      dc.addEventListener("change",function(){ liveTask({id:t.tid}).docs=dc.value.trim(); save(whoami()); }); b.appendChild(dc);
-      b.appendChild(el("div","muted-note2","Used in the WhatsApp reminder. Leave blank to use the standard list shown. Applies to every period of this task."));
-    }
-    var wr=waBtn(t.clientId); wr.style.marginTop="12px"; b.appendChild(wr);
     var hist=[];
     if(c.preparedBy)hist.push("Prepared by "+c.preparedBy+(c.preparedAt?(" · "+fmtWhen(c.preparedAt)):""));
     if(c.returnedBy&&c.returnNote)hist.push("Sent back by "+c.returnedBy+(c.returnedAt?(" · "+fmtWhen(c.returnedAt)):""));
@@ -1156,49 +1148,6 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(hist.length){ b.appendChild(el("div","sheet-lbl","History")); var tl=el("div","timeline"); hist.forEach(function(h){ tl.appendChild(el("div",null,h)); }); b.appendChild(tl); }
     var done=el("button","sheet-done","Done"); done.addEventListener("click",closeSheet); b.appendChild(done);
   }
-
-  function normPhone(p){ var d=String(p||"").replace(/\D/g,""); if(d.length===11&&d.charAt(0)==="0")d=d.slice(1); if(d.length===10)d="91"+d; return d; }
-  // ===== WhatsApp reminder to a client: open tasks, due dates, documents to share =====
-  var DOCS=[
-    [/iff|gstr-?1\b|quarterly gstr-?1/i,"Sales invoices / sales register, credit and debit notes issued"],
-    [/3b|pmt-?06/i,"Purchase invoices / purchase register, expense bills, any sales not shared yet"],
-    [/gstr-?9/i,"Annual sales and purchase summary, ITC details, HSN-wise summary"],
-    [/tds return/i,"TDS challans paid and party-wise payment details with PAN"],
-    [/tds/i,"Payments where TDS applies (salary, rent, contractor, professional fees) with the payee's PAN"],
-    [/pf|esi/i,"Attendance and salary sheet for the month"],
-    [/form 16\b/i,"Salary paid and TDS details of each employee"],
-    [/tax audit|3cd/i,"Books of accounts, fixed asset details, loan confirmations, stock details"],
-    [/itr|income tax/i,"Aadhaar and PAN copy, bank statements, Form 16 / salary details, interest certificates, investment proofs (80C/80D), capital gain statements"],
-    [/aoc|mgt|annual return|roc/i,"Signed financial statements, board report, changes in shareholding or directors"],
-    [/dir-?3|kyc/i,"Director's PAN, Aadhaar, and mobile/email for OTP"],
-    [/llp|form 8|form 11/i,"Signed statement of accounts, partners' contribution details"],
-    [/dpt/i,"Details of loans/deposits received, with auditor's certificate"],
-    [/account|p&l|financial|book/i,"Bank statements, sales and purchase bills, expense vouchers, cash book"]
-  ];
-  function docsFor(t){ if(t.docs)return t.docs; for(var i=0;i<DOCS.length;i++)if(DOCS[i][0].test(t.name||""))return DOCS[i][1]; return ""; }
-  function reminderText(client,list){
-    var lines=["Dear "+client.name+",","","Greetings from Marv & Co. Here is what is coming up for you:",""];
-    list.forEach(function(t,i){ var d=dueDateOf(t), docs=docsFor(t);
-      lines.push((i+1)+". *"+t.name+(t.freq==="once"?"":(" – "+periodLong(t)))+"*"+(d?(" — due "+ordDate(d)+" "+d.getFullYear()):""));
-      if(docs&&cell(t.id).status==="Not started")lines.push("   Please share: "+docs); });
-    lines.push("","Kindly share the documents on this WhatsApp chat at the earliest so we can file on time.","","Marv & Co Chartered Accountants","+91 7025173905");
-    return lines.join("\n");
-  }
-  function sendReminder(clientId){
-    var client=clientById(clientId); if(!client)return;
-    var list=allInstances().filter(function(t){ return t.clientId===clientId&&isOpen(cell(t.id)); }).sort(byDue);
-    if(!list.length){ alert("Nothing pending for "+client.name+"."); return; }
-    var ask=list.filter(function(t){ return cell(t.id).status==="Not started"; }); if(ask.length)list=ask;
-    var text=reminderText(client,list), ph=normPhone(client.phone);
-    try{ if(navigator.clipboard)navigator.clipboard.writeText(text); }catch(e){}
-    window.open("https://wa.me/"+(ph||"")+"?text="+encodeURIComponent(text),"_blank");
-    var when="Documents requested on WhatsApp "+ordDate(new Date());
-    list.forEach(function(t){ var c=cell(t.id); if(c.status==="Not started"&&!c.waiting){ c.waiting=when; c.requestedAt=nowIso(); saveCell(t.id); } });
-    renderAll();
-  }
-  function waBtn(clientId){ var c=clientById(clientId)||{}, b=el("button","clearbtn wabtn","💬 WhatsApp reminder");
-    b.title=c.phone?("Message "+c.name+" on "+c.phone+": open tasks, due dates and documents needed"):"No WhatsApp number in Client master — you'll pick the chat in WhatsApp";
-    b.addEventListener("click",function(e){ e.stopPropagation(); sendReminder(clientId); }); return b; }
 
   // ---------- Manage data (owner only) ----------
   function openManage(sec){ if(!isOwner)return; manageSection=sec||manageSection; $("#overlay").classList.add("open"); renderManage(); }
@@ -1251,7 +1200,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     body.appendChild(el("p","muted-note","Link each client to its Zoho Books customer. Linked clients take their name from Zoho automatically, and invoices go to that exact customer. Create new customers in Zoho Books first (with GSTIN and address); they then appear below to add. Removing a client also removes its tasks and their history."));
     body.appendChild(zohoStatusEl());
     var custs=zCust(), hasZ=custs.length>0;
-    var t=el("table","mtable"),h=el("tr"); ["Client","Scope","WhatsApp no.","Zoho Books customer","Tasks",""].forEach(function(x){h.appendChild(el("th",null,x));}); var th=el("thead");th.appendChild(h);t.appendChild(th);
+    var t=el("table","mtable"),h=el("tr"); ["Client","Scope","Phone","Zoho Books customer","Tasks",""].forEach(function(x){h.appendChild(el("th",null,x));}); var th=el("thead");th.appendChild(h);t.appendChild(th);
     var tb=el("tbody");
     state.clients.forEach(function(cl){
       var tr=el("tr"), linked=!!(cl.zohoId&&zCustById(cl.zohoId));
