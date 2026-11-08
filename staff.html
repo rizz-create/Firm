@@ -299,6 +299,84 @@ window.MARVCO_FIREBASE_CONFIG = {
   .cr-bar{display:flex;height:4px;border-radius:2px;overflow:hidden;background:var(--ns-bg);margin-top:6px;max-width:220px} .cr-bar span{display:block;height:100%}
   .cs-stages{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
   .hidden-inputs{position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
+  .subrow{display:flex;gap:10px;align-items:flex-start;padding:12px 12px;min-height:48px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;font-size:14px;background:#fff;cursor:pointer}
+  .subrow input{margin-top:2px;width:22px;height:22px;flex:none}
+  .subrow.done span:not(.subtag){text-decoration:line-through;color:var(--muted)}
+  .subrow.locked{opacity:.6;cursor:default}
+  .subtag{margin-left:auto;font-size:11px;color:var(--muted);white-space:nowrap}
+  .subs-row td{background:var(--panel)}
+  .sub-hint{font-size:13px;color:var(--amber);font-weight:600;margin:4px 0 6px;min-height:4px}
+  .subs-ed{padding:8px 4px}
+  .subs-line{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+  .subs-line input[type=text]{flex:1;min-width:220px;padding:7px 9px;border:1.5px solid var(--line2);border-radius:8px;font-size:13px;font-family:var(--sans)}
+  .subs-line select{padding:7px;border:1.5px solid var(--line2);border-radius:8px;font-size:13px;font-family:var(--sans);background:#fff}
+  .tscard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 12px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+  .tscard-l{display:flex;flex-direction:column} .tscard-l b{font-size:20px} .tscard-l span{font-size:11px;color:var(--muted);font-weight:600}
+  .tscard-m{font-weight:600;color:var(--muted);font-size:13px;margin:0 0 10px}
+  .tscard .tscard-m{margin:0}
+  .tscard-f{flex-basis:100%;font-size:12.5px;color:var(--red)}
+  .ts-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+  .ts-title{font-weight:700;font-size:16px;flex:1;min-width:180px}
+  .ts-form{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:6px}
+  .ts-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  .ts-row .fld{display:flex;flex-direction:column;gap:4px;min-width:120px}
+  .ts-row .fld label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase}
+  .ts-row input,.ts-row select{padding:9px;border:1.5px solid var(--line2);border-radius:9px;font-size:14px;font-family:var(--sans);background:#fff;color:var(--ink)}
+  .ts-chk{display:flex;align-items:center;gap:6px;font-size:14px;padding-bottom:10px;color:var(--ink)}
+  .ts-chips{display:flex;gap:6px;margin:10px 0 4px;flex-wrap:wrap}
+  .ts-chips button{background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:5px 12px;font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ink);font-family:var(--sans)}
+  .ts-acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .ts-grid{width:100%;border-collapse:collapse;font-size:13px}
+  .ts-grid th,.ts-grid td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+  .ts-grid th{font-size:11px;color:var(--faint);font-weight:600}
+  .ts-grid .ts-name{text-align:left;font-weight:600}
+  .ts-grid .ts-name small{display:block;color:var(--red);font-size:11px;font-weight:600}
+  .ts-grid .ts-cell{cursor:pointer}
+  .ts-grid .ts-cell.zero{color:var(--faint)}
+  .ts-grid .ts-cell:hover{background:var(--panel)}
+  .ts-grid .ts-tot{font-weight:700}
+  .ts-grid tr.ts-idle{background:var(--red-bg)}
+  .ts-grid tfoot td{font-weight:700;border-top:2px solid var(--line)}
+  tr.ts-idle td{background:var(--red-bg)}
+  .tm-bar{position:sticky;top:0;background:#fff;z-index:3;padding:2px 0 10px}
+  .tm-search{width:100%;padding:11px 13px;border:1.5px solid var(--line2);border-radius:10px;font-size:14px;font-family:var(--sans);color:var(--ink);background:#fff;margin-bottom:8px}
+  .tm-search:focus{outline:2px solid var(--green);border-color:var(--green)}
+  .tm-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .tm-filters select{padding:8px 9px;border:1.5px solid var(--line2);border-radius:9px;font-size:13px;font-family:var(--sans);background:#fff;color:var(--ink);max-width:210px}
+  .tm-chip{padding:7px 12px;border:1.5px solid var(--line2);border-radius:18px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);color:var(--ink)}
+  .tm-chip.on{background:#FFF4D6;border-color:#D9A400;color:#8A5A00}
+  .tm-bulk{margin-top:8px;padding:10px 12px;background:var(--panel);border-radius:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+  .tm-bulk select{padding:7px;border:1.5px solid var(--line2);border-radius:8px;font-family:var(--sans);background:#fff}
+  .tm-count{font-size:12.5px;color:var(--muted);margin:6px 2px 0}
+  .tm-group{display:flex;align-items:center;gap:8px;margin:20px 0 8px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+  .tm-gname{font-weight:700;font-size:15px} .tm-gcount{font-size:12px;color:var(--muted)}
+  .tc2{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .tc2.has-issue{border-left:4px solid #D9A400}
+  .tc2-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .tc2-name{flex:1;min-width:180px;font-weight:700;font-size:15px;border:1px solid transparent;padding:6px 8px;border-radius:8px;font-family:var(--sans);color:var(--ink);background:transparent}
+  .tc2-name:hover,.tc2-name:focus{border-color:var(--line2);background:#fff;outline:none}
+  .tc2-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .warnchip{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:12px;background:#FFF4D6;color:#8A5A00}
+  .tc2-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px 12px;margin-top:10px}
+  .tc2-f label{display:block;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px}
+  .tc2-f input,.tc2-f select{width:100%;padding:8px;border:1.5px solid var(--line2);border-radius:8px;font-size:13px;font-family:var(--sans);background:#fff;color:var(--ink)}
+  .tc2-f .duebox{display:flex;gap:4px;align-items:center} .tc2-f .duebox input[type=number]{width:58px} .tc2-f .duebox select{width:auto;flex:1}
+  .tc2-f .fixed{font-size:12px;color:var(--muted)}
+  .tc2-f.wide{grid-column:span 2}
+  .tc2-add{border:1.5px dashed var(--line2);border-radius:12px;padding:12px 14px;margin-bottom:14px;background:var(--panel)}
+  .tc2-add summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--green)}
+  .tc2-add[open] summary{margin-bottom:10px}
+  .tc2-foot{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+  .tk-seg{display:flex;gap:6px;background:var(--panel);padding:4px;border-radius:12px;margin:4px 0 12px;flex-wrap:wrap}
+  .tk-seg-b{flex:1;min-width:150px;padding:9px 12px;border:none;border-radius:9px;background:transparent;font-weight:600;font-size:13.5px;cursor:pointer;color:var(--muted);font-family:var(--sans)}
+  .tk-seg-b.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .tc2-title{font-weight:700;font-size:15px;flex:1;min-width:160px}
+  .assign-pan{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+  .pick-list{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin-top:8px}
+  .pick-row{display:flex;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);font-size:14px;cursor:pointer;color:var(--ink)}
+  .pick-row input{width:18px;height:18px;flex:none}
+  .pick-row.has{color:var(--muted);cursor:default}
+  .pick-row .subtag{margin-left:auto}
 </style>
 </head>
 <body>
@@ -330,6 +408,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   <div class="menu" id="menu">
     <div class="mhead">Signed in<b id="whoAmiLabel"></b></div>
     <button id="btnManage">Manage data</button>
+    <button id="btnTime">Timesheet</button>
     <button id="btnWhatsapp">Share to WhatsApp</button>
     <button id="btnExport">Export backup</button>
     <button id="btnSignout">Sign out</button>
@@ -406,9 +485,23 @@ window.MARVCO_FIREBASE_CONFIG = {
   var AV_COLORS=["#0E8A6E","#2563EB","#B4530E","#6D28D9","#0E7490","#BE185D","#15803D","#9A6700","#0F766E","#7C3AED"];
   var LS_KEY="marvco-board-v1", LS_USER="marvco-user", LS_SESSION="marvco-session";
   var state=null, activeTab="overview", drill="", manageSection="staff", loginRole="staff", sheetTask=null;
+  var appView="board", tsWeek=0, tsEdit=null, openSubs={};
+  var ACTIVITIES=[["Compliance filing",true],["Data collection & checking",true],["Client call / meeting",true],["Advisory / project work",true],["Audit / assurance",true],["Research / training",false],["Internal admin",false]];
+  var tsForm={date:"",staffId:"",clientId:"",activity:"Compliance filing",billable:true,note:""};
+  var APS_SEED=[{id:"ap_gst",name:"GST return",actions:[{id:"a_gst",name:"Share GSTR-1, GSTR-3B and GST working sheet (PDF) with client",when:"filed"}]},
+    {id:"ap_tds",name:"TDS",actions:[{id:"a_tds",name:"Share challan and return acknowledgment with client",when:"filed"}]},
+    {id:"ap_itr",name:"Income-tax return",actions:[{id:"a_itr",name:"Share ITR-V acknowledgment and computation sheet with client",when:"filed"}]}];
+  function cloneSub(x){ return {id:uid("sb"),name:x.name,when:x.when||"filed"}; }
+  function presetSeedFor(name){ var n=String(name||""); if(/gstr|gst return|\bgst\b/i.test(n))return "ap_gst"; if(/tds/i.test(n))return "ap_tds"; if(/itr|income tax return/i.test(n))return "ap_itr"; return ""; }
+  function libNew(o){ return {id:uid("lb"),name:String(o.name||"").trim(),freq:o.freq||"monthly",due:o.due==null?null:o.due,dueMonth:o.dueMonth||null,dueDate:o.dueDate||"",type:o.type||"stat",ownerId:o.ownerId||"",reviewerId:o.reviewerId||"",from:o.from||"",fee:o.fee==null?null:o.fee,zohoItemId:o.zohoItemId||"",subs:(o.subs||[]).map(cloneSub),createdAt:nowIso()}; }
+  function seedLib(){ return COMMON.map(function(c){ var pid=presetSeedFor(c[0]), a=APS_SEED.filter(function(x){ return x.id===pid; })[0]; return libNew({name:c[0],freq:c[1],due:c[2],dueMonth:c[3]||null,subs:a?a.actions:[]}); }); }
+  function ensureLibs(s){
+    if(!s.libSeeded){ s.taskLib=seedLib(); s.actionLib=APS_SEED.map(function(p){ return {id:p.id,name:p.name,actions:p.actions.map(function(x){ return {id:x.id,name:x.name,when:x.when}; })}; }); s.libSeeded=true; return true; }
+    s.taskLib=toArr(s.taskLib); s.actionLib=toArr(s.actionLib); return false;
+  }
   var session=null, viewer={role:"owner"}, isOwner=true;
   var serverMode=false, serverStamp="", pollTimer=null, API_BOARD="/api/board";
-  var fbMode=false, fbDb=null, fbSeeded=false, fbRenderT=null;
+  var fbMode=false, fbDb=null, fbSeeded=false, fbRenderT=null, fbAuth=null, fbAttached=false, fbLastEmail="", fbNotice="";
   var fbCfg=window.MARVCO_FIREBASE_CONFIG||{}, fbConfigured=!!(fbCfg.apiKey && String(fbCfg.apiKey).indexOf("PASTE")<0);
 
   function uid(p){ return p+Math.random().toString(36).slice(2,8); }
@@ -445,7 +538,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     }
     s.tasks.forEach(function(t){ if(t.ownerId===undefined)t.ownerId=""; });
     delete s.owners;
-    if(!s.board)s.board={}; if(!s.meta)s.meta={}; if(!s.period)s.period=currentPeriod();
+    if(!s.board)s.board={}; if(!s.meta)s.meta={}; if(!s.timesheet)s.timesheet={}; ensureLibs(s); if(!s.period)s.period=currentPeriod();
     return s;
   }
   function blankState(){ return migrate({period:currentPeriod(),staff:[],clients:[],tasks:[],board:{},meta:{}}); }
@@ -464,30 +557,74 @@ window.MARVCO_FIREBASE_CONFIG = {
   // ---------- Firebase cloud sync ----------
   function fbEnc(k){ return String(k).replace(/[.#$\[\]\/]/g,"_"); }
   function toArr(v){ if(!v)return []; if(Array.isArray(v))return v; return Object.keys(v).map(function(k){return v[k];}); }
-  function initFirebase(){
-    if(typeof firebase==="undefined"){ fbMode=false; renderSaved(); return; }
-    try{ firebase.initializeApp(fbCfg); fbDb=firebase.database(); }
-    catch(e){ fbMode=false; renderSaved(); return; }
-    var go=function(){ fbMode=true; attachFbListeners(); renderSaved(); };
-    try{ firebase.auth().signInAnonymously().then(go).catch(function(){ go(); }); }
-    catch(e){ go(); }
+  // ---------- Sign-in (Firebase email + password) and access by role ----------
+  function fbAuthMsg(e){ var c=(e&&e.code)||""; if(/wrong-password|user-not-found|invalid-credential|invalid-login/.test(c))return "Email or password is incorrect.";
+    if(/too-many-requests/.test(c))return "Too many attempts. Wait a few minutes and try again."; if(/network/.test(c))return "No internet connection.";
+    if(/invalid-email/.test(c))return "That email address doesn't look right."; return (e&&e.message)||"Sign-in failed."; }
+  function showFbLogin(msg){
+    session=null; fbMode=false;
+    var ov=$("#loginOverlay"), rt=ov.querySelector(".role-toggle"); if(rt)rt.style.display="none";
+    var hp=ov.querySelector(".login-h p"); if(hp)hp.textContent="Sign in with the email and password your partner gave you.";
+    var body=$("#loginBody"); body.innerHTML="";
+    var f1=el("div","fld"); f1.appendChild(el("label",null,"Email")); var em=el("input"); em.type="email"; em.autocomplete="username"; em.value=fbLastEmail; f1.appendChild(em); body.appendChild(f1);
+    var f2=el("div","fld"); f2.appendChild(el("label",null,"Password")); var pw=el("input"); pw.type="password"; pw.autocomplete="current-password"; f2.appendChild(pw); body.appendChild(f2);
+    var err=el("div","login-err",msg||""); body.appendChild(err);
+    var btn=el("button","primary","Sign in"); body.appendChild(btn);
+    function go(){
+      if(!fbAuth){ err.textContent="Sign-in is not available right now. Check your connection and reload."; return; }
+      if(!em.value.trim()||!pw.value){ err.textContent="Enter your email and password."; return; }
+      fbLastEmail=em.value.trim(); btn.disabled=true; btn.textContent="Signing in…"; err.textContent="";
+      fbAuth.signInWithEmailAndPassword(fbLastEmail,pw.value).catch(function(e){ btn.disabled=false; btn.textContent="Sign in"; err.textContent=fbAuthMsg(e); });
+    }
+    btn.addEventListener("click",go); pw.addEventListener("keydown",function(e){ if(e.key==="Enter")go(); });
+    var fp=el("button","clearbtn","Forgot password?"); fp.style.marginTop="10px";
+    fp.addEventListener("click",function(){ if(!fbAuth)return; if(!em.value.trim()){ err.textContent="Type your email above first."; return; }
+      fbAuth.sendPasswordResetEmail(em.value.trim()).then(function(){ err.textContent="A reset link has been sent to "+em.value.trim()+"."; }, function(e){ err.textContent=fbAuthMsg(e); }); });
+    body.appendChild(fp);
+    ov.classList.add("open");
   }
-  function attachFbListeners(){
-    try{
-      fbDb.ref("boardState").on("value", function(snap){ fbApplyState(snap.val()); }, fbErr);
-      fbDb.ref("cells").on("value", function(snap){ fbApplyCells(snap.val()); }, fbErr);
+  function initFirebase(){
+    if(typeof firebase==="undefined"||!firebase.auth){ showFbLogin("Sign-in could not load. Check your internet connection and reload."); return; }
+    try{ firebase.initializeApp(fbCfg); fbDb=firebase.database(); fbAuth=firebase.auth(); }
+    catch(e){ showFbLogin("Could not start: "+((e&&e.message)||e)); return; }
+    fbAuth.onAuthStateChanged(function(user){
+      if(!user){ fbMode=false; fbAttached=false; showFbLogin(fbNotice); fbNotice=""; return; }
+      fbLoadRole(user);
+    });
+  }
+  // The role is read from the database on every sign-in. The browser never decides who someone is.
+  function fbLoadRole(user){
+    fbDb.ref("roles/"+user.uid).once("value").then(function(snap){
+      var r=snap.val()||{};
+      if(r.role==="owner")setSession({role:"owner",ownerId:r.ownerId||"ow_rizwan"});
+      else if(r.role==="staff"&&r.staffId)setSession({role:"staff",staffId:r.staffId});
+      else { fbNotice="This account isn't set up for Marv & Co yet. Ask a partner to give you access."; fbMode=false; fbAuth.signOut(); return; }
+      fbMode=true; fbAttach(); hideLogin(); renderSaved();
+    }).catch(function(e){ fbMode=false; showFbLogin("Could not check your access: "+fbAuthMsg(e)); });
+  }
+  function fbAttach(){
+    if(!fbDb||fbAttached)return; fbAttached=true;
+    fbDb.ref("boardState").on("value", function(snap){ fbApplyState(snap.val()); }, fbErr);
+    fbDb.ref("cells").on("value", function(snap){ fbApplyCells(snap.val()); }, fbErr);
+    if(isOwner){
+      fbDb.ref("timesheet").on("value", function(snap){ state.timesheet=snap.val()||{}; fbAfterUpdate(); }, function(){});
       fbDb.ref("invoiceLog").on("value", function(snap){ state.invoiceLog=snap.val()||{}; fbAfterUpdate(); }, function(){});
       fbDb.ref("invoiceConfig").on("value", function(snap){ state.invoiceConfig=snap.val()||null; fbAfterUpdate(); }, function(){});
       fbDb.ref("zohoMaster").on("value", function(snap){ state.zohoMaster=snap.val()||null; fbAfterUpdate();
         var ae=document.activeElement; if($("#overlay").classList.contains("open") && !(ae&&(ae.tagName==="INPUT"||ae.tagName==="SELECT"))) renderManage(); }, function(){});
-    }catch(e){ fbErr(e); }
+    } else {
+      // staff: only their own timesheet rows (the database rules enforce the same filter)
+      fbDb.ref("timesheet").orderByChild("staffId").equalTo(viewer.staffId).on("value", function(snap){ state.timesheet=snap.val()||{}; fbAfterUpdate(); }, function(){});
+    }
   }
   function fbErr(err){ fbMode=false; var el2=$("#saved"); if(el2)el2.textContent="Cloud offline"; }
-  function fbApplyState(v){
-    if(!v){ if(!fbSeeded){ fbSeeded=true; pushStateFB(); } return; }
+  function fbApplyState(v){ fbGen++; fbSynced=fbSnapshot(v);
+    if(!v){ if(!fbSeeded&&isOwner){ fbSeeded=true; pushStateFB(); } return; }
     fbSeeded=true;
     state.staff=toArr(v.staff); state.clients=toArr(v.clients); state.tasks=toArr(v.tasks);
     state.settings=v.settings||{ownerPin:""}; state.meta=v.meta||{};
+    state.taskLib=toArr(v.taskLib); state.actionLib=toArr(v.actionLib); state.libSeeded=!!v.libSeeded;
+    if(ensureLibs(state))pushStateFB();
     var addedOw=ensureOwners(state.settings);
     state.tasks.forEach(function(t){ if(t.ownerId===undefined)t.ownerId=""; });
     if(addedOw)pushStateFB();
@@ -504,9 +641,43 @@ window.MARVCO_FIREBASE_CONFIG = {
     if($("#loginOverlay").classList.contains("open"))renderLogin();
     if(sheetTask)renderSheetBody();
   }
-  function pushStateFB(){ if(!fbDb)return; try{ fbDb.ref("boardState").set({staff:state.staff,clients:state.clients,tasks:state.tasks,settings:state.settings,meta:state.meta}); }catch(e){} }
-  function writeOwnerFB(){ if(!fbDb)return; try{ fbDb.ref("boardState/tasks").set(state.tasks); }catch(e){} }
-  function writeCellFB(id){ if(!fbDb)return; var k=splitId(id); try{ fbDb.ref("cells/"+fbEnc(k.pk)+"/"+fbEnc(k.tid)).set(cell(id)); }catch(e){} }
+  function boardForCloud(){ var st=JSON.parse(JSON.stringify({staff:state.staff,clients:state.clients,tasks:state.tasks,settings:state.settings,meta:state.meta,taskLib:state.taskLib||[],actionLib:state.actionLib||[],libSeeded:!!state.libSeeded}));
+    toArr(st.staff).forEach(function(x){ x.pin=""; }); if(st.settings){ st.settings.ownerPin=""; toArr(st.settings.owners).forEach(function(o){ o.pin=""; }); }
+    return st; }
+  var fbSynced=null, fbGen=0, FB_COLS=["staff","clients","tasks","taskLib","actionLib"];
+  function fbWrite(p){ if(p&&typeof p.catch==="function")p.catch(function(e){ var n=$("#saved"); if(n)n.textContent="⚠ Not saved to the cloud: "+((e&&e.code==="PERMISSION_DENIED")?"your account can't make this change":"check your connection and try again"); }); return p; }
+  function fbItems(src,c){ var o={}; toArr(src?src[c]:null).forEach(function(x){ if(x&&x.id)o[fbEnc(x.id)]=x; }); return o; }
+  // what the database holds, as JSON per item, so later saves can send only what changed
+  function fbSnapshot(v){ var s={legacy:{}}; FB_COLS.forEach(function(c){ var m=fbItems(v,c), j={}; Object.keys(m).forEach(function(k){ j[k]=JSON.stringify(m[k]); }); s[c]=j;
+      s.legacy[c]=!!(v&&v[c]&&typeof v[c]==="object"&&Object.keys(v[c]).some(function(k){ return /^\d+$/.test(k); })); });
+    s.allocations={}; if(v&&v.allocations)Object.keys(v.allocations).forEach(function(k){ s.allocations[k]=JSON.stringify(v.allocations[k]); });
+    s.settings=JSON.stringify(v&&v.settings!==undefined?v.settings:null); s.meta=JSON.stringify(v&&v.meta!==undefined?v.meta:null); s.libSeeded=JSON.stringify(!!(v&&v.libSeeded));
+    return s; }
+  function pushStateFB(){ if(!fbDb||!isOwner||!fbSynced)return;
+    var st=boardForCloud(), upd={}, next={legacy:{}}, P="boardState/", gen=fbGen;
+    FB_COLS.forEach(function(c){ var m=fbItems(st,c), prev=fbSynced[c]||{}, nj={};
+      Object.keys(m).forEach(function(k){ nj[k]=JSON.stringify(m[k]); });
+      if(fbSynced.legacy[c]){ upd[P+c]=m; }            // older save stored an array: replace the node once
+      else {
+        Object.keys(m).forEach(function(k){ if(prev[k]!==nj[k])upd[P+c+"/"+k]=m[k]; });
+        Object.keys(prev).forEach(function(k){ if(!(k in nj))upd[P+c+"/"+k]=null; });
+      }
+      next[c]=nj; next.legacy[c]=false; });
+    // task owner per task, read by the database rules to limit what staff may change
+    var am={}; toArr(st.tasks).forEach(function(t){ if(t&&t.id)am[fbEnc(t.id)]={ownerId:t.ownerId||""}; });
+    var aj={}; Object.keys(am).forEach(function(k){ aj[k]=JSON.stringify(am[k]); });
+    Object.keys(am).forEach(function(k){ if(fbSynced.allocations[k]!==aj[k])upd["allocations/"+k]=am[k]; });
+    Object.keys(fbSynced.allocations).forEach(function(k){ if(!(k in am))upd["allocations/"+k]=null; });
+    next.allocations=aj;
+    ["settings","meta","libSeeded"].forEach(function(k){ var v=st[k]; if(k==="libSeeded")v=!!v; if(v===undefined)v=null; var j=JSON.stringify(v); next[k]=j; if(fbSynced[k]!==j)upd[P+k]=v; });
+    if(!Object.keys(upd).length)return;
+    fbWrite(fbDb.ref().update(upd).then(function(){ if(gen===fbGen)fbSynced=next; }));
+  }
+  function grantAccess(st,uid){ uid=String(uid||"").trim(); if(!fbDb||!isOwner)return; var old=st.loginUid;
+    try{ if(old&&old!==uid)fbWrite(fbDb.ref("roles/"+old).remove()); if(uid)fbWrite(fbDb.ref("roles/"+uid).set({role:"staff",staffId:st.id})); }catch(e){}
+    liveStaff(st).loginUid=uid; save(whoami()); renderManage(); }
+  function writeOwnerFB(){ pushStateFB(); }
+  function writeCellFB(id){ if(!fbDb)return; var k=splitId(id); fbWrite(fbDb.ref("cells/"+fbEnc(k.pk)+"/"+fbEnc(k.tid)).set(cell(id))); }
   function initServer(){ apiGet(function(remote){
       serverMode=true;
       if(remote && remote.tasks && remote.tasks.length){ state=migrate(remote); serverStamp=(state.meta&&state.meta.updatedAt)||""; }
@@ -543,7 +714,10 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(!isOwner){ var nm=staffName(viewer.staffId); if(nm){ $("#whoami").value=nm; try{localStorage.setItem(LS_USER,nm);}catch(e){} } }
   }
   function setSession(s){ session=s; try{ localStorage.setItem(LS_SESSION,JSON.stringify(s)); }catch(e){} hideLogin(); applyRole(); activeTab="overview"; drill=""; refreshFilters(); renderAll(); }
-  function signOut(){ session=null; try{ localStorage.removeItem(LS_SESSION); }catch(e){} showLogin(); }
+  function signOut(){
+    if(fbAuth){ try{ localStorage.removeItem(LS_KEY); localStorage.removeItem(LS_SESSION); localStorage.removeItem(LS_USER); }catch(e){}
+      fbAuth.signOut().then(function(){ location.reload(); }, function(){ location.reload(); }); return; }
+    session=null; try{ localStorage.removeItem(LS_SESSION); }catch(e){} showLogin(); }
   function showLogin(){ loginRole="staff"; renderLogin(); $("#loginOverlay").classList.add("open"); }
   function hideLogin(){ $("#loginOverlay").classList.remove("open"); }
   function renderLogin(){
@@ -568,7 +742,10 @@ window.MARVCO_FIREBASE_CONFIG = {
   // lookups
   function clientById(id){ return state.clients.filter(function(c){return c.id===id;})[0]; }
   function staffById(id){ return state.staff.filter(function(s){return s.id===id;})[0]; }
-  function staffName(id){ var s=staffById(id); return s?s.name:""; }
+  function staffName(id){ var s=staffById(id); if(s)return s.name; var o=ownerById(id); return o?o.name:""; }
+  function assigneeAdd(sel,cur){ ownersList().forEach(function(o){ sel.appendChild(opt(o.id,o.name+" (partner)",o.id===cur)); }); return sel; }
+  function reviewerSel(cur,onChange){ var s=el("select"); s.appendChild(opt("","— any partner —",!cur)); ownersList().forEach(function(o){ s.appendChild(opt(o.id,o.name,o.id===cur)); }); if(onChange)s.addEventListener("change",function(){ onChange(s.value); }); return s; }
+  function fyPick(cur){ var s=el("select"); s.appendChild(opt("","Default: current FY",!cur)); fyOpts(s,cur); return s; }
   function tasksForClient(cid){ return state.tasks.filter(function(t){return t.clientId===cid;}); }
   function liveTask(x){ return taskById(x.id)||x; } function liveStaff(x){ return staffById(x.id)||x; }
   function liveClient(x){ return clientById(x.id)||x; } function liveOwner(x){ return ownerById(x.id)||x; }
@@ -626,7 +803,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     x.id=pk+"|"+t.id; x.tid=t.id; x.pk=pk; x.freq=f; x.dueAt=instDue(t,f,pk); return x; }
   function periodsOf(t){ var f=freqOf(t), cur=periodRank(currentPeriod()), out=[], r, lo;
     if(f==="once")return ["ONCE"];
-    if(f==="annual"){ var y1=fyOfMonth(currentPeriod())-1, y0=Math.max(fyStart(fromOf(t)),y1-3); for(var y=y0;y<=y1;y++)out.push(fyKey(y)); return out; }
+    if(f==="annual"){ var y1=fyOfMonth(currentPeriod())-1, y0=Math.max(fyStart(fromOf(t)),y1-15); for(var y=y0;y<=y1;y++)out.push(fyKey(y)); return out; }
     lo=Math.max(periodRank(fromOf(t)),cur-36);
     for(r=lo;r<=cur-1;r++){ if(f==="quarterly"&&((r%12)+1)%3!==0)continue; out.push(pkOfRank(r)); }
     return out; }
@@ -654,6 +831,11 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(k.indexOf("M:")===0)return "Monthly · "+periodName(k.slice(2));
     if(k.indexOf("Q:")===0)return "Quarterly · "+periodLong({freq:"quarterly",pk:k.slice(2)});
     return ""; }
+  function subsOf(t){ return toArr(t.subs).filter(function(s){ return s && String(s.name||"").trim(); }); }
+  function subDone(c,sid){ return !!(c.subs && c.subs[sid] && c.subs[sid].done); }
+  function subLocked(t,s){ return s.when==="filed" && cell(t.id).status!=="Filed / Done"; }
+  function nextActions(t){ var c=cell(t.id); if(c.status==="N/A")return []; return subsOf(t).filter(function(s){ return !subDone(c,s.id) && !subLocked(t,s); }); }
+  function toggleSub(t,sid){ var c=cell(t.id); c.subs=c.subs||{}; if(subDone(c,sid))delete c.subs[sid]; else c.subs[sid]={done:true,doneAt:nowIso(),doneBy:whoami()}; commit(t); }
   function cell(id){ var k=splitId(id), pk=fbEnc(k.pk), tk=fbEnc(k.tid); state.board[pk]=state.board[pk]||{}; var c=state.board[pk][tk]; if(!c){ c={status:"Not started",blocked:false,waiting:"",notes:""}; state.board[pk][tk]=c; } return c; }
   var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   function dueDateOf(t){ return t.dueAt||null; }
@@ -716,6 +898,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   function drillPred(k,t){ var c=cell(t.id), n;
     if(k==="overdue"){ if(dueFlag(t)!=="overdue")return false; return drill!=="overdue"||-daysLeft(t)>overMin; }
     if(k==="soon"){ if(!isOpen(c))return false; n=daysLeft(t); return n!==null&&n>=0&&n<=dueWin; }
+    if(k==="next")return nextActions(t).length>0;
     if(k==="pending")return isOpen(c);
     if(k==="done")return c.status==="Filed / Done";
     if(k==="blocked")return !!c.blocked;
@@ -727,16 +910,16 @@ window.MARVCO_FIREBASE_CONFIG = {
   }
   function isReturned(c){ return !!c.returnNote && (c.status==="Not started"||c.status==="Data received"); }
   function drillLabel(k){ if(k==="overdue"&&overMin)return "Overdue by more than "+overMin+" days"; if(k==="soon")return "Due within "+dueWin+(dueWin===1?" day":" days"); if(k.indexOf("st:")===0)return ST_LONG[k.slice(3)]||k.slice(3);
-    return {overdue:"Overdue",pending:"Pending",done:"Filed so far",blocked:"Blocked",review:"To review",ready:"Ready to file",returned:"Sent back"}[k]||"Tasks"; }
+    return {overdue:"Overdue",next:"Next actions",pending:"Pending",done:"Filed so far",blocked:"Blocked",review:"To review",ready:"Ready to file",returned:"Sent back"}[k]||"Tasks"; }
   function ownerLabel(v){ return v==="__none__"?"Unassigned":staffName(v); }
   function drillTo(key,f){ f=f||{}; overMin=0; if(f.task!=null)$("#fTask").value=f.task; if(f.owner!=null)$("#fOwner").value=f.owner; drill=key; drillClient=""; renderPanel(); window.scrollTo({top:0}); }
   function byClientName(a,b){ var ca=(clientById(a.clientId)||{}).name||"",cb=(clientById(b.clientId)||{}).name||""; return ca<cb?-1:ca>cb?1:0; }
 
   // ---------- navigation ----------
-  function setTab(id){ activeTab=id; $("#menu").classList.remove("open"); renderPanel(); window.scrollTo({top:0}); }
+  function setTab(id){ activeTab=id; appView="board"; $("#menu").classList.remove("open"); renderPanel(); window.scrollTo({top:0}); }
   function renderAll(){ renderPanel(); }
   function clearAllFilters(){ ["#fOwner","#fClient","#fTask","#q"].forEach(function(sl){ var n=$(sl); if(n)n.value=""; }); renderPanel(); }
-  function renderPanel(){ invalidateInst(); renderTopBar(); if(activeTab==="overview")renderHome(); else { var c=clientById(activeTab); if(c)renderClientScreen(c); else { activeTab="overview"; renderHome(); } } }
+  function renderPanel(){ invalidateInst(); renderTopBar(); if(appView==="time"){ renderTimesheet(); return; } if(activeTab==="overview")renderHome(); else { var c=clientById(activeTab); if(c)renderClientScreen(c); else { activeTab="overview"; renderHome(); } } }
   function rankToPeriod(r){ var y=Math.floor(r/12), m=r%12+1; return y+"-"+String(m).padStart(2,"0"); }
   function fillPeriods(){
     var ao=$("#asOf"); if(ao)ao.textContent="As of today \u00B7 "+ordDate(new Date())+" "+new Date().getFullYear();
@@ -756,12 +939,12 @@ window.MARVCO_FIREBASE_CONFIG = {
     sel.value=showKey;
   }
   function renderTopBar(){
-    var onClient = activeTab!=="overview" && !!clientById(activeTab);
-    var back=$("#backBtn"); if(back)back.style.display=onClient?"":"none";
-    $("#barTitle").textContent = onClient ? clientById(activeTab).name : "Marv & Co";
-    var sb=$("#subbar"); if(sb)sb.style.display=onClient?"none":"flex";
-    var sw=$("#searchwrap"); if(sw&&onClient)sw.classList.remove("open");
-    var sbtn=$("#searchBtn"); if(sbtn)sbtn.style.display=onClient?"none":"";
+    var onClient = activeTab!=="overview" && !!clientById(activeTab), onTime=appView==="time", hide=onClient||onTime;
+    var back=$("#backBtn"); if(back)back.style.display=hide?"":"none";
+    $("#barTitle").textContent = onTime ? "Timesheet" : onClient ? clientById(activeTab).name : "Marv & Co";
+    var sb=$("#subbar"); if(sb)sb.style.display=hide?"none":"flex";
+    var sw=$("#searchwrap"); if(sw&&hide)sw.classList.remove("open");
+    var sbtn=$("#searchBtn"); if(sbtn)sbtn.style.display=hide?"none":"";
     fillPeriods();
     ["#fOwner","#fClient","#fTask"].forEach(function(sl){ var n=$(sl); if(n)n.classList.toggle("on",!!n.value); });
     var cf=$("#clearFilters"); if(cf)cf.style.display=hasAnyFilter()?"":"none";
@@ -842,6 +1025,8 @@ window.MARVCO_FIREBASE_CONFIG = {
     sum.appendChild(statChip("pending",s.applicable-s.fl,"Pending","grey"));
     sum.appendChild(statChip("done",s.fl,"Filed so far","green"));
     sum.appendChild(statChip("blocked",s.blocked,"Blocked","red2"));
+    var nxc=cnt("next"); if(nxc||drill==="next")sum.appendChild(statChip("next",nxc,"Next actions","amber"));
+    panel.appendChild(tsCard());
     panel.appendChild(sum);
     panel.appendChild(stagePanel(s));
     if(drill){ renderDrill(panel,scoped); return; }
@@ -923,7 +1108,7 @@ window.MARVCO_FIREBASE_CONFIG = {
       var sc=el("td"), lbl=ST_LONG[c.status]; if(c.status==="Reviewed"&&c.reviewedBy)lbl="Reviewed by "+c.reviewedBy+" — ready to file"; if(c.status==="Filed / Done"&&c.arn)lbl+=" · "+c.arn;
       sc.appendChild(el("span","chip "+ST_CLASS[c.status],lbl)); if(c.blocked)sc.appendChild(el("span","chip blk","⛔ Blocked")); tr.appendChild(sc);
       if(isOwner)tr.appendChild(el("td","tt-own",tk.ownerId?staffName(tk.ownerId):"Unassigned"));
-      var nt=[]; if(isReturned(c))nt.push("↩ Sent back: "+c.returnNote); if(c.waiting)nt.push("⏳ "+c.waiting); if(c.notes)nt.push(c.notes);
+      var nt=[]; if(isReturned(c))nt.push("↩ Sent back: "+c.returnNote); if(c.waiting)nt.push("⏳ "+c.waiting); var nxa=nextActions(tk); if(nxa.length)nt.push("➜ Next: "+nxa[0].name+(nxa.length>1?" (+"+(nxa.length-1)+" more)":"")); if(c.notes)nt.push(c.notes);
       tr.appendChild(el("td","tt-notes"+(isReturned(c)?" ret":""),nt.join(" · ")||"—"));
       if(isOwner&&state.invoiceConfig){ var ii=invInfo(tk); tr.appendChild(el("td","tt-inv "+(ii?ii.k:""),ii?ii.x:"")); }
       tr.addEventListener("click",function(){ openSheet(tk.id); });
@@ -1012,7 +1197,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(isReturned(c))card.appendChild(el("div","tc-return","↩ Sent back by "+(c.returnedBy||"partner")+": "+c.returnNote));
     if(c.waiting)card.appendChild(el("div","tc-wait","⏳ Waiting: "+c.waiting));
     var ii=isOwner?invInfo(t):null; if(ii)card.appendChild(el("div","tc-inv "+ii.k,ii.x));
-    if(isOwner)card.appendChild(el("div","tc-owner",(t.ownerId?("👤 "+staffName(t.ownerId)):"👤 Unassigned")));
+    if(isOwner)card.appendChild(el("div","tc-owner",(t.ownerId?("👤 "+staffName(t.ownerId)):"👤 Unassigned")+(t.reviewerId?("  ·  reviewer: "+ownerName(t.reviewerId)):"")));
     card.addEventListener("click",function(){ openSheet(t.id); });
     return card;
   }
@@ -1138,6 +1323,19 @@ window.MARVCO_FIREBASE_CONFIG = {
       STATUSES.forEach(function(x){ var o=el("button","opt "+ST_CLASS[x]+(c.status===x?" sel":""),stLabel(x)); o.addEventListener("click",function(){ ownerSet(t,x); }); g.appendChild(o); });
       ov.appendChild(g); b.appendChild(ov);
     }
+    var sbs=subsOf(t);
+    if(sbs.length){
+      b.appendChild(el("div","sheet-lbl","Next actions"));
+      b.appendChild(el("div","muted-note2","Not billed. Tick when done. Only the parent task goes to Zoho."));
+
+      sbs.forEach(function(s){ var locked=subLocked(t,s), done=subDone(c,s.id);
+        var row=el("label","subrow"+(done?" done":""));
+        var cb=el("input"); cb.type="checkbox"; cb.checked=done;
+        cb.addEventListener("change",function(){ toggleSub(t,s.id); });
+        row.appendChild(cb); row.appendChild(el("span",null,s.name));
+        if(locked)row.appendChild(el("span","subtag","due after filing"));
+        b.appendChild(row); });
+    }
     b.appendChild(el("div","sheet-lbl","Blocked?"));
     var blk=el("button","toggle"+(c.blocked?" on":""),c.blocked?"⛔ Blocked — tap to clear":"Mark as blocked");
     blk.addEventListener("click",function(){ var cc=cell(t.id); cc.blocked=!cc.blocked; commit(t); }); b.appendChild(blk);
@@ -1150,7 +1348,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(isOwner){
       b.appendChild(el("div","sheet-lbl","Assigned to"));
       var as=el("select","sheet-input"); as.appendChild(opt("","— unassigned —",!t.ownerId));
-      state.staff.forEach(function(st){ as.appendChild(opt(st.id,st.name,t.ownerId===st.id)); });
+      assigneeAdd(as,t.ownerId); state.staff.forEach(function(st){ as.appendChild(opt(st.id,st.name,t.ownerId===st.id)); });
       as.addEventListener("change",function(){ liveTask({id:t.tid}).ownerId=as.value; saveOwner(t.tid); renderAll(); renderSheetBody(); }); b.appendChild(as);
       b.appendChild(el("div","muted-note2","Applies to every period of this task."));
     }
@@ -1174,7 +1372,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     else renderTasksSec(body);
   }
   function renderStaffSec(body){
-    body.appendChild(el("p","muted-note","Staff you add here become the sign-in names and the owner options. A staff member signs in by name and sees only their allocated clients; set a PIN to stop others picking their name."));
+    body.appendChild(el("p","muted-note","Staff you add here get their own sign-in. Create their account in Firebase (Authentication, Add user), then paste their User UID into Login UID. Clear it to remove their access. Staff see only their own timesheet, and the tasks allocated to them."));
     body.appendChild(el("div","sheet-lbl","Partners (reviewers)"));
     var owl=ownersList(), pt=el("table","mtable"), ph=el("tr"); ["Partner","Passcode",""].forEach(function(x){ph.appendChild(el("th",null,x));}); var pth=el("thead"); pth.appendChild(ph); pt.appendChild(pth);
     var ptb=el("tbody");
@@ -1192,14 +1390,16 @@ window.MARVCO_FIREBASE_CONFIG = {
     var pb=el("button","primary","Add partner"); pb.addEventListener("click",function(){ var nm=pn1.value.trim(); if(!nm){pn1.focus();return;} state.settings.owners=ownersList(); state.settings.owners.push({id:uid("ow"),name:nm,pin:pn2.value.trim()}); save(whoami()); renderManage(); }); padd.appendChild(pb);
     body.appendChild(padd);
     body.appendChild(el("div","sheet-lbl","Staff"));
-    var t=el("table","mtable"),h=el("tr"); ["Name","Role","PIN",""].forEach(function(x){h.appendChild(el("th",null,x));}); var th=el("thead");th.appendChild(h);t.appendChild(th);
+    var t=el("table","mtable"),h=el("tr"); ["Name","Role","PIN","Login UID (access)",""].forEach(function(x){h.appendChild(el("th",null,x));}); var th=el("thead");th.appendChild(h);t.appendChild(th);
     var tb=el("tbody");
     state.staff.forEach(function(st){
       var tr=el("tr");
       var c1=el("td"); var n=el("input"); n.type="text"; n.value=st.name; n.addEventListener("change",function(){ liveStaff(st).name=n.value.trim(); save(whoami()); }); c1.appendChild(n); tr.appendChild(c1);
       var c2=el("td"); var r=el("input"); r.type="text"; r.value=st.role||""; r.placeholder="e.g. Senior, Article"; r.addEventListener("change",function(){ liveStaff(st).role=r.value.trim(); save(whoami()); }); c2.appendChild(r); tr.appendChild(c2);
       var c3=el("td"); var pn=el("input"); pn.type="text"; pn.value=st.pin||""; pn.placeholder="optional"; pn.addEventListener("change",function(){ liveStaff(st).pin=pn.value.trim(); save(whoami()); }); c3.appendChild(pn); tr.appendChild(c3);
-      var c4=el("td"); var rm=el("button","iconbtn","Remove"); rm.addEventListener("click",function(){ if(!confirm("Remove "+(st.name||"this staff member")+"? Tasks assigned to them become unassigned.")) return; state.tasks.forEach(function(tk){ if(tk.ownerId===st.id)tk.ownerId=""; }); state.staff=state.staff.filter(function(x){return x.id!==st.id;}); save(whoami()); renderManage(); }); c4.appendChild(rm); tr.appendChild(c4);
+      var cu=el("td"); var ui=el("input"); ui.type="text"; ui.value=st.loginUid||""; ui.placeholder="paste UID from Firebase"; ui.title="The staff member's Firebase Authentication UID. Blank = no access.";
+      ui.addEventListener("change",function(){ grantAccess(st,ui.value); }); cu.appendChild(ui); tr.appendChild(cu);
+      var c4=el("td"); var rm=el("button","iconbtn","Remove"); rm.addEventListener("click",function(){ if(!confirm("Remove "+(st.name||"this staff member")+"? Tasks assigned to them become unassigned.")) return; if(st.loginUid&&fbDb){ fbWrite(fbDb.ref("roles/"+st.loginUid).remove()); } state.tasks.forEach(function(tk){ if(tk.ownerId===st.id)tk.ownerId=""; }); state.staff=state.staff.filter(function(x){return x.id!==st.id;}); save(whoami()); renderManage(); }); c4.appendChild(rm); tr.appendChild(c4);
       tb.appendChild(tr);
     });
     t.appendChild(tb); body.appendChild(t);
@@ -1263,7 +1463,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   }
   function monthOpts(sel,cur){ var c=periodRank(currentPeriod()); for(var r=c+3;r>=c-24;r--){ var pk=rankToPeriod(r); sel.appendChild(opt(pk,MON[+pk.slice(5)-1]+" "+pk.slice(0,4),pk===cur)); } }
   function quarterOpts(sel,cur){ var c=periodRank(currentPeriod()); for(var r=c+3;r>=c-24;r--){ if(((r%12)+1)%3!==0)continue; var pk=rankToPeriod(r); sel.appendChild(opt(pk,periodLong({freq:"quarterly",pk:pk}),pk===cur)); } }
-  function fyOpts(sel,cur){ var y=fyOfMonth(currentPeriod()); for(var i=y;i>=y-5;i--){ var k=fyKey(i); sel.appendChild(opt(k,"FY "+k.slice(2),k===cur)); } }
+  function fyOpts(sel,cur){ var y=fyOfMonth(currentPeriod()); for(var i=y;i>=y-15;i--){ var k=fyKey(i); sel.appendChild(opt(k,"FY "+k.slice(2),k===cur)); } }
   function monSel(cur){ var s=el("select"); s.appendChild(opt("","month",!cur)); MONTHS_L.forEach(function(m,i){ s.appendChild(opt(String(i+1),m.slice(0,3),+cur===i+1)); }); return s; }
   function dueEditor(tk){
     var f=freqOf(tk), box=el("div","duebox");
@@ -1287,65 +1487,484 @@ window.MARVCO_FIREBASE_CONFIG = {
   function setFreq(t,f){ t.freq=f; t.from=""; if(t.type!=="int")t.type="stat";
     if(f==="once"&&!t.createdAt)t.createdAt=nowIso();
     if(f==="annual"&&t.dueMonth==null)t.dueMonth=null; }
-  function renderTasksSec(body){
-    body.appendChild(el("p","muted-note","Every task, how often it repeats, and who does it. A monthly task becomes pending on the 1st of the next month, a quarterly one on the 1st after the quarter ends, an annual one on 1 April (start of the next FY), and a one-time task as soon as you add it. “Starts from” is the first return period the board tracks. Fee is the rate on the Zoho invoice."));
-    body.appendChild(zohoStatusEl());
-    if(!state.clients.length){ body.appendChild(el("div","empty2","Add a client first, then add tasks here.")); return; }
-    var t=el("table","mtable"),h=el("tr"); ["Client","Task","Repeats","Due","Starts from","Kind","Assigned to","Zoho item","Fee (₹)",""].forEach(function(x){h.appendChild(el("th",null,x));}); var th=el("thead");th.appendChild(h);t.appendChild(th);
-    var tb=el("tbody");
-    var FO={monthly:0,quarterly:1,annual:2,once:3};
-    var sorted=state.tasks.slice().sort(function(a,b){ var ca=(clientById(a.clientId)||{}).name||"",cb=(clientById(b.clientId)||{}).name||""; if(ca!==cb)return ca<cb?-1:1; return FO[freqOf(a)]-FO[freqOf(b)]; });
-    sorted.forEach(function(tk){
-      var tr=el("tr");
-      var c1=el("td"); var cs=el("select"); state.clients.forEach(function(cl){ cs.appendChild(opt(cl.id,cl.name,cl.id===tk.clientId)); }); cs.addEventListener("change",function(){ liveTask(tk).clientId=cs.value; save(whoami()); }); c1.appendChild(cs); tr.appendChild(c1);
-      var c2=el("td"); var nm=el("input"); nm.type="text"; nm.value=tk.name; nm.addEventListener("change",function(){ liveTask(tk).name=nm.value.trim(); save(whoami()); }); c2.appendChild(nm); tr.appendChild(c2);
-      var c3=el("td"); var fq=el("select"); FREQ_OPTS.forEach(function(o){ fq.appendChild(opt(o[0],o[1],o[0]===freqOf(tk))); });
-      fq.addEventListener("change",function(){ if(!confirm("Change how often \""+tk.name+"\" repeats? Status already recorded for earlier periods stays, but the periods shown will change."))return renderManage(); setFreq(liveTask(tk),fq.value); save(whoami()); renderManage(); }); c3.appendChild(fq); tr.appendChild(c3);
-      var c4=el("td"); c4.appendChild(dueEditor(tk)); tr.appendChild(c4);
-      var c5=el("td"); c5.appendChild(fromEditor(tk)); tr.appendChild(c5);
-      var c6=el("td"); var ki=el("select"); KIND_OPTS.forEach(function(o){ ki.appendChild(opt(o[0],o[1],o[0]===(tk.type==="int"?"int":"stat"))); }); ki.addEventListener("change",function(){ var lt=liveTask(tk); lt.freq=freqOf(lt); lt.type=ki.value; save(whoami()); }); c6.appendChild(ki); tr.appendChild(c6);
-      var c7=el("td"); var as=el("select"); as.appendChild(opt("","— unassigned —",!tk.ownerId)); state.staff.forEach(function(st){ as.appendChild(opt(st.id,st.name,st.id===tk.ownerId)); }); as.addEventListener("change",function(){ liveTask(tk).ownerId=as.value; save(whoami()); }); c7.appendChild(as); tr.appendChild(c7);
-      var ci=el("td"), zits=zItems();
-      if(zits.length){ var zi=el("select"); zi.appendChild(opt("","⚠ select an item",!tk.zohoItemId));
-        if(tk.zohoItemId&&!zItemById(tk.zohoItemId))zi.appendChild(opt(tk.zohoItemId,"⚠ no longer active in Zoho",true));
-        zits.forEach(function(z){ zi.appendChild(opt(z.id,z.name+(z.rate?(" ("+money(z.rate)+")"):""),String(z.id)===String(tk.zohoItemId))); });
-        if(!tk.zohoItemId||!zItemById(tk.zohoItemId))zi.className="warn";
-        zi.addEventListener("change",function(){ liveTask(tk).zohoItemId=zi.value; save(whoami()); }); ci.appendChild(zi);
-      } else ci.appendChild(el("span","muted-note","—"));
-      tr.appendChild(ci);
-      var cf=el("td"); var fe=el("input"); fe.type="number"; fe.min="0"; fe.step="1"; fe.value=(tk.fee==null?"":tk.fee); fe.placeholder="₹"; fe.addEventListener("change",function(){ var v=parseFloat(fe.value); liveTask(tk).fee=isNaN(v)?null:v; save(whoami()); }); cf.appendChild(fe); tr.appendChild(cf);
-      var c8=el("td"); var rm=el("button","iconbtn","Remove"); rm.addEventListener("click",function(){ if(!confirm("Remove task \""+tk.name+"\"? It disappears from every period, including its status history.")) return; Object.keys(state.board).forEach(function(pk){ delete state.board[pk][fbEnc(tk.id)]; }); state.tasks=state.tasks.filter(function(x){return x.id!==tk.id;}); save(whoami()); renderManage(); }); c8.appendChild(rm); tr.appendChild(c8);
-      tb.appendChild(tr);
+  var tkFilter={q:"",client:"",task:"",staff:"",freq:"",attn:false}, tkHost=null, tkScroll=null, tkView="alloc", libDraft=null, libAssign=null, libSel={}, libFilterQ="";
+  function tkRefresh(){ if(!tkHost)return; if(tkView==="lib")drawLib(tkHost); else if(tkView==="presets")drawPresets(tkHost); else drawTaskList(tkHost); }
+  function afterDraw(){ if(!tkScroll||!tkHost)return; var t=tkHost.querySelector('[data-tid="'+tkScroll+'"]'); tkScroll=null; if(t&&t.scrollIntoView)setTimeout(function(){ t.scrollIntoView({behavior:"smooth",block:"start"}); },30); }
+  function tkHasFilter(){ return !!(tkFilter.q||tkFilter.client||tkFilter.task||tkFilter.staff||tkFilter.freq||tkFilter.attn); }
+  function tkIssues(tk){ var out=[]; if(zItems().length&&!tk.zohoItemId)out.push("No Zoho item"); if(!(Number(tk.fee)>0))out.push("No fee"); if(!tk.ownerId)out.push("Unassigned"); return out; }
+  function tkMatch(tk){
+    var f=tkFilter, cl=clientById(tk.clientId)||{name:""};
+    if(f.client&&tk.clientId!==f.client)return false;
+    if(f.task&&tk.name!==f.task)return false;
+    if(f.staff==="__none__"&&tk.ownerId)return false;
+    if(f.staff&&f.staff!=="__none__"&&tk.ownerId!==f.staff)return false;
+    if(f.freq&&freqOf(tk)!==f.freq)return false;
+    if(f.attn&&!tkIssues(tk).length)return false;
+    var qq=String(f.q||"").trim().toLowerCase();
+    if(qq){ var hay=[cl.name,tk.name,staffName(tk.ownerId),(zItemById(tk.zohoItemId)||{}).name||"",freqOf(tk)].join(" ").toLowerCase(); if(hay.indexOf(qq)<0)return false; }
+    return true;
+  }
+  function tmSel(key,first,pairs){ var s=el("select"); s.appendChild(opt("",first,!tkFilter[key])); pairs.forEach(function(p){ s.appendChild(opt(p[0],p[1],String(tkFilter[key])===String(p[0]))); }); s.addEventListener("change",function(){ tkFilter[key]=s.value; renderManage(); }); return s; }
+  function tmFld(lbl,ctrl,wide){ var d=el("div","tc2-f"+(wide?" wide":"")); d.appendChild(el("label",null,lbl)); d.appendChild(ctrl); return d; }
+  function freqLabel(f){ return (FREQ_OPTS.filter(function(x){ return x[0]===f; })[0]||[])[1]||""; }
+  function libById(id){ return toArr(state.taskLib).filter(function(x){ return x.id===id; })[0]; }
+  function presetById(id){ return toArr(state.actionLib).filter(function(x){ return x.id===id; })[0]; }
+  function libUses(id){ return state.tasks.filter(function(x){ return x.libId===id; }).length; }
+  function presetActions(id){ var p=presetById(id); return p?toArr(p.actions).filter(function(a){ return a&&String(a.name||"").trim(); }).map(cloneSub):[]; }
+  function newTaskFromLib(lb,cid,o){ var fv=parseFloat(o.fee); return {id:uid("tk"),clientId:cid,name:lb.name,freq:lb.freq,type:lb.type||"stat",due:lb.freq==="once"?null:lb.due,dueMonth:lb.freq==="annual"?(lb.dueMonth||null):null,dueDate:lb.freq==="once"?(lb.dueDate||""):"",from:lb.freq==="once"?"":(lb.freq==="annual"&&lb.from?lb.from:latestFrom(lb.freq)),createdAt:nowIso(),ownerId:o.ownerId||"",reviewerId:lb.reviewerId||"",fee:isNaN(fv)?null:fv,zohoItemId:o.zohoItemId||"",subs:toArr(lb.subs).map(cloneSub),libId:lb.id}; }
+
+  // ---- shared next-action editor: kind "task" (client task) or "lib" (library task)
+  function actionsEditor(kind,id){
+    function get(){ return kind==="lib"?libById(id):taskById(id); }
+    function persist(){ save(whoami()); tkRefresh(); }
+    function linked(){ var item=get(); return kind==="lib"?state.tasks.filter(function(x){ return x.libId===id; }):state.tasks.filter(function(x){ return x.id!==id && item && x.name===item.name; }); }
+    var item=get()||{subs:[]}, box=el("div","subs-ed");
+    box.appendChild(el("div","muted-note2","Next actions are never billed. “After filing” ones show once the period is marked filed; “Now” ones straight away."));
+    toArr(item.subs).forEach(function(sb,i){
+      var row=el("div","subs-line");
+      var ti=el("input"); ti.type="text"; ti.value=sb.name||""; ti.placeholder="e.g. Share challan with client";
+      ti.addEventListener("change",function(){ var l=get(); l.subs=toArr(l.subs); if(l.subs[i])l.subs[i].name=ti.value.trim(); persist(); });
+      var wh=el("select"); [["filed","After filing"],["now","Now"]].forEach(function(o){ wh.appendChild(opt(o[0],o[1],sb.when===o[0])); });
+      wh.addEventListener("change",function(){ var l=get(); l.subs=toArr(l.subs); if(l.subs[i])l.subs[i].when=wh.value; persist(); });
+      var rmv=el("button","iconbtn","Remove"); rmv.addEventListener("click",function(){ var l=get(); l.subs=toArr(l.subs).filter(function(x,j){ return j!==i; }); persist(); });
+      row.appendChild(ti); row.appendChild(wh); row.appendChild(rmv); box.appendChild(row);
     });
-    t.appendChild(tb); var tw=el("div","tt-scroll"); tw.style.border="none"; tw.appendChild(t); body.appendChild(tw);
-    // ---- add a task ----
-    body.appendChild(el("div","sheet-lbl","Add a task"));
-    var add=el("div","addrow");
-    var f1=el("div","fld"); f1.appendChild(el("label",null,"Client")); var ac=el("select"); state.clients.forEach(function(cl){ ac.appendChild(opt(cl.id,cl.name)); }); f1.appendChild(ac); add.appendChild(f1);
-    var fc=el("div","fld wide"); fc.appendChild(el("label",null,"Common compliance (fills the rest)")); var cm=el("select"); cm.appendChild(opt("","— pick, or type your own —"));
-    [["monthly","Monthly"],["quarterly","Quarterly"],["annual","Annual"]].forEach(function(g){ var og=document.createElement("optgroup"); og.label=g[1]; COMMON.forEach(function(c,i){ if(c[1]===g[0])og.appendChild(opt(String(i),c[0])); }); cm.appendChild(og); });
-    fc.appendChild(cm); add.appendChild(fc);
-    var f2=el("div","fld"); f2.appendChild(el("label",null,"Task")); var at=el("input"); at.type="text"; at.placeholder="e.g. GSTR-1"; f2.appendChild(at); add.appendChild(f2);
-    var f3=el("div","fld"); f3.appendChild(el("label",null,"Repeats")); var afq=el("select"); FREQ_OPTS.forEach(function(o){ afq.appendChild(opt(o[0],o[1])); }); f3.appendChild(afq); add.appendChild(f3);
-    var fd=el("div","fld due"); fd.appendChild(el("label",null,"Due day")); var ad=el("input"); ad.type="number"; ad.min="1"; ad.max="31"; ad.placeholder="—"; fd.appendChild(ad); add.appendChild(fd);
-    var fm=el("div","fld due"); fm.appendChild(el("label",null,"Due month")); var am=monSel(""); fm.appendChild(am); add.appendChild(fm);
-    var fdt=el("div","fld"); fdt.appendChild(el("label",null,"Due date")); var adt=el("input"); adt.type="date"; fdt.appendChild(adt); add.appendChild(fdt);
-    var f5=el("div","fld"); f5.appendChild(el("label",null,"Assign to")); var aa=el("select"); aa.appendChild(opt("","— unassigned —")); state.staff.forEach(function(st){ aa.appendChild(opt(st.id,st.name)); }); f5.appendChild(aa); add.appendChild(f5);
-    var fi=el("div","fld"); fi.appendChild(el("label",null,"Zoho item")); var azi=el("select"); azi.appendChild(opt("","— select item —")); zItems().forEach(function(z){ azi.appendChild(opt(z.id,z.name)); }); fi.appendChild(azi); add.appendChild(fi);
-    var ff=el("div","fld due"); ff.appendChild(el("label",null,"Fee (₹)")); var afe=el("input"); afe.type="number"; afe.min="0"; afe.placeholder="₹"; ff.appendChild(afe); add.appendChild(ff);
-    var hint=el("div","muted-note2"); hint.style.flexBasis="100%";
-    function sync(){ var f=afq.value; fd.style.display=f==="once"?"none":""; fm.style.display=f==="annual"?"":"none"; fdt.style.display=f==="once"?"":"none";
-      hint.textContent={monthly:"Becomes pending on the 1st of each month for the month just ended; the first one is "+periodName(latestFrom("monthly"))+".",
-        quarterly:"Becomes pending on the 1st after each quarter ends; the first one is "+periodLong({freq:"quarterly",pk:latestFrom("quarterly")})+".",
-        annual:"Becomes pending on 1 April, the first day of the next FY. The first one is FY "+latestFrom("annual").slice(2)+", pending from 1 April "+(fyStart(latestFrom("annual"))+1)+". To track an FY that has already ended, change \u201CStarts from\u201D after adding.",
-        once:"Becomes pending as soon as you add it."}[f]; }
+    var ar=el("div","subs-line");
+    var add=el("button","clearbtn","+ Add next action");
+    add.addEventListener("click",function(){ var l=get(); l.subs=toArr(l.subs).concat([{id:uid("sb"),name:"",when:"filed"}]); persist(); });
+    var pre=el("select"); pre.appendChild(opt("","Add actions from a preset…",true));
+    toArr(state.actionLib).forEach(function(p){ pre.appendChild(opt(p.id,p.name)); });
+    pre.addEventListener("change",function(){ if(!pre.value)return; var l=get(); l.subs=toArr(l.subs).concat(presetActions(pre.value)); persist(); });
+    var sv=el("button","clearbtn","Save these as a preset…");
+    sv.addEventListener("click",function(){ var acts=subsOf(get()); if(!acts.length){ alert("Add at least one next action first."); return; }
+      var nm=prompt("Name for this preset, e.g. “GST return”"); if(!nm||!nm.trim())return;
+      state.actionLib=toArr(state.actionLib).concat([{id:uid("ap"),name:nm.trim(),actions:acts.map(function(x){ return {id:uid("a"),name:x.name,when:x.when||"filed"}; })}]); persist(); });
+    ar.appendChild(add); ar.appendChild(pre); ar.appendChild(sv); box.appendChild(ar);
+    var ar2=el("div","subs-line"), n=linked().length;
+    var ap=el("button","clearbtn", kind==="lib"?("Push these to the "+n+" client task(s) linked to this"):("Copy these to the "+n+" other “"+(item.name||"")+"” task(s)"));
+    ap.disabled=!n;
+    ap.addEventListener("click",function(){ var cur=subsOf(get()); if(!cur.length){ alert("Add at least one next action first."); return; }
+      var targets=linked(); if(!confirm("Replace the next actions on "+targets.length+" task(s) with these "+cur.length+"?"))return;
+      targets.forEach(function(x){ x.subs=cur.map(function(sb){ return cloneSub(sb); }); }); persist(); });
+    var dn=el("button","clearbtn","Close"); dn.addEventListener("click",function(){ openSubs[id]=false; tkRefresh(); });
+    ar2.appendChild(ap); ar2.appendChild(dn); box.appendChild(ar2);
+    return box;
+  }
+
+  // ---- client task (allocation) ----
+  function drawTaskList(host){
+    host.innerHTML="";
+    var all=state.tasks.slice(), list=all.filter(tkMatch);
+    list.sort(function(a,b){ var ca=(clientById(a.clientId)||{}).name||"", cb=(clientById(b.clientId)||{}).name||""; if(ca!==cb)return ca<cb?-1:1;
+      var FO={monthly:0,quarterly:1,annual:2,once:3}; return (FO[freqOf(a)]-FO[freqOf(b)])||(a.name<b.name?-1:a.name>b.name?1:0); });
+    host.appendChild(el("div","tm-count","Showing "+list.length+" of "+all.length+" client task"+(all.length===1?"":"s")+(list.length?"":" — nothing matches these filters")));
+    if(!all.length){ host.appendChild(el("div","empty2","No client tasks yet. Add one above, or assign a task from the library.")); return; }
+    var lastC=null;
+    list.forEach(function(tk){
+      if(tk.clientId!==lastC){ lastC=tk.clientId; var cl=clientById(tk.clientId)||{name:"(client removed)"}, n=list.filter(function(x){ return x.clientId===tk.clientId; }).length;
+        var gh=el("div","tm-group"), av=el("span","avatar sm"); av.style.background=colorFor(cl.name); av.textContent=initials(cl.name); gh.appendChild(av);
+        gh.appendChild(el("span","tm-gname",cl.name)); gh.appendChild(el("span","tm-gcount",n+(n===1?" task":" tasks"))); host.appendChild(gh); }
+      host.appendChild(taskCard(tk));
+    });
+    afterDraw();
+  }
+  function taskCard(tk){
+    var iss=tkIssues(tk), card=el("div","tc2"+(iss.length?" has-issue":"")); card.setAttribute("data-tid",tk.id);
+    var head=el("div","tc2-head");
+    var nm=el("input","tc2-name"); nm.type="text"; nm.value=tk.name; nm.title="Task name (click to edit)";
+    nm.addEventListener("change",function(){ var v=nm.value.trim(); if(!v){ nm.value=tk.name; return; } liveTask(tk).name=v; save(whoami()); tkRefresh(); });
+    head.appendChild(nm);
+    var na=subsOf(tk).length, nb=el("button","clearbtn",na?("Next actions ("+na+")"):"+ Next actions");
+    nb.addEventListener("click",function(){ openSubs[tk.id]=!openSubs[tk.id]; tkScroll=openSubs[tk.id]?tk.id:null; tkRefresh(); }); head.appendChild(nb);
+    var rm=el("button","iconbtn","Remove");
+    rm.addEventListener("click",function(){ if(!confirm("Remove task \""+tk.name+"\" for "+((clientById(tk.clientId)||{}).name||"this client")+"? It disappears from every period, including its status history.")) return; Object.keys(state.board).forEach(function(pk){ delete state.board[pk][fbEnc(tk.id)]; }); state.tasks=state.tasks.filter(function(x){ return x.id!==tk.id; }); save(whoami()); tkRefresh(); });
+    head.appendChild(rm); card.appendChild(head);
+    var meta=el("div","tc2-meta");
+    if(tk.libId&&libById(tk.libId))meta.appendChild(el("span","ptag","from library: "+libById(tk.libId).name));
+    iss.forEach(function(x){ meta.appendChild(el("span","warnchip",x)); });
+    if(meta.childNodes.length)card.appendChild(meta);
+    var g=el("div","tc2-grid");
+    var cs=el("select"); state.clients.forEach(function(cl){ cs.appendChild(opt(cl.id,cl.name,cl.id===tk.clientId)); });
+    cs.addEventListener("change",function(){ liveTask(tk).clientId=cs.value; save(whoami()); tkRefresh(); }); g.appendChild(tmFld("Client",cs));
+    var fq=el("select"); FREQ_OPTS.forEach(function(o){ fq.appendChild(opt(o[0],o[1],o[0]===freqOf(tk))); });
+    fq.addEventListener("change",function(){ if(!confirm("Change how often \""+tk.name+"\" repeats? Status already recorded for earlier periods stays, but the periods shown will change.")){ fq.value=freqOf(tk); return; } setFreq(liveTask(tk),fq.value); save(whoami()); renderManage(); });
+    g.appendChild(tmFld("Repeats",fq));
+    g.appendChild(tmFld("Due",dueEditor(tk)));
+    g.appendChild(tmFld("Starts from",fromEditor(tk)));
+    var ki=el("select"); KIND_OPTS.forEach(function(o){ ki.appendChild(opt(o[0],o[1],o[0]===(tk.type==="int"?"int":"stat"))); });
+    ki.addEventListener("change",function(){ var lt=liveTask(tk); lt.freq=freqOf(lt); lt.type=ki.value; save(whoami()); tkRefresh(); }); g.appendChild(tmFld("Kind",ki));
+    var as=el("select"); as.appendChild(opt("","— unassigned —",!tk.ownerId)); assigneeAdd(as,tk.ownerId); state.staff.forEach(function(st){ as.appendChild(opt(st.id,st.name,st.id===tk.ownerId)); });
+    as.addEventListener("change",function(){ liveTask(tk).ownerId=as.value; save(whoami()); tkRefresh(); }); g.appendChild(tmFld("Assigned to",as)); g.appendChild(tmFld("Reviewer (partner)",reviewerSel(tk.reviewerId,function(v){ liveTask(tk).reviewerId=v; save(whoami()); tkRefresh(); })));
+    var zits=zItems(), zc;
+    if(zits.length){ zc=el("select"); zc.appendChild(opt("","⚠ select an item",!tk.zohoItemId));
+      if(tk.zohoItemId&&!zItemById(tk.zohoItemId))zc.appendChild(opt(tk.zohoItemId,"⚠ no longer active in Zoho",true));
+      zits.forEach(function(z){ zc.appendChild(opt(z.id,z.name+(z.rate?(" ("+money(z.rate)+")"):""),String(z.id)===String(tk.zohoItemId))); });
+      if(!tk.zohoItemId||!zItemById(tk.zohoItemId))zc.className="warn";
+      zc.addEventListener("change",function(){ liveTask(tk).zohoItemId=zc.value; save(whoami()); tkRefresh(); });
+    } else zc=el("span","muted-note2","No Zoho items synced yet");
+    g.appendChild(tmFld("Zoho item",zc));
+    var fe=el("input"); fe.type="number"; fe.min="0"; fe.step="1"; fe.value=(tk.fee==null?"":tk.fee); fe.placeholder="₹";
+    fe.addEventListener("change",function(){ var v=parseFloat(fe.value); liveTask(tk).fee=isNaN(v)?null:v; save(whoami()); tkRefresh(); }); g.appendChild(tmFld("Fee (₹)",fe));
+    card.appendChild(g);
+    var foot=el("div","tc2-foot"), tog=el("button","clearbtn", openSubs[tk.id]?"▴ Hide next actions":("▾ Next actions"+(na?" ("+na+")":"")+" — tap to "+(na?"edit":"add")));
+    tog.addEventListener("click",function(){ openSubs[tk.id]=!openSubs[tk.id]; tkScroll=openSubs[tk.id]?tk.id:null; tkRefresh(); }); foot.appendChild(tog); card.appendChild(foot);
+    if(openSubs[tk.id])card.appendChild(actionsEditor("task",tk.id));
+    return card;
+  }
+  function addTaskCard(){
+    var d=el("details","tc2-add"); d.open=!state.tasks.length;
+    d.appendChild(el("summary",null,"+ Add a client task"));
+    var picked=null;
+    var g=el("div","tc2-grid");
+    var ac=el("select"); state.clients.forEach(function(cl){ ac.appendChild(opt(cl.id,cl.name)); });
+    var pl=el("select"); pl.appendChild(opt("","— custom task (type below) —",true));
+    toArr(state.taskLib).slice().sort(function(a,b){ return a.name<b.name?-1:1; }).forEach(function(l){ pl.appendChild(opt(l.id,l.name+"  ·  "+freqLabel(l.freq))); });
+    var at=el("input"); at.type="text"; at.placeholder="e.g. GSTR-1";
+    var afq=el("select"); FREQ_OPTS.forEach(function(o){ afq.appendChild(opt(o[0],o[1])); });
+    var ad=el("input"); ad.type="number"; ad.min="1"; ad.max="31"; ad.placeholder="—";
+    var am=monSel(""), adt=el("input"); adt.type="date";
+    var aa=el("select"); aa.appendChild(opt("","— unassigned —")); assigneeAdd(aa,""); state.staff.forEach(function(st){ aa.appendChild(opt(st.id,st.name)); });
+    var aR=reviewerSel("",null), aY=fyPick(""); var azi=el("select"); azi.appendChild(opt("","— select item —")); zItems().forEach(function(z){ azi.appendChild(opt(z.id,z.name)); });
+    var afe=el("input"); afe.type="number"; afe.min="0"; afe.placeholder="₹";
+    var wC=tmFld("Client",ac), wL=tmFld("From task library",pl,true), wT=tmFld("Task",at), wF=tmFld("Repeats",afq), wD=tmFld("Due day",ad), wM=tmFld("Due month",am), wDt=tmFld("Due date",adt), wA=tmFld("Assign to",aa), wR=tmFld("Reviewer",aR), wY=tmFld("Starts from (FY)",aY), wZ=tmFld("Zoho item",azi), wFe=tmFld("Fee (₹)",afe);
+    [wC,wL,wT,wF,wD,wM,wDt,wA,wR,wY,wZ,wFe].forEach(function(x){ g.appendChild(x); }); d.appendChild(g);
+    var foot=el("div","tc2-foot"), hint=el("div","muted-note2"); hint.style.flex="1";
+    function sync(){ var f=afq.value; wD.style.display=f==="once"?"none":""; wM.style.display=f==="annual"?"":"none"; wY.style.display=f==="annual"?"":"none"; wDt.style.display=f==="once"?"":"none";
+      hint.textContent={monthly:"Pending on the 1st of each month for the month just ended; the first is "+periodName(latestFrom("monthly"))+".",
+        quarterly:"Pending on the 1st after each quarter; the first is "+periodLong({freq:"quarterly",pk:latestFrom("quarterly")})+".",
+        annual:"Pending on 1 April. The first is FY "+(aY.value||latestFrom("annual")).slice(2)+(aY.value?"":" (default: current FY)")+".",
+        once:"Pending as soon as you add it."}[f]; }
     afq.addEventListener("change",sync);
-    cm.addEventListener("change",function(){ var c=COMMON[+cm.value]; if(!cm.value||!c)return; at.value=c[0]; afq.value=c[1]; ad.value=c[2]||""; am.value=c[3]?String(c[3]):""; sync(); });
-    var b=el("button","primary","Add task"); b.addEventListener("click",function(){ var nm=at.value.trim(); if(!nm){at.focus();return;} if(zItems().length&&!azi.value){ azi.className="warn"; azi.focus(); hint.textContent="Select the Zoho item this task is billed under."; return; } var f=afq.value, v=parseInt(ad.value,10), fv=parseFloat(afe.value);
-      var nt={id:uid("tk"),clientId:ac.value,name:nm,freq:f,type:"stat",due:(f==="once"||isNaN(v))?null:v,dueMonth:f==="annual"&&am.value?+am.value:null,dueDate:f==="once"?(adt.value||""):"",from:f==="once"?"":latestFrom(f),createdAt:nowIso(),ownerId:aa.value,fee:isNaN(fv)?null:fv,zohoItemId:azi.value};
-      state.tasks.push(nt); save(whoami()); renderManage(); }); add.appendChild(b);
-    add.appendChild(hint); sync();
-    body.appendChild(add);
+    pl.addEventListener("change",function(){ var l=libById(pl.value); picked=l?l.id:null; if(!l)return;
+      at.value=l.name; afq.value=l.freq; ad.value=l.due==null?"":l.due; am.value=l.dueMonth?String(l.dueMonth):""; adt.value=l.dueDate||""; aa.value=l.ownerId||""; aR.value=l.reviewerId||""; aY.value=l.from||""; azi.value=l.zohoItemId||""; afe.value=l.fee==null?"":l.fee; sync(); });
+    foot.appendChild(hint);
+    var b=el("button","primary","Add task");
+    b.addEventListener("click",function(){ var nm=at.value.trim(); if(!nm){ at.focus(); return; }
+      if(zItems().length&&!azi.value){ azi.className="warn"; azi.focus(); hint.textContent="Select the Zoho item this task is billed under."; return; }
+      var f=afq.value, v=parseInt(ad.value,10), fv=parseFloat(afe.value), src=picked?libById(picked):null, same=!!(src&&src.name===nm);
+      state.tasks.push({id:uid("tk"),clientId:ac.value,name:nm,freq:f,type:"stat",due:(f==="once"||isNaN(v))?null:v,dueMonth:f==="annual"&&am.value?+am.value:null,dueDate:f==="once"?(adt.value||""):"",from:f==="once"?"":(f==="annual"&&aY.value?aY.value:latestFrom(f)),createdAt:nowIso(),ownerId:aa.value,reviewerId:aR.value,fee:isNaN(fv)?null:fv,zohoItemId:azi.value,subs:same?toArr(src.subs).map(cloneSub):[],libId:same?src.id:""});
+      save(whoami()); renderManage(); });
+    foot.appendChild(b); d.appendChild(foot);
+    sync();
+    return d;
+  }
+
+  // ---- task library ----
+  function libFieldGrid(get,persist){
+    var o=get(), g=el("div","tc2-grid");
+    var nmI=el("input"); nmI.type="text"; nmI.value=o.name||""; nmI.placeholder="e.g. GSTR-1";
+    nmI.addEventListener("change",function(){ var v=nmI.value.trim(); if(v)get().name=v; persist(); }); g.appendChild(tmFld("Name",nmI));
+    var fq=el("select"); FREQ_OPTS.forEach(function(x){ fq.appendChild(opt(x[0],x[1],x[0]===o.freq)); });
+    fq.addEventListener("change",function(){ var l=get(); l.freq=fq.value; if(fq.value!=="annual"){ l.dueMonth=null; l.from=""; } if(fq.value!=="once")l.dueDate=""; persist(); }); g.appendChild(tmFld("Repeats",fq));
+    if(o.freq==="once"){ var dd=el("input"); dd.type="date"; dd.value=o.dueDate||""; dd.addEventListener("change",function(){ get().dueDate=dd.value||""; persist(); }); g.appendChild(tmFld("Due date",dd)); }
+    else { var dy=el("input"); dy.type="number"; dy.min="1"; dy.max="31"; dy.value=o.due==null?"":o.due; dy.placeholder=(o.freq==="quarterly"&&isTds(o))?"31":"day";
+      dy.addEventListener("change",function(){ var v=parseInt(dy.value,10); get().due=isNaN(v)?null:v; persist(); }); g.appendChild(tmFld("Due day",dy)); }
+    if(o.freq==="annual"){ var ms=monSel(o.dueMonth); ms.addEventListener("change",function(){ get().dueMonth=ms.value?+ms.value:null; persist(); }); g.appendChild(tmFld("Due month",ms)); }
+    if(o.freq==="annual"){ var fyp=fyPick(o.from); fyp.addEventListener("change",function(){ get().from=fyp.value; persist(); }); g.appendChild(tmFld("Starts from (FY)",fyp)); }
+    var ki=el("select"); KIND_OPTS.forEach(function(x){ ki.appendChild(opt(x[0],x[1],x[0]===(o.type==="int"?"int":"stat"))); });
+    ki.addEventListener("change",function(){ get().type=ki.value; persist(); }); g.appendChild(tmFld("Kind",ki));
+    var as=el("select"); as.appendChild(opt("","— none —",!o.ownerId)); assigneeAdd(as,o.ownerId); state.staff.forEach(function(st){ as.appendChild(opt(st.id,st.name,st.id===o.ownerId)); });
+    as.addEventListener("change",function(){ get().ownerId=as.value; persist(); }); g.appendChild(tmFld("Default assignee",as)); g.appendChild(tmFld("Default reviewer",reviewerSel(o.reviewerId,function(v){ get().reviewerId=v; persist(); })));
+    var zits=zItems(), zc;
+    if(zits.length){ zc=el("select"); zc.appendChild(opt("","— none —",!o.zohoItemId)); zits.forEach(function(z){ zc.appendChild(opt(z.id,z.name,String(z.id)===String(o.zohoItemId))); });
+      zc.addEventListener("change",function(){ get().zohoItemId=zc.value; persist(); }); } else zc=el("span","muted-note2","No Zoho items synced yet");
+    g.appendChild(tmFld("Default Zoho item",zc));
+    var fe=el("input"); fe.type="number"; fe.min="0"; fe.step="1"; fe.value=o.fee==null?"":o.fee; fe.placeholder="₹";
+    fe.addEventListener("change",function(){ var v=parseFloat(fe.value); get().fee=isNaN(v)?null:v; persist(); }); g.appendChild(tmFld("Default fee (₹)",fe));
+    return g;
+  }
+  function libDraftObj(){ if(!libDraft)libDraft=libNew({freq:"monthly"}); return libDraft; }
+  function libAddCard(){
+    var d=el("details","tc2-add"); d.open=!toArr(state.taskLib).length; d.appendChild(el("summary",null,"+ New task in the library"));
+    d.appendChild(libFieldGrid(libDraftObj,tkRefresh));
+    var foot=el("div","tc2-foot"), hint=el("div","muted-note2"); hint.style.flex="1"; hint.textContent="A common task such as GSTR-1 or TDS deposit. Assign it to clients from its card.";
+    var b=el("button","primary","Add to library");
+    b.addEventListener("click",function(){ var o=libDraftObj(); if(!String(o.name||"").trim()){ hint.textContent="Give the task a name first."; return; }
+      state.taskLib=toArr(state.taskLib).concat([libNew(o)]); libDraft=null; save(whoami()); tkRefresh(); });
+    foot.appendChild(hint); foot.appendChild(b); d.appendChild(foot);
+    return d;
+  }
+  function assignPanel(lb){
+    var id=lb.id, p=el("div","assign-pan");
+    p.appendChild(el("div","muted-note2","Creates “"+lb.name+"” for each client you pick, with these defaults and next actions. Each client task can still be changed afterwards."));
+    var row=el("div","tc2-grid");
+    var as=el("select"); as.appendChild(opt("","— none —",!lb.ownerId)); assigneeAdd(as,lb.ownerId); state.staff.forEach(function(st){ as.appendChild(opt(st.id,st.name,st.id===lb.ownerId)); });
+    var zc=el("select"); zc.appendChild(opt("","— none —",!lb.zohoItemId)); zItems().forEach(function(z){ zc.appendChild(opt(z.id,z.name,String(z.id)===String(lb.zohoItemId))); });
+    var fe=el("input"); fe.type="number"; fe.min="0"; fe.value=lb.fee==null?"":lb.fee; fe.placeholder="₹";
+    row.appendChild(tmFld("Assigned to",as)); row.appendChild(tmFld("Zoho item",zc)); row.appendChild(tmFld("Fee (₹)",fe)); p.appendChild(row);
+    var q=el("input","tm-search"); q.type="search"; q.placeholder="Filter clients…"; p.appendChild(q);
+    var tools=el("div","tm-filters"), sa=el("button","tm-chip","Select all shown"), cl=el("button","tm-chip","Clear selection"); tools.appendChild(sa); tools.appendChild(cl); p.appendChild(tools);
+    var list=el("div","pick-list"), btn=el("button","primary","Create 0 tasks");
+    function exists(cid){ return state.tasks.some(function(x){ return x.clientId===cid && x.name===lb.name && freqOf(x)===lb.freq; }); }
+    function sorted(){ var qq=q.value.trim().toLowerCase(); return state.clients.slice().sort(function(a,b){ return a.name<b.name?-1:1; }).filter(function(c){ return !qq||c.name.toLowerCase().indexOf(qq)>=0; }); }
+    function count(){ return state.clients.filter(function(c){ return libSel[c.id] && !exists(c.id); }).length; }
+    function paint(){ btn.textContent="Create "+count()+" task"+(count()===1?"":"s"); }
+    function drawList(){ list.innerHTML=""; sorted().forEach(function(c){ var has=exists(c.id), lab=el("label","pick-row"+(has?" has":""));
+        var cb=el("input"); cb.type="checkbox"; cb.checked=!has&&!!libSel[c.id]; cb.disabled=has;
+        cb.addEventListener("change",function(){ libSel[c.id]=cb.checked; paint(); });
+        lab.appendChild(cb); lab.appendChild(el("span",null,c.name)); if(has)lab.appendChild(el("span","subtag","already has it")); list.appendChild(lab); });
+      if(!list.childNodes.length)list.appendChild(el("div","muted-note2","No clients match."));
+      paint(); }
+    q.addEventListener("input",drawList);
+    sa.addEventListener("click",function(){ sorted().forEach(function(c){ if(!exists(c.id)) libSel[c.id]=true; }); drawList(); });
+    cl.addEventListener("click",function(){ libSel={}; drawList(); });
+    p.appendChild(list);
+    btn.addEventListener("click",function(){ var ids=state.clients.map(function(c){ return c.id; }).filter(function(cid){ return libSel[cid] && !exists(cid); }); if(!ids.length)return;
+      ids.forEach(function(cid){ state.tasks.push(newTaskFromLib(lb,cid,{ownerId:as.value,zohoItemId:zc.value,fee:fe.value})); });
+      libAssign=null; libSel={}; save(whoami()); tkRefresh(); });
+    p.appendChild(btn); drawList();
+    return p;
+  }
+  function libCard(lb){
+    var id=lb.id, get=function(){ return libById(id); }, persist=function(){ save(whoami()); tkRefresh(); };
+    var card=el("div","tc2"); card.setAttribute("data-tid",id);
+    var head=el("div","tc2-head"), uses=libUses(id);
+    head.appendChild(el("div","tc2-title",lb.name||"(unnamed)"));
+    head.appendChild(el("span","ptag", uses?("Assigned to "+uses+" client task"+(uses===1?"":"s")):"Not assigned to any client yet"));
+    card.appendChild(head);
+    card.appendChild(libFieldGrid(get,persist));
+    var foot=el("div","tc2-foot"), na=subsOf(lb).length;
+    var ab=el("button","primary", libAssign===id?"Close assign":"Assign to clients…");
+    ab.addEventListener("click",function(){ if(libAssign===id){ libAssign=null; } else { libAssign=id; libSel={}; } tkRefresh(); }); foot.appendChild(ab);
+    var nb=el("button","clearbtn", openSubs[id]?"▴ Hide next actions":("▾ Next actions"+(na?" ("+na+")":"")));
+    nb.addEventListener("click",function(){ openSubs[id]=!openSubs[id]; tkScroll=openSubs[id]?id:null; tkRefresh(); }); foot.appendChild(nb);
+    var rm=el("button","iconbtn","Remove");
+    rm.addEventListener("click",function(){ if(!confirm("Remove “"+lb.name+"” from the library? Client tasks already created from it stay, they just stop being linked.")) return;
+      state.tasks.forEach(function(x){ if(x.libId===id)x.libId=""; }); state.taskLib=toArr(state.taskLib).filter(function(x){ return x.id!==id; }); save(whoami()); tkRefresh(); });
+    foot.appendChild(rm); card.appendChild(foot);
+    if(libAssign===id)card.appendChild(assignPanel(lb));
+    if(openSubs[id])card.appendChild(actionsEditor("lib",id));
+    return card;
+  }
+  function drawLib(host){
+    host.innerHTML="";
+    var q=libFilterQ.trim().toLowerCase(), all=toArr(state.taskLib);
+    var list=all.filter(function(l){ return !q||String(l.name).toLowerCase().indexOf(q)>=0; }).sort(function(a,b){ return a.name<b.name?-1:1; });
+    host.appendChild(el("div","tm-count","Library: "+all.length+" common task"+(all.length===1?"":"s")+". Assign each one to clients from its card; every client gets its own copy."));
+    if(!list.length)host.appendChild(el("div","empty2",all.length?"Nothing matches the search.":"The library is empty. Add a common task above."));
+    list.forEach(function(l){ host.appendChild(libCard(l)); });
+    afterDraw();
+  }
+
+  // ---- next-action presets ----
+  function presetCard(p){
+    var id=p.id, get=function(){ return presetById(id); }, persist=function(){ save(whoami()); tkRefresh(); };
+    var card=el("div","tc2"); card.setAttribute("data-tid",id);
+    var head=el("div","tc2-head"), nm=el("input","tc2-name"); nm.type="text"; nm.value=p.name||""; nm.placeholder="Preset name";
+    nm.addEventListener("change",function(){ var v=nm.value.trim(); if(v)get().name=v; persist(); }); head.appendChild(nm);
+    var rm=el("button","iconbtn","Delete preset");
+    rm.addEventListener("click",function(){ if(!confirm("Delete the preset “"+p.name+"”? Tasks that already have its actions keep them.")) return; state.actionLib=toArr(state.actionLib).filter(function(x){ return x.id!==id; }); save(whoami()); tkRefresh(); });
+    head.appendChild(rm); card.appendChild(head);
+    card.appendChild(el("div","muted-note2",toArr(p.actions).length+" action"+(toArr(p.actions).length===1?"":"s")+" — added to a task with the preset dropdown."));
+    toArr(p.actions).forEach(function(a,i){
+      var row=el("div","subs-line");
+      var ti=el("input"); ti.type="text"; ti.value=a.name||""; ti.placeholder="e.g. Share challan with client";
+      ti.addEventListener("change",function(){ var l=get(); l.actions=toArr(l.actions); if(l.actions[i])l.actions[i].name=ti.value.trim(); persist(); });
+      var wh=el("select"); [["filed","After filing"],["now","Now"]].forEach(function(o){ wh.appendChild(opt(o[0],o[1],a.when===o[0])); });
+      wh.addEventListener("change",function(){ var l=get(); l.actions=toArr(l.actions); if(l.actions[i])l.actions[i].when=wh.value; persist(); });
+      var rmv=el("button","iconbtn","Remove"); rmv.addEventListener("click",function(){ var l=get(); l.actions=toArr(l.actions).filter(function(x,j){ return j!==i; }); persist(); });
+      row.appendChild(ti); row.appendChild(wh); row.appendChild(rmv); card.appendChild(row);
+    });
+    var ar=el("div","subs-line"), add=el("button","clearbtn","+ Add action");
+    add.addEventListener("click",function(){ var l=get(); l.actions=toArr(l.actions).concat([{id:uid("a"),name:"",when:"filed"}]); persist(); });
+    ar.appendChild(add); card.appendChild(ar);
+    return card;
+  }
+  function drawPresets(host){
+    host.innerHTML="";
+    var all=toArr(state.actionLib);
+    host.appendChild(el("div","tm-count","Presets: "+all.length+". A preset is a named set of next actions (for example the GST return set). Pick one from the dropdown on any task or library item."));
+    if(!all.length)host.appendChild(el("div","empty2","No presets yet. Create one above, or save a task's next actions as a preset."));
+    all.slice().sort(function(a,b){ return a.name<b.name?-1:1; }).forEach(function(p){ host.appendChild(presetCard(p)); });
+    afterDraw();
+  }
+  function presetAddCard(){
+    var d=el("details","tc2-add"); d.open=!toArr(state.actionLib).length; d.appendChild(el("summary",null,"+ New preset"));
+    var foot=el("div","tc2-foot"), nm=el("input"); nm.type="text"; nm.placeholder="e.g. Income-tax return"; nm.style.flex="1"; nm.style.minWidth="200px";
+    var b=el("button","primary","Create preset");
+    b.addEventListener("click",function(){ var v=nm.value.trim(); if(!v){ nm.focus(); return; } state.actionLib=toArr(state.actionLib).concat([{id:uid("ap"),name:v,actions:[]}]); save(whoami()); renderManage(); });
+    foot.appendChild(nm); foot.appendChild(b); d.appendChild(foot);
+    return d;
+  }
+
+  function renderTasksSec(body){
+    body.appendChild(el("p","muted-note","Three parts. Client tasks: what each client has and who does it. Task library: common tasks such as GSTR-1 and TDS deposit, with their next actions, assigned to clients in one step. Next-action presets: named action sets such as the GST return set."));
+    body.appendChild(zohoStatusEl());
+    var seg=el("div","tk-seg");
+    [["alloc","Client tasks"],["lib","Task library"],["presets","Next-action presets"]].forEach(function(v){ var b=el("button","tk-seg-b"+(tkView===v[0]?" on":""),v[1]); b.addEventListener("click",function(){ tkView=v[0]; tkScroll=null; renderManage(); }); seg.appendChild(b); });
+    body.appendChild(seg);
+    tkHost=el("div");
+    if(tkView==="lib"){
+      body.appendChild(libAddCard());
+      var lq=el("input","tm-search"); lq.type="search"; lq.placeholder="Search the library…"; lq.value=libFilterQ; lq.addEventListener("input",function(){ libFilterQ=lq.value; tkRefresh(); }); body.appendChild(lq);
+      body.appendChild(tkHost); drawLib(tkHost); return;
+    }
+    if(tkView==="presets"){ body.appendChild(presetAddCard()); body.appendChild(tkHost); drawPresets(tkHost); return; }
+    if(!state.clients.length){ body.appendChild(el("div","empty2","Add a client first, then assign tasks here.")); return; }
+    body.appendChild(addTaskCard());
+    var bar=el("div","tm-bar");
+    var q=el("input","tm-search"); q.type="search"; q.placeholder="Search client, task, person or Zoho item…"; q.value=tkFilter.q;
+    q.addEventListener("input",function(){ tkFilter.q=q.value; tkRefresh(); });
+    bar.appendChild(q);
+    var fl=el("div","tm-filters");
+    fl.appendChild(tmSel("client","All clients",state.clients.slice().sort(function(a,b){ return a.name<b.name?-1:1; }).map(function(c){ return [c.id,c.name]; })));
+    var names=[]; state.tasks.forEach(function(t){ if(names.indexOf(t.name)<0)names.push(t.name); }); names.sort();
+    fl.appendChild(tmSel("task","All tasks",names.map(function(n){ return [n,n]; })));
+    fl.appendChild(tmSel("staff","Anyone",[["__none__","Unassigned"]].concat(ownersList().map(function(o){ return [o.id,o.name+" (partner)"]; })).concat(state.staff.slice().sort(function(a,b){ return a.name<b.name?-1:1; }).map(function(st){ return [st.id,st.name]; }))));
+    fl.appendChild(tmSel("freq","Any repeat",FREQ_OPTS));
+    var nAtt=state.tasks.filter(function(t){ return tkIssues(t).length; }).length;
+    var ac=el("button","tm-chip"+(tkFilter.attn?" on":""),"Needs attention ("+nAtt+")");
+    ac.addEventListener("click",function(){ tkFilter.attn=!tkFilter.attn; renderManage(); }); fl.appendChild(ac);
+    if(tkHasFilter()){ var cl=el("button","tm-chip","Clear filters"); cl.addEventListener("click",function(){ tkFilter={q:"",client:"",task:"",staff:"",freq:"",attn:false}; renderManage(); }); fl.appendChild(cl); }
+    bar.appendChild(fl);
+    if(tkHasFilter()){
+      var shown=state.tasks.filter(tkMatch), bulk=el("div","tm-bulk");
+      bulk.appendChild(el("span",null,"Assign the "+shown.length+" task"+(shown.length===1?"":"s")+" shown to:"));
+      var bs=el("select"); bs.appendChild(opt("","— choose —",true)); bs.appendChild(opt("__none__","Unassigned")); assigneeAdd(bs,""); state.staff.forEach(function(st){ bs.appendChild(opt(st.id,st.name)); });
+      var ba=el("button","clearbtn","Apply to all shown");
+      ba.addEventListener("click",function(){ if(!bs.value||!shown.length)return; if(!confirm("Assign "+shown.length+" task(s) to "+(bs.value==="__none__"?"no one":staffName(bs.value))+"?"))return; shown.forEach(function(x){ liveTask(x).ownerId=bs.value==="__none__"?"":bs.value; }); save(whoami()); renderManage(); });
+      bulk.appendChild(bs); bulk.appendChild(ba); bar.appendChild(bulk);
+    }
+    body.appendChild(bar);
+    body.appendChild(tkHost); drawTaskList(tkHost);
+  }
+
+  // ---------- Timesheet ----------
+  function ymd(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+  function weekDays(off){ var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-((d.getDay()+6)%7)+off*7); var out=[]; for(var i=0;i<7;i++){ var x=new Date(d); x.setDate(d.getDate()+i); out.push(ymd(x)); } return out; }
+  function dayHead(s){ var p=s.split("-"), d=new Date(+p[0],+p[1]-1,+p[2]); return d.toLocaleDateString("en-IN",{weekday:"short"})+" "+d.getDate(); }
+  function shortDay(s){ var p=s.split("-"), d=new Date(+p[0],+p[1]-1,+p[2]); return d.getDate()+" "+MON[d.getMonth()]; }
+  function hrs(n){ return String(Math.round(n*100)/100); }
+  function tsAll(){ return toArr(state.timesheet).filter(function(e){ return e && e.id; }); }
+  function tsMine(){ return isOwner?tsAll():tsAll().filter(function(e){ return e.staffId===viewer.staffId; }); }
+  function tsSelf(){ return isOwner?"":viewer.staffId; }
+  function sumHours(list){ return list.reduce(function(a,e){ return a+(+e.hours||0); },0); }
+  function sumBill(list){ return list.reduce(function(a,e){ return a+(e.billable?(+e.hours||0):0); },0); }
+  function tsPut(e){ state.timesheet=state.timesheet||{}; state.timesheet[e.id]=e; stampSave(whoami()); if(fbMode&&fbDb){ fbWrite(fbDb.ref("timesheet/"+fbEnc(e.id)).set(e)); } else if(serverMode)pushState(); }
+  function tsDel(id){ if(state.timesheet)delete state.timesheet[id]; stampSave(whoami()); if(fbMode&&fbDb){ fbWrite(fbDb.ref("timesheet/"+fbEnc(id)).remove()); } else if(serverMode)pushState(); }
+  function tsFld(lbl,ctrl){ var d=el("div","fld"); d.appendChild(el("label",null,lbl)); d.appendChild(ctrl); return d; }
+  function tsMsg(t){ var m=$("#tsMsg"); if(m)m.textContent=t||""; }
+  function tsCard(){
+    var wk=weekDays(0), list=tsMine().filter(function(e){ return wk.indexOf(e.date)>=0; });
+    var h=sumHours(list), box=el("div","tscard");
+    var l=el("div","tscard-l"); l.appendChild(el("b",null,hrs(h)+" h")); l.appendChild(el("span",null,isOwner?"Team hours this week":"My hours this week")); box.appendChild(l);
+    box.appendChild(el("div","tscard-m",(h?Math.round(sumBill(list)/h*100):0)+"% billable"));
+    if(isOwner&&state.staff.length){ var idle=state.staff.filter(function(st){ return !list.some(function(e){ return e.staffId===st.id; }); });
+      box.appendChild(el("div","tscard-f",idle.length?(idle.length+" with no entries this week: "+idle.map(function(s){ return s.name; }).join(", ")):"Everyone has entries this week")); }
+    var ob=el("button","clearbtn","Open timesheet ›"); ob.addEventListener("click",function(){ appView="time"; renderPanel(); window.scrollTo({top:0}); }); box.appendChild(ob);
+    return box;
+  }
+  function tsFormEl(days){
+    var ed=null; if(tsEdit){ ed=tsAll().filter(function(e){ return e.id===tsEdit; })[0]||null; if(!ed)tsEdit=null; }
+    var today=ymd(new Date());
+    if(!tsForm.date||days.indexOf(tsForm.date)<0)tsForm.date=days.indexOf(today)>=0?today:days[0];
+    var v=ed||{staffId:tsForm.staffId||tsSelf()||(state.staff[0]?state.staff[0].id:""),date:tsForm.date,clientId:tsForm.clientId,activity:tsForm.activity,hours:"",billable:tsForm.billable,note:""};
+    var f=el("div","ts-form"), r=el("div","ts-row");
+    var fStaff=null; if(isOwner){ fStaff=el("select"); state.staff.forEach(function(st){ fStaff.appendChild(opt(st.id,st.name,st.id===v.staffId)); }); r.appendChild(tsFld("Staff",fStaff)); }
+    var fDate=el("input"); fDate.type="date"; fDate.value=v.date; r.appendChild(tsFld("Date",fDate));
+    var fClient=el("select"); fClient.appendChild(opt("","— internal / no client —",!v.clientId)); visibleClients().forEach(function(c){ fClient.appendChild(opt(c.id,c.name,c.id===v.clientId)); }); r.appendChild(tsFld("Client",fClient));
+    var fAct=el("select"); ACTIVITIES.forEach(function(a){ fAct.appendChild(opt(a[0],a[0],a[0]===v.activity)); }); r.appendChild(tsFld("Activity",fAct));
+    var fHrs=el("input"); fHrs.type="number"; fHrs.min="0.25"; fHrs.max="24"; fHrs.step="0.25"; fHrs.value=ed?String(ed.hours):""; fHrs.placeholder="1.5"; r.appendChild(tsFld("Hours",fHrs));
+    var fBill=el("input"); fBill.type="checkbox"; fBill.checked=!!v.billable; var bl=el("label","ts-chk"); bl.appendChild(fBill); bl.appendChild(document.createTextNode(" Billable")); r.appendChild(bl);
+    var fNote=el("input"); fNote.type="text"; fNote.value=v.note||""; fNote.placeholder="What was done (optional)"; r.appendChild(tsFld("Note",fNote));
+    fAct.addEventListener("change",function(){ var a=ACTIVITIES.filter(function(x){ return x[0]===fAct.value; })[0]; fBill.checked=a?a[1]:true; });
+    f.appendChild(r);
+    var chips=el("div","ts-chips"); [0.5,1,2,4,8].forEach(function(n){ var b=el("button",null,n+" h"); b.type="button"; b.addEventListener("click",function(){ fHrs.value=String(n); }); chips.appendChild(b); }); f.appendChild(chips);
+    var acts=el("div","ts-acts"), ok=el("button","primary",ed?"Save changes":"Add entry");
+    ok.addEventListener("click",function(){
+      var h=parseFloat(fHrs.value);
+      if(!(h>0)||h>24||Math.round(h*4)!==h*4){ fHrs.focus(); tsMsg("Hours must be in steps of 0.25, up to 24 (e.g. 1.5)."); return; }
+      var sid=isOwner?(fStaff?fStaff.value:""):tsSelf();
+      if(!sid){ tsMsg("Pick a staff member."); return; }
+      if(!fDate.value){ fDate.focus(); tsMsg("Pick a date."); return; }
+      var e={id:ed?ed.id:uid("ts"),staffId:sid,date:fDate.value,hours:h,clientId:fClient.value||"",activity:fAct.value,billable:fBill.checked,note:fNote.value.trim(),by:whoami(),at:nowIso()};
+      tsForm={date:e.date,staffId:sid,clientId:e.clientId,activity:e.activity,billable:e.billable,note:""};
+      tsEdit=null; tsPut(e); renderPanel();
+    });
+    acts.appendChild(ok);
+    if(ed){ var cx=el("button","clearbtn","Cancel edit"); cx.addEventListener("click",function(){ tsEdit=null; renderPanel(); }); acts.appendChild(cx); }
+    f.appendChild(acts);
+    var msg=el("div","login-err"); msg.id="tsMsg"; f.appendChild(msg);
+    return f;
+  }
+  function tsGridEl(days){
+    var rows=isOwner?state.staff.slice().sort(function(a,b){ return a.name<b.name?-1:1; }):[staffById(viewer.staffId)].filter(Boolean);
+    var wrap=el("div","tt-scroll"), t=el("table","ts-grid"), th=el("thead"), hr=el("tr");
+    hr.appendChild(el("th",null,"Staff")); days.forEach(function(d){ hr.appendChild(el("th",null,dayHead(d))); }); hr.appendChild(el("th",null,"Total")); hr.appendChild(el("th",null,"Billable")); th.appendChild(hr); t.appendChild(th);
+    var tb=el("tbody"), colT=days.map(function(){ return 0; }), weekAll=tsAll().filter(function(e){ return days.indexOf(e.date)>=0; }), started=days[0]<=ymd(new Date());
+    rows.forEach(function(st){
+      var mine=weekAll.filter(function(e){ return e.staffId===st.id; }), tot=sumHours(mine), idle=!mine.length&&started;
+      var tr=el("tr",idle?"ts-idle":"");
+      var nm=el("td","ts-name",st.name); if(idle)nm.appendChild(el("small",null,"no entries yet")); tr.appendChild(nm);
+      days.forEach(function(d,i){ var h=sumHours(mine.filter(function(e){ return e.date===d; })); colT[i]+=h;
+        var td=el("td","ts-cell"+(h?"":" zero"),h?hrs(h):"·"); td.title="Add an entry for this day";
+        td.addEventListener("click",function(){ tsForm.date=d; if(isOwner)tsForm.staffId=st.id; tsEdit=null; renderPanel(); }); tr.appendChild(td); });
+      tr.appendChild(el("td","ts-tot",hrs(tot))); tr.appendChild(el("td","ts-bp",tot?(Math.round(sumBill(mine)/tot*100)+"%"):"—")); tb.appendChild(tr);
+    });
+    t.appendChild(tb);
+    if(isOwner&&rows.length){ var tf=el("tfoot"), fr=el("tr"); fr.appendChild(el("td","ts-name","Team"));
+      colT.forEach(function(h){ fr.appendChild(el("td",null,h?hrs(h):"·")); });
+      var wt=sumHours(weekAll), wb=sumBill(weekAll); fr.appendChild(el("td","ts-tot",hrs(wt))); fr.appendChild(el("td",null,wt?(Math.round(wb/wt*100)+"%"):"—")); tf.appendChild(fr); t.appendChild(tf); }
+    wrap.appendChild(t); return wrap;
+  }
+  function tsEntriesEl(days){
+    var list=tsMine().filter(function(e){ return days.indexOf(e.date)>=0; }).sort(function(a,b){ return a.date<b.date?-1:a.date>b.date?1:((a.at||"")<(b.at||"")?-1:1); });
+    if(!list.length)return el("div","empty2","No entries for this week yet.");
+    var wrap=el("div","tt-scroll"), t=el("table","mtable"), th=el("thead"), hr=el("tr");
+    var cols=["Date"]; if(isOwner)cols.push("Staff"); cols.push("Client","Activity","Hours","Billable","Note",""); cols.forEach(function(x){ hr.appendChild(el("th",null,x)); }); th.appendChild(hr); t.appendChild(th);
+    var tb=el("tbody");
+    list.forEach(function(e){ var tr=el("tr"); tr.appendChild(el("td",null,dayHead(e.date)));
+      if(isOwner)tr.appendChild(el("td",null,staffName(e.staffId)||"—"));
+      tr.appendChild(el("td",null,e.clientId?((clientById(e.clientId)||{}).name||"—"):"Internal"));
+      tr.appendChild(el("td",null,e.activity||""));
+      tr.appendChild(el("td",null,hrs(+e.hours||0)));
+      tr.appendChild(el("td",null,e.billable?"Yes":"No"));
+      tr.appendChild(el("td",null,e.note||""));
+      var ac=el("td"), eb=el("button","clearbtn","Edit"); eb.addEventListener("click",function(){ tsEdit=e.id; renderPanel(); window.scrollTo({top:0}); });
+      var db=el("button","iconbtn","Delete"); db.addEventListener("click",function(){ if(!confirm("Delete this entry?"))return; tsDel(e.id); renderPanel(); });
+      ac.appendChild(eb); ac.appendChild(db); tr.appendChild(ac); tb.appendChild(tr); });
+    t.appendChild(tb); wrap.appendChild(t); return wrap;
+  }
+  function tsMonthEl(){
+    var mk=currentPeriod(), inM=tsAll().filter(function(e){ return String(e.date).slice(0,7)===mk; });
+    var byC={}, byS={}, feeTot=0;
+    function slot(map,k){ if(!map[k])map[k]={h:0,b:0,fee:0}; return map[k]; }
+    inM.forEach(function(e){ var a=slot(byC,e.clientId||""), s=slot(byS,e.staffId||""), h=+e.hours||0; a.h+=h; s.h+=h; if(e.billable){ a.b+=h; s.b+=h; } });
+    allInstances().forEach(function(x){ var c=cell(x.id); if(c.status==="Filed / Done"&&filedThisMonth(c)){ var f=Number(x.fee)||0; slot(byC,x.clientId||"").fee+=f; feeTot+=f; } });
+    var hT=sumHours(inM), bT=sumBill(inM), wrap=el("div");
+    wrap.appendChild(el("div","muted-note2","Hours logged this month: "+hrs(hT)+" h, "+(hT?Math.round(bT/hT*100):0)+"% billable. Fees raised on filed work this month: "+money(feeTot)+(bT&&feeTot?(", about "+money(feeTot/bT)+" per billable hour."):".")));
+    var tc=el("div","tt-scroll"), t1=el("table","mtable"), h1=el("tr"); ["Client","Hours","Billable hrs","Fees raised","₹ per billable hr"].forEach(function(x){ h1.appendChild(el("th",null,x)); }); var th1=el("thead"); th1.appendChild(h1); t1.appendChild(th1);
+    var tb1=el("tbody");
+    Object.keys(byC).filter(function(k){ return byC[k].h||byC[k].fee; }).sort(function(a,b){ return byC[b].h-byC[a].h; }).forEach(function(k){ var a=byC[k], tr=el("tr");
+      tr.appendChild(el("td",null,k?((clientById(k)||{}).name||"—"):"Internal / no client"));
+      tr.appendChild(el("td",null,hrs(a.h))); tr.appendChild(el("td",null,hrs(a.b))); tr.appendChild(el("td",null,money(a.fee)));
+      tr.appendChild(el("td",null,a.b>0&&a.fee>0?money(a.fee/a.b):"—")); tb1.appendChild(tr); });
+    t1.appendChild(tb1); tc.appendChild(t1); wrap.appendChild(el("div","sheet-lbl","By client")); wrap.appendChild(tc);
+    var ts2=el("div","tt-scroll"), t2=el("table","mtable"), h2=el("tr"); ["Staff","Hours","Billable %"].forEach(function(x){ h2.appendChild(el("th",null,x)); }); var th2=el("thead"); th2.appendChild(h2); t2.appendChild(th2);
+    var tb2=el("tbody");
+    state.staff.slice().sort(function(a,b){ return (byS[b.id]?byS[b.id].h:0)-(byS[a.id]?byS[a.id].h:0); }).forEach(function(st){ var s=byS[st.id]||{h:0,b:0}, tr=el("tr",s.h?null:"ts-idle");
+      tr.appendChild(el("td",null,st.name)); tr.appendChild(el("td",null,hrs(s.h))); tr.appendChild(el("td",null,s.h?(Math.round(s.b/s.h*100)+"%"):"—")); tb2.appendChild(tr); });
+    t2.appendChild(tb2); ts2.appendChild(t2); wrap.appendChild(el("div","sheet-lbl","By staff (this month)")); wrap.appendChild(ts2);
+    return wrap;
+  }
+  function renderTimesheet(){
+    var panel=$("#panel"); panel.innerHTML="";
+    var days=weekDays(tsWeek), head=el("div","ts-head");
+    var pv=el("button","clearbtn","‹ Prev"), nx=el("button","clearbtn","Next ›"), nw=el("button","clearbtn","This week");
+    pv.addEventListener("click",function(){ tsWeek--; tsEdit=null; renderPanel(); });
+    nx.addEventListener("click",function(){ tsWeek++; tsEdit=null; renderPanel(); });
+    nw.addEventListener("click",function(){ tsWeek=0; tsEdit=null; renderPanel(); });
+    head.appendChild(el("div","ts-title",(isOwner?"Team timesheet":"My timesheet")+" · "+shortDay(days[0])+" – "+shortDay(days[6])));
+    head.appendChild(pv); head.appendChild(nw); head.appendChild(nx); panel.appendChild(head);
+    var mine=tsMine(), wk=mine.filter(function(e){ return days.indexOf(e.date)>=0; }), mk=currentPeriod(), mm=mine.filter(function(e){ return String(e.date).slice(0,7)===mk; });
+    panel.appendChild(el("div","tscard-m",hrs(sumHours(wk))+" h this week ("+(sumHours(wk)?Math.round(sumBill(wk)/sumHours(wk)*100):0)+"% billable) · "+hrs(sumHours(mm))+" h this month"));
+    panel.appendChild(tsFormEl(days));
+    panel.appendChild(el("div","sheet-lbl","Week at a glance"));
+    if(isOwner)panel.appendChild(el("div","muted-note2","Tap a day to add an entry for that person. Red rows have no entries yet this week."));
+    panel.appendChild(tsGridEl(days));
+    panel.appendChild(el("div","sheet-lbl","Entries this week"));
+    panel.appendChild(tsEntriesEl(days));
+    if(isOwner){ panel.appendChild(el("div","sheet-lbl","This month")); panel.appendChild(tsMonthEl()); }
   }
 
   function refreshOwnerFilter(){ var sel=$("#fOwner"),cur=sel?sel.value:""; if(!sel)return; sel.innerHTML='<option value="">All staff</option><option value="__none__">Unassigned</option>'; state.staff.slice().sort(function(a,b){return a.name<b.name?-1:1;}).forEach(function(st){ sel.appendChild(opt(st.id,st.name,st.id===cur)); }); }
@@ -1400,6 +2019,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     $("#backBtn").addEventListener("click",function(){ setTab("overview"); });
     $("#btnManage").addEventListener("click",function(){ $("#menu").classList.remove("open"); openManage("staff"); });
     $("#btnWhatsapp").addEventListener("click",function(){ $("#menu").classList.remove("open"); shareWhatsApp(); });
+    $("#btnTime").addEventListener("click",function(){ $("#menu").classList.remove("open"); appView="time"; renderPanel(); window.scrollTo({top:0}); });
     $("#btnExport").addEventListener("click",function(){ $("#menu").classList.remove("open"); exportData(); });
     $("#btnSignout").addEventListener("click",function(){ $("#menu").classList.remove("open"); signOut(); });
     $("#mClose").addEventListener("click",closeManage);
@@ -1408,7 +2028,8 @@ window.MARVCO_FIREBASE_CONFIG = {
     Array.prototype.forEach.call(document.querySelectorAll("#loginOverlay .role-btn"),function(b){ b.addEventListener("click",function(){ loginRole=b.getAttribute("data-role"); renderLogin(); }); });
     $("#sheet").addEventListener("click",function(e){ if(e.target===$("#sheet"))closeSheet(); });
     document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ closeSheet(); closeManage(); $("#menu").classList.remove("open"); } });
-    applyRole(); refreshFilters(); renderAll(); renderSaved(); if(!session)showLogin(); if(fbConfigured)initFirebase(); else initServer();
+    if(fbConfigured){ renderSaved(); initFirebase(); }
+    else { applyRole(); refreshFilters(); renderAll(); renderSaved(); if(!session)showLogin(); initServer(); }
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init); else init();
 })();
