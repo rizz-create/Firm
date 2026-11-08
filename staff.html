@@ -356,6 +356,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   .tc2-name{flex:1;min-width:180px;font-weight:700;font-size:15px;border:1px solid transparent;padding:6px 8px;border-radius:8px;font-family:var(--sans);color:var(--ink);background:transparent}
   .tc2-name:hover,.tc2-name:focus{border-color:var(--line2);background:#fff;outline:none}
   .tc2-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .csv-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0 12px}
   .warnchip{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:12px;background:#FFF4D6;color:#8A5A00}
   .tc2-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px 12px;margin-top:10px}
   .tc2-f label{display:block;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px}
@@ -1028,6 +1029,12 @@ window.MARVCO_FIREBASE_CONFIG = {
     var nxc=cnt("next"); if(nxc||drill==="next")sum.appendChild(statChip("next",nxc,"Next actions","amber"));
     panel.appendChild(tsCard());
     panel.appendChild(sum);
+    if(isOwner){
+      var xb=el("div","csv-bar"); xb.appendChild(el("span","muted-note2","Export CSV:"));
+      [["data","Data received","st:Data received"],["notstarted","Not started","st:Not started"],["review","Awaiting review","review"],["ready","Ready to file","ready"],["pending","Pending (not filed)","pending"],["next","Next actions","next"],["done","Filed","done"]].forEach(function(x){
+        var xbtn=el("button","clearbtn","⬇ "+x[1]); xbtn.addEventListener("click",function(){ exportTasksCsv(x[0],x[2]); }); xb.appendChild(xbtn); });
+      panel.appendChild(xb);
+    }
     panel.appendChild(stagePanel(s));
     if(drill){ renderDrill(panel,scoped); return; }
     if(!isOwner && homeView==="staff")homeView="clients";
@@ -1999,6 +2006,22 @@ window.MARVCO_FIREBASE_CONFIG = {
     return lines.join("\n");
   }
   function shareWhatsApp(){ var text=buildDigest(); try{ if(navigator.clipboard)navigator.clipboard.writeText(text); }catch(e){} window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank"); }
+
+  // ---------- CSV export (owner) ----------
+  var CSV_COLS=["Client","Task","Period","Repeats","Status","Due date","Assigned to (employee)","Worked on by","Reviewed by (partner)","Bill amount (Rs)","Zoho item","Waiting on","Notes","Pending next actions","Filed on","Filed by","ARN"];
+  function csvCell(v){ var s=(v==null?"":String(v)); return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
+  function exportTasksCsv(label,key){
+    var rows=baseTasks().filter(passFilter).filter(function(t){ return drillPred(key,t); });
+    var out=[CSV_COLS.join(",")];
+    rows.forEach(function(t){
+      var c=cell(t.id), cl=clientById(t.clientId)||{name:""}, d=dueDateOf(t), zi=zItemById(t.zohoItemId);
+      var pend=nextActions(t).map(function(s){ return s.name; }).join("; ");
+      out.push([cl.name, t.name, periodLong(t), freqLabel(freqOf(t)), c.status, d?(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")):"",
+        t.ownerId?staffName(t.ownerId):"Unassigned", c.preparedBy||"", c.reviewedBy||"", t.fee==null?"":t.fee,
+        zi?zi.name:(t.zohoItemId||""), c.waiting||"", c.notes||"", pend, c.filedAt?fmtWhen(c.filedAt):"", c.filedBy||"", c.arn||""].map(csvCell).join(","));
+    });
+    saveBlob("﻿"+out.join("\r\n"),"text/csv;charset=utf-8","marv-co-"+label+"-"+new Date().toISOString().slice(0,10)+".csv");
+  }
 
   function exportData(){ saveBlob(JSON.stringify(state,null,2),"application/json","marv-co-board-"+new Date().toISOString().slice(0,10)+".json"); }
   function saveBlob(text,mime,filename){ var blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); },100); }
