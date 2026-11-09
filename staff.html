@@ -289,7 +289,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   .mx-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:100%;min-width:90px;padding:6px;border-radius:8px;border:2px solid transparent;cursor:pointer;font-family:var(--sans)}
   .mx-cell+.mx-cell{margin-top:4px} .mx-cell:hover{filter:brightness(.96)}
   .mx-cell.overdue{border-color:var(--red)} .mx-cell.soon{border-color:var(--amber)}
-  .mx-st{font-size:12px;font-weight:700;white-space:nowrap} .mx-sub{font-size:10.5px;opacity:.85;white-space:nowrap}
+  .mx-st{font-size:12px;font-weight:700;line-height:1.25} .mx-sub{font-size:10.5px;opacity:.85;white-space:nowrap}
   .mx-cell.overdue .mx-sub{color:var(--red);font-weight:700;opacity:1}
   .mx-none{color:var(--line2)}
   .mx-pg{white-space:nowrap;font-weight:700;font-size:12.5px;min-width:84px;border-right:1px solid var(--line)}
@@ -357,6 +357,36 @@ window.MARVCO_FIREBASE_CONFIG = {
   .tc2-name:hover,.tc2-name:focus{border-color:var(--line2);background:#fff;outline:none}
   .tc2-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
   .csv-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0 12px}
+  .wf{margin-top:6px}
+  .wf-row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #e5e7eb}
+  .wf-row.todo{opacity:.55}
+  .wf-n{flex:0 0 28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:700;background:#e5e7eb;color:#111}
+  .wf-row.cur .wf-n{background:#0E8A6E;color:#fff}
+  .wf-row.done .wf-n{background:#15803d;color:#fff}
+  .wf-body{flex:1;min-width:0}
+  .wf-t{font-weight:600;line-height:1.35}
+  .wf-by{font-size:12px;color:#6b7280;margin:2px 0 4px}
+  .wf-p .wf-by{color:#6D28D9;font-weight:600}
+  .wf-cl{margin:4px 0}
+  .tc-stage{font-size:12px;color:#0E8A6E;font-weight:600;margin-top:4px}
+  .bar3{display:flex;height:10px;border-radius:6px;overflow:hidden;background:#e5e7eb;margin:8px 0 10px}
+  .bar3-seg{height:100%}
+  .stsub{margin-top:10px;padding:10px;background:#faf8f5;border:1px dashed #d6d3cc;border-radius:12px}
+  .stsub-t{font-size:12px;color:#6b7280;margin-bottom:8px}
+  .stbtn.sub{font-size:13px}
+  .taskpage{margin-top:4px}
+  .wf-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+  @media (max-width:899px){ .wf-wrap{grid-template-columns:1fr} }
+  .wf-row{cursor:pointer}
+  .wf-row.sel{box-shadow:0 0 0 2px #0E8A6E;border-radius:10px}
+  .wf-prog{font-size:12px;color:#0E8A6E;font-weight:600;margin-top:2px}
+  .wf-right{background:#faf8f5;border:1px solid #e5e7eb;border-radius:14px;padding:14px;position:sticky;top:12px}
+  @media (max-width:899px){ .wf-right{position:static} }
+  .wf-rh{font-weight:700;font-size:16px;margin-bottom:4px}
+  .wf-chk{margin:8px 0}
+  .wf-chk-i{display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:14px;line-height:1.35;border-bottom:1px dashed #e5e7eb}
+  .wf-chk-i input{margin-top:3px}
+  .wf-chk-i.on span{color:#6b7280;text-decoration:line-through}
   .warnchip{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:12px;background:#FFF4D6;color:#8A5A00}
   .tc2-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px 12px;margin-top:10px}
   .tc2-f label{display:block;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px}
@@ -471,8 +501,8 @@ window.MARVCO_FIREBASE_CONFIG = {
     {id:"handh",name:"H and H",scope:"GST",tasks:[["g1","GSTR-1",11,"stat"],["g3","GSTR-3B",20,"stat"]]},
     {id:"muzris",name:"Muzris",scope:"GST · QRMP quarterly",tasks:[["iff","IFF (optional)",13,"qrmp"],["pmt","PMT-06",25,"qrmp"],["qg1","Quarterly GSTR-1",13,"qtr"],["qg3","Quarterly GSTR-3B",22,"qtr"]]}
   ];
-  var STATUSES=["Not started","Data received","Prepared","Reviewed","Filed / Done","N/A"];
-  var ST_CLASS={"Not started":"st-ns","Data received":"st-dr","Prepared":"st-pr","Reviewed":"st-rv","Filed / Done":"st-fl","N/A":"st-na"};
+  var STATUSES=["Not started","Prepared","Reviewed","Filed / Done","N/A"];
+  var ST_CLASS={"Not started":"st-ns","Prepared":"st-pr","Reviewed":"st-rv","Filed / Done":"st-fl","N/A":"st-na"};
   var FREQ_OPTS=[["monthly","Monthly"],["quarterly","Quarterly"],["annual","Annual"],["once","One-time"]];
   var KIND_OPTS=[["stat","Statutory"],["int","Internal"]];
   var DEFAULT_START="2026-09";   // first return month tracked when a task has no "Starts from"
@@ -483,6 +513,201 @@ window.MARVCO_FIREBASE_CONFIG = {
     ["ITR (non-audit)","annual",31,7],["ITR (audit)","annual",31,10],["Tax audit (3CD)","annual",30,9],["GSTR-9 / 9C","annual",31,12],
     ["AOC-4","annual",30,10],["MGT-7","annual",29,11],["DIR-3 KYC","annual",30,9],["LLP Form 11","annual",30,5],["LLP Form 8","annual",30,10],["DPT-3","annual",30,6],["Form 16","annual",15,6]
   ];
+  // Firm workflows, in the order and numbering of the firm's work_flow sheet.
+  // st(r,text,opts): r = "P" Partner or "S" Staff; rev = partner review; close = final stage (files the task);
+  // arn = ARN/SRN captured here; opt = "if any" stage (can be marked not needed);
+  // cl = checklist items shown beside the stage and ticked off; gate = stage needs its checklist complete first.
+  function st(r,t,o){ var s={r:r,t:t}; if(o)Object.keys(o).forEach(function(k){ s[k]=o[k]; }); return s; }
+  var WF_GST_DOCS=["PAN copy","Aadhaar front and back, with mobile linked","Passport size photo",
+    "If rented: rent agreement with NOC, owner's Aadhaar, property tax receipt, utility bill under 2 months old",
+    "Location (latitude and longitude)","Product list with HSN/SAC codes",
+    "Scans as PDF, JPG or PNG, under 5 MB, recent, names match PAN"];
+  var WF_CO_DOCS=["Office proof with NOC if applicable (lease or rent agreement with receipts)","Utility bill under 2 months old","Google map location",
+    "Each director / partner: basic details and place of birth (state, district)","Each director / partner: passport size photo and signature",
+    "Each director / partner: PAN copy and ID proof","Each director / partner: residence proof",
+    "Number of LLPs / companies each person is in","Registration details: name, registered office, objectives, capital",
+    "Number of directors and shareholders, email, phone, police station jurisdiction","Digital signature (DSC) for company / LLP"];
+  var WF_GST_CLOSE=["Drive folder created","GST certificate available","All client documents saved in OneDrive","GST registration checklist complete"];
+  var WF_CO_CLOSE=["Drive folder created with incorporation and DIN certificates","All client documents saved","Company registration checklist shared with client"];
+  var WF_GSTR1_CLOSE=["GSTR-1 filed and saved in Drive"];
+  var WF_GSTR3B_CLOSE=["GSTR-3B shared with client and saved in Drive"];
+  var WORKFLOWS=[
+    {name:"GST Registration",freq:"once",stages:[
+      st("P","Task created and allotted by Partner",{auto:1}),
+      st("S","Documents collection",{cl:WF_GST_DOCS}),
+      st("S","Document verification",{cl:WF_GST_DOCS,gate:1}),
+      st("S","Entered data in GST site"),
+      st("P","Partner review in GST site; give ready-to-file signal",{rev:1}),
+      st("S","Application filed (note ARN)",{arn:1}),
+      st("S","Department query / reply filed (if any)",{opt:1}),
+      st("S","Approved - GSTIN generated"),
+      st("S","Bank account updation"),
+      st("S","GST certificate downloaded to OneDrive and delivered to client"),
+      st("P","Closed",{close:1,cl:WF_GST_CLOSE,gate:1})]},
+    {name:"Company/LLP Registration",freq:"once",stages:[
+      st("P","Task created and allotted by Partner",{auto:1}),
+      st("S","Documents collection",{cl:WF_CO_DOCS}),
+      st("S","Document verification",{cl:WF_CO_DOCS,gate:1}),
+      st("P","Name reservation"),
+      st("S","DSC"),
+      st("S","SPICe+ Part B"),
+      st("P","Partner review",{rev:1}),
+      st("S","Incorporation form filed (note SRN)",{arn:1}),
+      st("S","ROC query / resubmission (if any)",{opt:1}),
+      st("S","Certificate of Incorporation received (with PAN and TAN)"),
+      st("S","Documents delivered to client"),
+      st("P","Closed",{close:1,cl:WF_CO_CLOSE,gate:1})]},
+    {name:"GSTR-1",freq:"monthly",stages:[
+      st("P","Task created and allotted by Partner",{auto:1}),
+      st("S","Documents collection",{cl:["Sales register from the client"]}),
+      st("S","Document verification"),
+      st("S","Draft GSTR-1"),
+      st("P","Partner review",{rev:1}),
+      st("S","GSTR-1 filed",{close:1,cl:WF_GSTR1_CLOSE,gate:1})]},
+    {name:"GSTR-3B",freq:"monthly",stages:[
+      st("P","Task created and allotted by Partner",{auto:1}),
+      st("S","GSTR-2B vs purchase book comparison"),
+      st("S","GSTR-3B prepared"),
+      st("P","Partner review",{rev:1}),
+      st("S","Tax paid and GSTR-3B filed",{arn:1}),
+      st("S","GSTR-3B shared with client and saved in Drive",{close:1,cl:WF_GSTR3B_CLOSE,gate:1})]},
+    {name:"TDS Challan Filing",freq:"monthly",stages:[
+      st("P","Task created and allotted by Partner",{auto:1}),
+      st("S","Documents collection"),
+      st("S","Document verification"),
+      st("P","Partner review",{rev:1}),
+      st("S","TDS challan paid"),
+      st("P","Closed",{close:1})]},
+    {name:"TDS Filing",freq:"monthly",stages:[
+      st("P","Task created and allotted by Partner",{auto:1}),
+      st("S","Documents collection"),
+      st("S","Document verification"),
+      st("S","TDS return prepared"),
+      st("P","Partner review",{rev:1}),
+      st("S","TDS return filed",{arn:1}),
+      st("P","Closed",{close:1})]},
+    {name:"Accounts Maintenance",freq:"monthly",stages:[
+      st("P","Task created and allotted by Partner",{auto:1}),
+      st("S","Documents collection"),
+      st("S","Document verification"),
+      st("S","Entries posted"),
+      st("S","Bank and ledger reconciliation"),
+      st("P","Partner review done",{rev:1}),
+      st("P","Closed",{close:1})]}
+  ];
+  function wfByName(n){ for(var i=0;i<WORKFLOWS.length;i++){ if(WORKFLOWS[i].name===n)return WORKFLOWS[i]; } return null; }
+  function wfOf(t){ var tk=taskById(t.tid)||t; if(!tk||!tk.libId)return null; var lb=libById(tk.libId); return lb&&lb.workflow?wfByName(lb.workflow):null; }
+  function wfCurrent(c,wf){ var d=c.wfDone||{}; for(var i=0;i<wf.stages.length;i++){ if(wf.stages[i].auto||d[i])continue; return i; } return -1; }
+  // visible numbering: automatic steps are hidden and not numbered
+  function wfOff(wf){ return (wf.stages[0]&&wf.stages[0].auto)?1:0; }
+  function wfNo(wf,i){ return i-wfOff(wf)+1; }
+  function wfTotal(wf){ return wf.stages.length-wfOff(wf); }
+  // the status shown on a workflow task: the stage it is at and who it is with
+  function stageStatusOf(t,c){
+    var wf=wfOf(t); if(!wf)return null; if(!Object.keys(c.wfDone||{}).length)return null;
+    var cu=wfCurrent(c,wf); if(cu<0)return null; var s=wf.stages[cu];
+    return s.t+(s.r==="P"?" - waiting for partner":" - work in progress");
+  }
+  function wfLast(c){ var d=c.wfDone||{}, last=-1; Object.keys(d).forEach(function(k){ if(+k>last)last=+k; }); return last; }
+  // only the next stage can be ticked, in order; partner stages need a partner
+  function wfTick(t,c,wf,i,arnVal){
+    var s=wf.stages[i]; if(i!==wfCurrent(c,wf))return; if(s.r==="P"&&!isOwner)return; if(s.gate&&!wfChkAll(c,i,s))return;
+    var n=actor(), now=nowIso(), d=c.wfDone=c.wfDone||{};
+    if(s.close){ if(!canFile(t))return; c.status="Filed / Done"; c.filedBy=n; c.filedAt=now; }
+    else if(s.rev){ c.status="Reviewed"; c.reviewedBy=n; }
+    else if(wf.stages[i+1]&&wf.stages[i+1].rev){ c.status="Prepared"; c.preparedBy=n; c.preparedAt=now; }
+    if(s.arn&&arnVal)c.arn=arnVal;
+    d[i]={done:true,by:n,at:now};
+    commit(t);
+  }
+  function wfSkip(t,c,wf,i){
+    if(i!==wfCurrent(c,wf)||!wf.stages[i].opt)return;
+    c.wfDone=c.wfDone||{}; c.wfDone[i]={skipped:true,by:actor(),at:nowIso()}; commit(t);
+  }
+  function wfUndo(t,c,wf){
+    var d=c.wfDone||{}, last=wfLast(c); if(last<0)return; var s=wf.stages[last];
+    if(s.close){ c.status="Reviewed"; c.filedBy=""; c.filedAt=""; }
+    else if(s.rev){ c.status="Prepared"; c.reviewedBy=""; }
+    else if(wf.stages[last+1]&&wf.stages[last+1].rev&&!d[last].skipped){ c.status="Not started"; c.preparedBy=""; c.preparedAt=""; }
+    delete d[last]; commit(t);
+  }
+  var wfSel={};   // stage selected in the workflow view, per task
+  function wfKey(i,j){ return i+"."+j; }
+  function wfChkCount(c,i,s){ var k=0; (s.cl||[]).forEach(function(_,j){ if(c.wfChk&&c.wfChk[wfKey(i,j)])k++; }); return k; }
+  function wfChkAll(c,i,s){ return wfChkCount(c,i,s)===(s.cl||[]).length; }
+  function wfToggleChk(t,c,i,j){ c.wfChk=c.wfChk||{}; var k=wfKey(i,j); if(c.wfChk[k])delete c.wfChk[k]; else c.wfChk[k]=true; commit(t); }
+  function wfStepper(t,c,wf){
+    var cur=wfCurrent(c,wf), d=c.wfDone||{}, last=wfLast(c);
+    var sel=(wfSel[t.id]!=null)?wfSel[t.id]:(cur<0?wf.stages.length-1:cur);
+    var wrap=el("div","wf-wrap"), left=el("div","wf-left"), right=el("div","wf-right");
+    left.appendChild(el("div","sheet-lbl","Workflow · "+wf.name));
+    left.appendChild(el("div","muted-note2", cur<0?"All stages are complete.":("Next: stage "+wfNo(wf,cur)+" of "+wfTotal(wf)+". Stages run in order; tap a stage to see its checklist.")));
+    wf.stages.forEach(function(s,i){
+      if(s.auto)return; var isDone=!!d[i], isCur=(i===cur);
+      var row=el("div","wf-row "+(isDone?"done":(isCur?"cur":"todo"))+(s.r==="P"?" wf-p":"")+(sel===i?" sel":""));
+      row.appendChild(el("div","wf-n",String(wfNo(wf,i))));
+      var body=el("div","wf-body");
+      body.appendChild(el("div","wf-t",s.t));
+      var meta=(s.r==="P"?"Partner":"Staff");
+      if(isDone)meta+=d[i].skipped?" · not needed":(" · ✓ "+(d[i].by||"")+(d[i].at?" · "+fmtWhen(d[i].at):""));
+      else if(isCur)meta+=" · next";
+      body.appendChild(el("div","wf-by",meta));
+      if(s.cl&&s.cl.length)body.appendChild(el("div","wf-prog",wfChkCount(c,i,s)+" of "+s.cl.length+" checklist items"));
+      row.appendChild(body);
+      row.addEventListener("click",function(){ wfSel[t.id]=i; renderSheetBody(); });
+      left.appendChild(row);
+    });
+    if(last>=0&&(isOwner||wf.stages[last].r==="S")){
+      var ub=el("button","clearbtn","↶ Undo stage "+wfNo(wf,last)); ub.addEventListener("click",function(){ wfUndo(t,c,wf); }); left.appendChild(ub);
+    }
+    // right: checklist and actions for the selected stage
+    var s=wf.stages[sel], i=sel, actionable=(i===cur)&&(s.r==="S"||isOwner);
+    right.appendChild(el("div","wf-rh","Stage "+wfNo(wf,i)+" · "+s.t));
+    right.appendChild(el("div","muted-note2",(s.r==="P"?"Partner":"Staff")+" responsible"+(s.gate?" · checklist must be complete before this stage can be marked done":"")));
+    if(s.cl&&s.cl.length){
+      var list=el("div","wf-chk");
+      s.cl.forEach(function(item,j){
+        var on=!!(c.wfChk&&c.wfChk[wfKey(i,j)]);
+        var lb=el("label","wf-chk-i"+(on?" on":"")); var cb=el("input"); cb.type="checkbox"; cb.checked=on; cb.disabled=!actionable;
+        cb.addEventListener("change",function(){ wfToggleChk(t,c,i,j); });
+        lb.appendChild(cb); lb.appendChild(el("span",null,item)); list.appendChild(lb);
+      });
+      right.appendChild(list);
+      right.appendChild(el("div","wf-prog",wfChkCount(c,i,s)+" of "+s.cl.length+" ticked"));
+    } else right.appendChild(el("div","muted-note2","No checklist for this stage."));
+    if(d[i]){
+      right.appendChild(el("div","rbox done", "✓ Done"+(d[i].skipped?" (not needed)":" by "+(d[i].by||"")+(d[i].at?" · "+fmtWhen(d[i].at):""))));
+    } else if(actionable){
+      var arnIn=null;
+      if(s.arn){ arnIn=el("input","sheet-input"); arnIn.type="text"; arnIn.placeholder=/SRN/.test(s.t)?"SRN (optional)":"ARN (optional)"; arnIn.value=c.arn||""; right.appendChild(arnIn); }
+      var gateOpen=!s.gate||wfChkAll(c,i,s);
+      var bt=el("button","bigbtn "+(s.close?"file":(s.rev?"approve":"ghost")), s.close?"Mark filed and closed":(s.rev?"Partner review done":"Mark done"));
+      bt.disabled=!gateOpen;
+      bt.addEventListener("click",function(){ wfTick(t,c,wf,i,arnIn?arnIn.value.trim():""); }); right.appendChild(bt);
+      if(!gateOpen)right.appendChild(el("div","muted-note2","Tick every checklist item to continue."));
+      if(s.opt){ var sk=el("button","clearbtn","Not needed"); sk.addEventListener("click",function(){ wfSkip(t,c,wf,i); }); right.appendChild(sk); }
+    } else if(i>cur && cur>=0){
+      right.appendChild(el("div","muted-note2","Finish stage "+(cur+1)+" first."));
+    } else if(s.r==="P"&&!isOwner&&i===cur){
+      right.appendChild(el("div","muted-note2","Waiting for a partner to do this stage."));
+    }
+    wrap.appendChild(left); wrap.appendChild(right);
+    return wrap;
+  }
+  // adds any workflow missing from the task library, links each to its workflow,
+  // and removes the older next-action copies of the stages (safe to run on every load)
+  function ensureWorkflowLibs(s){
+    var lib=toArr(s.taskLib).slice(), added=false, byName={}, names={};
+    lib.forEach(function(l){ if(l)byName[l.name]=l; });
+    WORKFLOWS.forEach(function(w){
+      names[w.name]=1; var l=byName[w.name];
+      if(l){ if(l.workflow!==w.name){ l.workflow=w.name; added=true; } return; }
+      var nl=libNew({name:w.name,freq:w.freq}); nl.workflow=w.name; lib.push(nl); added=true;
+    });
+    lib.forEach(function(l){ if(l&&l.workflow&&names[l.workflow]){ l.subs=toArr(l.subs).filter(function(x){ return !/^\[(Partner|Staff)\] /.test(x.name||""); }); } });
+    toArr(s.tasks).forEach(function(tk){ var lb=tk&&tk.libId?lib.filter(function(l){ return l&&l.id===tk.libId&&l.workflow; })[0]:null; if(lb)tk.subs=toArr(tk.subs).filter(function(x){ return !/^\[(Partner|Staff)\] /.test(x.name||""); }); });
+    s.taskLib=lib; return added;
+  }
   var AV_COLORS=["#0E8A6E","#2563EB","#B4530E","#6D28D9","#0E7490","#BE185D","#15803D","#9A6700","#0F766E","#7C3AED"];
   var LS_KEY="marvco-board-v1", LS_USER="marvco-user", LS_SESSION="marvco-session";
   var state=null, activeTab="overview", drill="", manageSection="staff", loginRole="staff", sheetTask=null;
@@ -497,8 +722,9 @@ window.MARVCO_FIREBASE_CONFIG = {
   function libNew(o){ return {id:uid("lb"),name:String(o.name||"").trim(),freq:o.freq||"monthly",due:o.due==null?null:o.due,dueMonth:o.dueMonth||null,dueDate:o.dueDate||"",type:o.type||"stat",ownerId:o.ownerId||"",reviewerId:o.reviewerId||"",from:o.from||"",fee:o.fee==null?null:o.fee,zohoItemId:o.zohoItemId||"",subs:(o.subs||[]).map(cloneSub),createdAt:nowIso()}; }
   function seedLib(){ return COMMON.map(function(c){ var pid=presetSeedFor(c[0]), a=APS_SEED.filter(function(x){ return x.id===pid; })[0]; return libNew({name:c[0],freq:c[1],due:c[2],dueMonth:c[3]||null,subs:a?a.actions:[]}); }); }
   function ensureLibs(s){
-    if(!s.libSeeded){ s.taskLib=seedLib(); s.actionLib=APS_SEED.map(function(p){ return {id:p.id,name:p.name,actions:p.actions.map(function(x){ return {id:x.id,name:x.name,when:x.when}; })}; }); s.libSeeded=true; return true; }
-    s.taskLib=toArr(s.taskLib); s.actionLib=toArr(s.actionLib); return false;
+    Object.keys(s.board||{}).forEach(function(pk){ var row=s.board[pk]||{}; Object.keys(row).forEach(function(tk){ if(row[tk]&&row[tk].status==="Data received")row[tk].status="Not started"; }); });
+    if(!s.libSeeded){ s.taskLib=seedLib(); ensureWorkflowLibs(s); s.actionLib=APS_SEED.map(function(p){ return {id:p.id,name:p.name,actions:p.actions.map(function(x){ return {id:x.id,name:x.name,when:x.when}; })}; }); s.libSeeded=true; return true; }
+    s.actionLib=toArr(s.actionLib); return ensureWorkflowLibs(s);
   }
   var session=null, viewer={role:"owner"}, isOwner=true;
   var serverMode=false, serverStamp="", pollTimer=null, API_BOARD="/api/board";
@@ -858,10 +1084,10 @@ window.MARVCO_FIREBASE_CONFIG = {
   function colorFor(name){ var h=0,s=String(name); for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0; return AV_COLORS[h%AV_COLORS.length]; }
 
   function summaryOf(tasks){
-    var s={total:0,ns:0,dr:0,pr:0,rv:0,fl:0,na:0,blocked:0,attention:0};
+    var s={total:0,ns:0,started:0,dr:0,pr:0,rv:0,fl:0,na:0,blocked:0,attention:0};
     tasks.forEach(function(t){ var c=cell(t.id); s.total++;
-      if(c.status==="Not started")s.ns++; else if(c.status==="Data received")s.dr++; else if(c.status==="Prepared")s.pr++;
-      else if(c.status==="Reviewed")s.rv++; else if(c.status==="Filed / Done")s.fl++; else if(c.status==="N/A")s.na++;
+      if(c.status==="Filed / Done")s.fl++; else if(c.status==="N/A")s.na++; else if(!startedOf(c))s.ns++;
+      else { s.started++; if(c.status==="Prepared")s.pr++; else if(c.status==="Reviewed")s.rv++; }
       if(c.blocked)s.blocked++; if(dueFlag(t))s.attention++;
     });
     s.applicable=s.total-s.na; s.inprog=s.dr+s.pr+s.rv; return s;
@@ -893,34 +1119,42 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(n<0)return "Overdue by "+(-n)+(n===-1?" day":" days")+" · "+ds;
     if(n===0)return "Due today · "+ds; if(n===1)return "Due tomorrow · "+ds; return "Due in "+n+" days · "+ds; }
   function dueCls(t){ if(!isOpen(cell(t.id)))return ""; var n=daysLeft(t); if(n===null)return ""; if(n<0)return "overdue"; if(n<=3)return "soon"; return ""; }
-  var ST_SHORT={"Not started":"Not started","Data received":"Data recd","Prepared":"Prepared","Reviewed":"Reviewed","Filed / Done":"Filed","N/A":"N/A"};
-  var ST_LONG={"Not started":"Not started","Data received":"Data received","Prepared":"Prepared — awaiting review","Reviewed":"Reviewed — ready to file","Filed / Done":"Filed","N/A":"Not applicable"};
-  var STAGES=[["Not started","ns","var(--ns)"],["Data received","dr","var(--dr)"],["Prepared","pr","var(--pr)"],["Reviewed","rv","var(--rv)"],["Filed / Done","fl","var(--fl)"]];
+  var ST_SHORT={"Not started":"Not started","Prepared":"Prepared","Reviewed":"Reviewed","Filed / Done":"Filed","N/A":"N/A"};
+  var ST_LONG={"Not started":"Not started","Prepared":"Prepared — awaiting review","Reviewed":"Reviewed — ready to file","Filed / Done":"Filed","N/A":"Not applicable"};
+  var STAGES=[["Not started","ns","var(--ns)"],["Prepared","pr","var(--pr)"],["Reviewed","rv","var(--rv)"],["Filed / Done","fl","var(--fl)"]];
   function drillPred(k,t){ var c=cell(t.id), n;
     if(k==="overdue"){ if(dueFlag(t)!=="overdue")return false; return drill!=="overdue"||-daysLeft(t)>overMin; }
     if(k==="soon"){ if(!isOpen(c))return false; n=daysLeft(t); return n!==null&&n>=0&&n<=dueWin; }
     if(k==="next")return nextActions(t).length>0;
+    if(k==="wait:P")return isOpen(c)&&respOf(t,c)==="P";
+    if(k==="wait:S")return isOpen(c)&&respOf(t,c)==="S";
+    if(k==="started")return isOpen(c)&&startedOf(c);
     if(k==="pending")return isOpen(c);
     if(k==="done")return c.status==="Filed / Done";
     if(k==="blocked")return !!c.blocked;
     if(k==="review")return c.status==="Prepared";
     if(k==="ready")return c.status==="Reviewed";
     if(k==="returned")return isReturned(c);
-    if(k.indexOf("st:")===0)return c.status===k.slice(3);
+    if(k.indexOf("st:")===0){ if(k==="st:Not started")return c.status==="Not started"&&!startedOf(c); return c.status===k.slice(3); }
     return true;
   }
-  function isReturned(c){ return !!c.returnNote && (c.status==="Not started"||c.status==="Data received"); }
-  function drillLabel(k){ if(k==="overdue"&&overMin)return "Overdue by more than "+overMin+" days"; if(k==="soon")return "Due within "+dueWin+(dueWin===1?" day":" days"); if(k.indexOf("st:")===0)return ST_LONG[k.slice(3)]||k.slice(3);
+  function isReturned(c){ return !!c.returnNote && c.status==="Not started"; }
+  // a task is "pending" once work has started on it (any stage done, or a status set)
+  function startedOf(c){ return c.status!=="Not started" || Object.keys(c.wfDone||{}).length>0; }
+  // the current workflow stage (null for ordinary tasks), and who the task is waiting on
+  function curStageOf(t,c){ var wf=wfOf(t); if(!wf)return null; var i=wfCurrent(c,wf); return i<0?null:wf.stages[i]; }
+  function respOf(t,c){ var s=curStageOf(t,c); if(s)return s.r; return c.status==="Prepared"?"P":"S"; }
+  function drillLabel(k){ if(k==="started")return "Pending: started, not filed"; if(k==="overdue"&&overMin)return "Overdue by more than "+overMin+" days"; if(k==="soon")return "Due within "+dueWin+(dueWin===1?" day":" days"); if(k.indexOf("st:")===0)return ST_LONG[k.slice(3)]||k.slice(3);
     return {overdue:"Overdue",next:"Next actions",pending:"Pending",done:"Filed so far",blocked:"Blocked",review:"To review",ready:"Ready to file",returned:"Sent back"}[k]||"Tasks"; }
   function ownerLabel(v){ return v==="__none__"?"Unassigned":staffName(v); }
   function drillTo(key,f){ f=f||{}; overMin=0; if(f.task!=null)$("#fTask").value=f.task; if(f.owner!=null)$("#fOwner").value=f.owner; drill=key; drillClient=""; renderPanel(); window.scrollTo({top:0}); }
   function byClientName(a,b){ var ca=(clientById(a.clientId)||{}).name||"",cb=(clientById(b.clientId)||{}).name||""; return ca<cb?-1:ca>cb?1:0; }
 
   // ---------- navigation ----------
-  function setTab(id){ activeTab=id; appView="board"; $("#menu").classList.remove("open"); renderPanel(); window.scrollTo({top:0}); }
+  function setTab(id){ activeTab=id; appView="board"; sheetTask=null; $("#menu").classList.remove("open"); renderPanel(); window.scrollTo({top:0}); }
   function renderAll(){ renderPanel(); }
   function clearAllFilters(){ ["#fOwner","#fClient","#fTask","#q"].forEach(function(sl){ var n=$(sl); if(n)n.value=""; }); renderPanel(); }
-  function renderPanel(){ invalidateInst(); renderTopBar(); if(appView==="time"){ renderTimesheet(); return; } if(activeTab==="overview")renderHome(); else { var c=clientById(activeTab); if(c)renderClientScreen(c); else { activeTab="overview"; renderHome(); } } }
+  function renderPanel(){ returnSheetBody(); invalidateInst(); renderTopBar(); if(appView==="time"){ renderTimesheet(); return; } if(sheetTask){ renderTaskPage(); return; } if(activeTab==="overview")renderHome(); else { var c=clientById(activeTab); if(c)renderClientScreen(c); else { activeTab="overview"; renderHome(); } } }
   function rankToPeriod(r){ var y=Math.floor(r/12), m=r%12+1; return y+"-"+String(m).padStart(2,"0"); }
   function fillPeriods(){
     var ao=$("#asOf"); if(ao)ao.textContent="As of today \u00B7 "+ordDate(new Date())+" "+new Date().getFullYear();
@@ -963,19 +1197,40 @@ window.MARVCO_FIREBASE_CONFIG = {
   function stageBar(s,cls){ var bar=el("div",cls||"bar");
     STAGES.forEach(function(st){ var n=s[st[1]]; if(!s.applicable||!n)return; var seg=el("span"); seg.style.width=(n/s.applicable*100)+"%"; seg.style.background=st[2]; seg.title=ST_LONG[st[0]]+": "+n; bar.appendChild(seg); });
     return bar; }
-  function stagePanel(s){
+  var PEND_SUBS=["wait:P","wait:S","overdue","soon","blocked","next"];
+  function subLabel(k){ if(k==="wait:P")return "Waiting for partner"; if(k==="wait:S")return "Waiting for staff"; if(k==="overdue")return "Overdue"; if(k==="soon")return "Due in "+dueWin+(dueWin===1?" day":" days"); if(k==="blocked")return "Blocked"; if(k==="next")return "Next actions"; if(k==="returned")return "Sent back"; return ST_LONG[k.slice(3)]||k; }
+  function bar3(s){
+    var tot=Math.max(1,s.applicable), w=el("div","bar3");
+    [["Not started",s.ns,"var(--ns)"],["Pending",Math.max(0,s.applicable-s.fl-s.ns),"var(--pr)"],["Filed",s.fl,"var(--fl)"]].forEach(function(g){
+      if(!g[1])return; var sg=el("div","bar3-seg"); sg.style.width=(g[1]/tot*100)+"%"; sg.style.background=g[2]; sg.title=g[0]+": "+g[1]; w.appendChild(sg); });
+    return w;
+  }
+  function stagePanel(s,scoped){
     var box=el("div","stages"), hd=el("div","stages-h");
     hd.appendChild(el("span","stages-t","Where the work stands · "+scopeName()));
-    hd.appendChild(el("span","stages-p",showKey?((s.applicable?Math.round(s.fl/s.applicable*100):0)+"% filed"):((s.applicable-s.fl)+" pending · "+s.fl+" filed so far")));
-    box.appendChild(hd); box.appendChild(stageBar(s));
+    hd.appendChild(el("span","stages-p",showKey?((s.applicable?Math.round(s.fl/s.applicable*100):0)+"% filed"):((s.applicable-s.fl)+" not filed · "+s.fl+" filed")));
+    box.appendChild(hd); box.appendChild(bar3(s));
+    var pendOn=(drill==="started"||PEND_SUBS.indexOf(drill)>=0);
     var row=el("div","stbtns");
-    STAGES.forEach(function(st){ var key="st:"+st[0], n=s[st[1]];
-      var b=el("button","stbtn"+(drill===key?" active":"")); var d=el("span","dot"); d.style.background=st[2]; b.appendChild(d);
-      b.appendChild(el("b",null,String(n))); b.appendChild(el("span",null,ST_LONG[st[0]]));
-      b.title="Show tasks that are "+ST_LONG[st[0]].toLowerCase();
-      b.addEventListener("click",function(){ drill=(drill===key?"":key); drillClient=""; renderPanel(); });
+    [["st:Not started",s.ns,"Not started","var(--ns)",drill==="st:Not started"],
+     ["started",Math.max(0,s.applicable-s.fl-s.ns),"Pending","var(--pr)",pendOn],
+     ["st:Filed / Done",s.fl,"Filed","var(--fl)",drill==="st:Filed / Done"]].forEach(function(m){
+      var b=el("button","stbtn"+(m[4]?" active":"")); var d=el("span","dot"); d.style.background=m[3]; b.appendChild(d);
+      b.appendChild(el("b",null,String(m[1]))); b.appendChild(el("span",null,m[2]));
+      b.addEventListener("click",function(){ drill=(m[4]?"":m[0]); drillClient=""; renderPanel(); });
       row.appendChild(b); });
-    box.appendChild(row); return box;
+    box.appendChild(row);
+    if(pendOn){
+      var sub=el("div","stsub"), sb=el("div","stbtns sub");
+      sub.appendChild(el("div","stsub-t","Pending — tap to see the tasks"));
+      var open=(scoped||[]).filter(function(t){ return isOpen(cell(t.id)); });
+      PEND_SUBS.forEach(function(k){
+        var n=open.filter(function(t){ return drillPred(k,t); }).length;
+        var sbt=el("button","stbtn sub"+(drill===k?" active":"")); sbt.appendChild(el("b",null,String(n))); sbt.appendChild(el("span",null,subLabel(k)));
+        sbt.addEventListener("click",function(){ drill=(drill===k?"started":k); drillClient=""; renderPanel(); }); sb.appendChild(sbt); });
+      sub.appendChild(sb); box.appendChild(sub);
+    }
+    return box;
   }
   function clientRowEl(client){
     var tks=clientTasks(client.id).filter(passFilter); var s=summaryOf(tks);
@@ -1028,14 +1283,14 @@ window.MARVCO_FIREBASE_CONFIG = {
     sum.appendChild(statChip("blocked",s.blocked,"Blocked","red2"));
     var nxc=cnt("next"); if(nxc||drill==="next")sum.appendChild(statChip("next",nxc,"Next actions","amber"));
     panel.appendChild(tsCard());
-    panel.appendChild(sum);
+
     if(isOwner){
       var xb=el("div","csv-bar"); xb.appendChild(el("span","muted-note2","Export CSV:"));
-      [["data","Data received","st:Data received"],["notstarted","Not started","st:Not started"],["review","Awaiting review","review"],["ready","Ready to file","ready"],["pending","Pending (not filed)","pending"],["next","Next actions","next"],["done","Filed","done"]].forEach(function(x){
+      [["notstarted","Not started","st:Not started"],["review","Awaiting review","review"],["ready","Ready to file","ready"],["pending","Pending (not filed)","pending"],["next","Next actions","next"],["done","Filed","done"]].forEach(function(x){
         var xbtn=el("button","clearbtn","⬇ "+x[1]); xbtn.addEventListener("click",function(){ exportTasksCsv(x[0],x[2]); }); xb.appendChild(xbtn); });
       panel.appendChild(xb);
     }
-    panel.appendChild(stagePanel(s));
+    panel.appendChild(stagePanel(s,scoped));
     if(drill){ renderDrill(panel,scoped); return; }
     if(!isOwner && homeView==="staff")homeView="clients";
     var tabs=el("div","viewtabs"), views=[["clients","By client"],["tasks","By task"]]; if(isOwner)views.push(["staff","By staff"]);
@@ -1112,7 +1367,7 @@ window.MARVCO_FIREBASE_CONFIG = {
       if(showClient)tr.appendChild(el("td","tt-client",(clientById(tk.clientId)||{name:""}).name));
       var tdn=el("td","tt-task",tk.name); tdn.appendChild(el("span","ptag",periodLong(tk))); tr.appendChild(tdn);
       tr.appendChild(el("td","tt-due "+dc,dueText(tk)));
-      var sc=el("td"), lbl=ST_LONG[c.status]; if(c.status==="Reviewed"&&c.reviewedBy)lbl="Reviewed by "+c.reviewedBy+" — ready to file"; if(c.status==="Filed / Done"&&c.arn)lbl+=" · "+c.arn;
+      var sc=el("td"), sl=stageStatusOf(tk,c), lbl=sl||ST_LONG[c.status]; if(!sl&&c.status==="Reviewed"&&c.reviewedBy)lbl="Reviewed by "+c.reviewedBy+" — ready to file"; if(!sl&&c.status==="Filed / Done"&&c.arn)lbl+=" · "+c.arn;
       sc.appendChild(el("span","chip "+ST_CLASS[c.status],lbl)); if(c.blocked)sc.appendChild(el("span","chip blk","⛔ Blocked")); tr.appendChild(sc);
       if(isOwner)tr.appendChild(el("td","tt-own",tk.ownerId?staffName(tk.ownerId):"Unassigned"));
       var nt=[]; if(isReturned(c))nt.push("↩ Sent back: "+c.returnNote); if(c.waiting)nt.push("⏳ "+c.waiting); var nxa=nextActions(tk); if(nxa.length)nt.push("➜ Next: "+nxa[0].name+(nxa.length>1?" (+"+(nxa.length-1)+" more)":"")); if(c.notes)nt.push(c.notes);
@@ -1128,7 +1383,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   function mxCell(tk){ var c=cell(tk.id), dc=dueCls(tk), n=daysLeft(tk);
     var b=el("button","mx-cell "+ST_CLASS[c.status]+(dc?(" "+dc):""));
     b.appendChild(el("span","mx-per",periodShort(tk)));
-    b.appendChild(el("span","mx-st",(c.blocked?"⛔ ":"")+(isReturned(c)?"↩ ":"")+ST_SHORT[c.status]));
+    b.appendChild(el("span","mx-st",(c.blocked?"⛔ ":"")+(isReturned(c)?"↩ ":"")+(stageStatusOf(tk,c)||ST_SHORT[c.status]||(startedOf(c)?"Pending":"Not started"))));
     var sub=""; if(isOpen(c)&&n!==null){ sub=n<0?((-n)+"d late"):(n===0?"due today":(n===1?"due tomorrow":"due "+fmtDue(dueDateOf(tk)))); } else if(c.status==="Filed / Done"&&c.filedAt){ sub="filed "+fmtDue(new Date(c.filedAt)); }
     if(sub)b.appendChild(el("span","mx-sub",sub));
     var tip=[tk.name+" \u00B7 "+periodLong(tk),dueText(tk),ST_LONG[c.status]]; if(tk.ownerId)tip.push(staffName(tk.ownerId)); if(c.waiting)tip.push("Waiting: "+c.waiting); if(isReturned(c))tip.push("Sent back: "+c.returnNote); b.title=tip.join(" · ");
@@ -1157,7 +1412,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(by==="task")order=colOrder(order,scoped);
     else order.sort(function(a,b){ if(a==="__none__")return 1; if(b==="__none__")return -1; return staffName(a).toLowerCase()<staffName(b).toLowerCase()?-1:1; });
     if(!order.length){ panel.appendChild(el("div","empty2","Nothing to show for these filters.")); return; }
-    var cols=[["Not started","st:Not started"],["Data received","st:Data received"],["Prepared","st:Prepared"],["Reviewed","st:Reviewed"],["Filed","st:Filed / Done"],["Overdue","overdue"],["Due in "+dueWin+"d","soon"],["Blocked","blocked"]];
+    var cols=[["Not started","st:Not started"],["Waiting on partner","wait:P"],["Waiting on staff","wait:S"],["Prepared","st:Prepared"],["Reviewed","st:Reviewed"],["Filed","st:Filed / Done"],["Overdue","overdue"],["Due in "+dueWin+"d","soon"],["Blocked","blocked"]];
     var wrap=el("div","tt-scroll"), t=el("table","ttable sumtable"), th=el("thead"), hr=el("tr");
     hr.appendChild(el("th",null,by==="task"?"Task":"Staff")); hr.appendChild(el("th","num","Total")); cols.forEach(function(c){ hr.appendChild(el("th","num",c[0])); }); hr.appendChild(el("th",null,"Progress")); th.appendChild(hr); t.appendChild(th);
     var tb=el("tbody");
@@ -1198,9 +1453,10 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(showClient)card.appendChild(el("div","tc-client",client.name));
     var top=el("div","tc-top"), tn=el("div","tc-name",t.name); tn.appendChild(el("span","ptag",periodShort(t))); top.appendChild(tn);
     top.appendChild(el("span","tc-due"+(dc?(" "+dc):""),dueText(t))); card.appendChild(top);
-    var lbl=ST_LONG[c.status]; if(c.status==="Reviewed"&&c.reviewedBy)lbl="Reviewed by "+c.reviewedBy+" — ready to file"; if(c.status==="Filed / Done"&&c.arn)lbl+=" · "+c.arn;
+    var sl=stageStatusOf(t,c), lbl=sl||ST_LONG[c.status]; if(!sl&&c.status==="Reviewed"&&c.reviewedBy)lbl="Reviewed by "+c.reviewedBy+" — ready to file"; if(!sl&&c.status==="Filed / Done"&&c.arn)lbl+=" · "+c.arn;
     var row=el("div","tc-row"); row.appendChild(el("span","chip "+ST_CLASS[c.status],lbl));
     if(c.blocked)row.appendChild(el("span","chip blk","⛔ Blocked")); card.appendChild(row);
+    var wfc=wfOf(t); if(wfc){ var cu=wfCurrent(c,wfc); card.appendChild(el("div","tc-stage", cu<0?("✓ All "+wfTotal(wfc)+" stages done"):("Stage "+wfNo(wfc,cu)+" of "+wfTotal(wfc)+": "+wfc.stages[cu].t+" ("+(wfc.stages[cu].r==="P"?"Partner":"Staff")+")"))); }
     if(isReturned(c))card.appendChild(el("div","tc-return","↩ Sent back by "+(c.returnedBy||"partner")+": "+c.returnNote));
     if(c.waiting)card.appendChild(el("div","tc-wait","⏳ Waiting: "+c.waiting));
     var ii=isOwner?invInfo(t):null; if(ii)card.appendChild(el("div","tc-inv "+ii.k,ii.x));
@@ -1210,8 +1466,19 @@ window.MARVCO_FIREBASE_CONFIG = {
   }
 
   // ---------- edit sheet ----------
-  function openSheet(id){ sheetTask=id; fileErr=null; $("#sheet").classList.add("open"); renderSheetBody(); }
-  function closeSheet(){ sheetTask=null; $("#sheet").classList.remove("open"); }
+  var sbRef=null;
+  function returnSheetBody(){ var sh=$("#sheet"); if(sbRef&&sh&&sbRef.parentNode!==sh)sh.appendChild(sbRef); }
+  function openSheet(id){ sheetTask=id; fileErr=null; window.scrollTo(0,0); renderPanel(); }
+  function closeSheet(){ sheetTask=null; renderPanel(); }
+  function renderTaskPage(){
+    var panel=$("#panel");
+    if(!sbRef)sbRef=$("#sheetBody");
+    panel.innerHTML="";
+    var bar=el("div","clearbar"); bar.appendChild(el("span","clearbar-t","Task"));
+    var back=el("button","clearbtn","← Back"); back.addEventListener("click",closeSheet); bar.appendChild(back); panel.appendChild(bar);
+    var page=el("div","taskpage"); page.appendChild(sbRef); panel.appendChild(page);
+    renderSheetBody();
+  }
   function zm(){ return state.zohoMaster||null; }
   function zCust(){ return toArr((zm()||{}).customers); }
   function zItems(){ return toArr((zm()||{}).items); }
@@ -1240,11 +1507,11 @@ window.MARVCO_FIREBASE_CONFIG = {
   function nowIso(){ return new Date().toISOString(); }
   function fmtWhen(iso){ if(!iso)return ""; var d=new Date(iso); return ordDate(d)+" "+d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}); }
   function commit(t){ saveCell(t.id); renderAll(); renderSheetBody(); }
-  function setWork(t,x){ if(x!=="Not started"&&x!=="Data received"&&!isOwner)return; cell(t.id).status=x; commit(t); }
+  function setWork(t,x){ if(x!=="Not started"&&!isOwner)return; cell(t.id).status=x; commit(t); }
   function submitForReview(t){ var c=cell(t.id); c.status="Prepared"; c.preparedBy=actor(); c.preparedAt=nowIso(); c.returnNote=""; c.returnedBy=""; c.returnedAt=""; c.reviewedBy=""; c.reviewedAt=""; c.reviewNote=""; commit(t); }
-  function withdraw(t){ var c=cell(t.id); if(c.status!=="Prepared")return; c.status="Data received"; commit(t); }
+  function withdraw(t){ var c=cell(t.id); if(c.status!=="Prepared")return; c.status="Not started"; commit(t); }
   function approve(t,note){ if(!isOwner)return; var c=cell(t.id); c.status="Reviewed"; c.reviewedBy=actor(); c.reviewedAt=nowIso(); c.reviewNote=note||""; c.returnNote=""; commit(t); }
-  function sendBack(t,note){ if(!isOwner)return; var c=cell(t.id); c.status="Data received"; c.returnNote=note; c.returnedBy=actor(); c.returnedAt=nowIso(); c.reviewedBy=""; c.reviewedAt=""; commit(t); }
+  function sendBack(t,note){ if(!isOwner)return; var c=cell(t.id); c.status="Not started"; c.returnNote=note; c.returnedBy=actor(); c.returnedAt=nowIso(); c.reviewedBy=""; c.reviewedAt=""; commit(t); }
   // Everything needed to raise the Zoho bill must be in place before a task can be filed.
   // Returns a list of {msg, fix} problems; empty list = OK to file.
   function billProblems(t){
@@ -1292,6 +1559,8 @@ window.MARVCO_FIREBASE_CONFIG = {
       } else eb.appendChild(el("div","muted-note2","Please contact a partner (administrator) to set this up. Your work stays at \u201CReviewed \u2014 ready to file\u201D until then."));
       b.appendChild(eb);
     }
+    var wfl=wfOf(t);
+    if(wfl){ b.appendChild(wfStepper(t,c,wfl)); } else {
     b.appendChild(el("div","sheet-lbl","Status"));
     if(c.status==="Filed / Done"){
       var fb=el("div","rbox done"); fb.appendChild(el("b",null,"✓ Filed"+(c.filedBy?(" by "+c.filedBy):"")));
@@ -1319,10 +1588,10 @@ window.MARVCO_FIREBASE_CONFIG = {
       b.appendChild(el("div","rbox","Not applicable for "+periodLong(t)));
     } else {
       var grid=el("div","opt-grid");
-      ["Not started","Data received"].forEach(function(x){ var o=el("button","opt "+ST_CLASS[x]+(c.status===x?" sel":""),x); o.addEventListener("click",function(){ setWork(t,x); }); grid.appendChild(o); });
       b.appendChild(grid);
       var sub=el("button","bigbtn approve","Prepared — send for review"); sub.addEventListener("click",function(){ submitForReview(t); }); b.appendChild(sub);
       if(!isOwner)b.appendChild(el("div","muted-note2","A partner must review it before you can file."));
+    }
     }
     if(isOwner){
       var ov=el("details","override"); ov.appendChild(el("summary",null,"Partner override — set any status"));
@@ -1330,7 +1599,7 @@ window.MARVCO_FIREBASE_CONFIG = {
       STATUSES.forEach(function(x){ var o=el("button","opt "+ST_CLASS[x]+(c.status===x?" sel":""),stLabel(x)); o.addEventListener("click",function(){ ownerSet(t,x); }); g.appendChild(o); });
       ov.appendChild(g); b.appendChild(ov);
     }
-    var sbs=subsOf(t);
+    var sbs=wfl?[]:subsOf(t);
     if(sbs.length){
       b.appendChild(el("div","sheet-lbl","Next actions"));
       b.appendChild(el("div","muted-note2","Not billed. Tick when done. Only the parent task goes to Zoho."));
