@@ -374,6 +374,10 @@ window.MARVCO_FIREBASE_CONFIG = {
   .stsub{margin-top:10px;padding:10px;background:#faf8f5;border:1px dashed #d6d3cc;border-radius:12px}
   .stsub-t{font-size:12px;color:#6b7280;margin-bottom:8px}
   .stbtn.sub{font-size:13px}
+  .wf-ed-row{border:1px solid #e5e7eb;border-radius:12px;padding:10px 12px;margin:10px 0;background:#fff}
+  .wf-ed-h{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+  .wf-ed-flags{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;margin:6px 0}
+  .wf-ed-flags label{display:flex;gap:4px;align-items:center}
   .taskpage{margin-top:4px}
   .wf-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
   @media (max-width:899px){ .wf-wrap{grid-template-columns:1fr} }
@@ -531,7 +535,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   var WF_CO_CLOSE=["Drive folder created with incorporation and DIN certificates","All client documents saved","Company registration checklist shared with client"];
   var WF_GSTR1_CLOSE=["GSTR-1 filed and saved in Drive"];
   var WF_GSTR3B_CLOSE=["GSTR-3B shared with client and saved in Drive"];
-  var WORKFLOWS=[
+  var WF_SEED=[
     {name:"GST Registration",freq:"once",stages:[
       st("P","Task created and allotted by Partner",{auto:1}),
       st("S","Documents collection",{cl:WF_GST_DOCS}),
@@ -615,28 +619,47 @@ window.MARVCO_FIREBASE_CONFIG = {
   var WF_OLD={"GST Registration":["Task created and allotted by Partner","Documents collection","Document verification","Entered data in GST site","Partner review in GST site; give ready-to-file signal","Application filed (note ARN)","Department query / reply filed (if any)","Approved - GSTIN generated","Bank account updation","GST certificate downloaded to OneDrive and delivered to client","Closed"],"Company/LLP Registration":["Task created and allotted by Partner","Documents collection","Document verification","Name reservation","DSC","SPICe+ Part B","Partner review","Incorporation form filed (note SRN)","ROC query / resubmission (if any)","Certificate of Incorporation received (with PAN and TAN)","Documents delivered to client","Closed"],"GSTR-1":["Task created and allotted by Partner","Documents collection","Document verification","Draft GSTR-1","Partner review","GSTR-1 filed"],"GSTR-3B":["Task created and allotted by Partner","GSTR-2B vs purchase book comparison","GSTR-3B prepared","Partner review","Tax paid and GSTR-3B filed","GSTR-3B shared with client and saved in Drive"],"TDS Challan Filing":["Task created and allotted by Partner","Documents collection","Document verification","Partner review","TDS challan paid","Closed"],"TDS Filing":["Task created and allotted by Partner","Documents collection","Document verification","TDS return prepared","Partner review","TDS return filed","Closed"],"Accounts Maintenance":["Task created and allotted by Partner","Documents collection","Document verification","Entries posted","Bank and ledger reconciliation","Partner review done","Closed"]};
   var WF_ALIAS={"GSTR-3B shared with client and saved in Drive":"Closed"};
   // moves saved stage progress and checklist ticks from the old stage positions to the new ones (by stage text)
+  var WORKFLOWS=[];   // the live list for this board (seeded, then edited in Workflow master)
+  // built-in workflows, with stage ids "s0", "s1", ... by position, so saved progress maps straight across
+  function seedWorkflows(){
+    return JSON.parse(JSON.stringify(WF_SEED)).map(function(w){
+      w.id="wf_"+w.name.toLowerCase().replace(/[^a-z0-9]+/g,"_");
+      w.stages=w.stages.map(function(x,i){ x.id="s"+i; return x; }); return w; });
+  }
+  // data read back from the cloud can arrive as objects; put every list back into array form
+  function normalizeWorkflows(list){
+    return toArr(list).filter(function(w){ return w&&w.name; }).map(function(w){
+      w.id=w.id||uid("wf"); w.stages=toArr(w.stages).map(function(x){ x.id=x.id||uid("st"); if(x.cl)x.cl=toArr(x.cl); return x; }); return w; });
+  }
+  function rekeyObj(o,f){ var out={}; Object.keys(o||{}).forEach(function(k){ out[f(k)]=o[k]; }); return out; }
+  // saved progress and checklist ticks move to stage ids: first from positions, then (older saves) by stage text
   function migrateWfStages(s){
     var tasks=toArr(s.tasks), libs=toArr(s.taskLib);
     Object.keys(s.board||{}).forEach(function(pk){ var row=s.board[pk]||{}; Object.keys(row).forEach(function(tid){
-      var c=row[tid]; if(!c||c.wfV===3)return;
+      var c=row[tid]; if(!c||c.wfV===4)return;
+      if(c.wfV===3){
+        c.wfDone=rekeyObj(c.wfDone,function(k){ return "s"+k; });
+        c.wfChk=rekeyObj(c.wfChk,function(key){ var pp=key.split(/[._]/); return "s"+pp[0]+"_"+pp[1]; });
+        c.wfV=4; return;
+      }
       var tk=null, lb=null, q, r;
       for(q=0;q<tasks.length;q++){ if(tasks[q]&&tasks[q].id===tid){ tk=tasks[q]; break; } }
       if(tk)for(r=0;r<libs.length;r++){ if(libs[r]&&libs[r].id===tk.libId){ lb=libs[r]; break; } }
       var wf=lb&&lb.workflow?wfByName(lb.workflow):null, old=lb&&lb.workflow?WF_OLD[lb.workflow]:null;
       if(wf&&old&&(c.wfDone||c.wfChk)){
         var map={};
-        old.forEach(function(txt,k){ var want=WF_ALIAS[txt]||txt; for(var m=0;m<wf.stages.length;m++){ if(wf.stages[m].t===want){ map[k]=m; break; } } });
+        old.forEach(function(txt,k){ var want=WF_ALIAS[txt]||txt; for(var m=0;m<wf.stages.length;m++){ if(wf.stages[m].t===want){ map[k]=wf.stages[m].id; break; } } });
         var nd={}, nk={};
         Object.keys(c.wfDone||{}).forEach(function(k){ if(map[k]!=null)nd[map[k]]=c.wfDone[k]; });
         Object.keys(c.wfChk||{}).forEach(function(key){ var pp=key.split(/[._]/); if(map[pp[0]]!=null)nk[map[pp[0]]+"_"+pp[1]]=true; });
         c.wfDone=nd; c.wfChk=nk;
       }
-      c.wfV=3;
+      c.wfV=4;
     }); });
   }
   function wfByName(n){ for(var i=0;i<WORKFLOWS.length;i++){ if(WORKFLOWS[i].name===n)return WORKFLOWS[i]; } return null; }
   function wfOf(t){ var tk=taskById(t.tid)||t; if(!tk||!tk.libId)return null; var lb=libById(tk.libId); return lb&&lb.workflow?wfByName(lb.workflow):null; }
-  function wfCurrent(c,wf){ var d=c.wfDone||{}; for(var i=0;i<wf.stages.length;i++){ if(wf.stages[i].auto||d[i])continue; return i; } return -1; }
+  function wfCurrent(c,wf){ var d=c.wfDone||{}; for(var i=0;i<wf.stages.length;i++){ if(wf.stages[i].auto||d[wf.stages[i].id])continue; return i; } return -1; }
   // visible numbering: automatic steps are hidden and not numbered
   function wfOff(wf){ return (wf.stages[0]&&wf.stages[0].auto)?1:0; }
   function wfNo(wf,i){ return i-wfOff(wf)+1; }
@@ -647,7 +670,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     var cu=wfCurrent(c,wf); if(cu<0)return null; var s=wf.stages[cu];
     return s.t+(s.r==="P"?" - waiting for partner":" - work in progress");
   }
-  function wfLast(c){ var d=c.wfDone||{}, last=-1; Object.keys(d).forEach(function(k){ if(+k>last)last=+k; }); return last; }
+  function wfLast(c,wf){ var d=c.wfDone||{}, last=-1; wf.stages.forEach(function(s,i){ if(d[s.id])last=i; }); return last; }
   // only the next stage can be ticked, in order; partner stages need a partner
   function wfTick(t,c,wf,i,arnVal){
     var s=wf.stages[i]; if(i!==wfCurrent(c,wf))return; if(s.r==="P"&&!isOwner)return; if(s.gate&&!wfChkAll(c,i,s))return;
@@ -656,39 +679,39 @@ window.MARVCO_FIREBASE_CONFIG = {
     else if(s.rev){ c.status="Reviewed"; c.reviewedBy=n; }
     else if(wf.stages[i+1]&&wf.stages[i+1].rev){ c.status="Prepared"; c.preparedBy=n; c.preparedAt=now; }
     if(s.arn&&arnVal)c.arn=arnVal;
-    d[i]={done:true,by:n,at:now};
+    d[s.id]={done:true,by:n,at:now};
     commit(t);
   }
   function wfSkip(t,c,wf,i){
     if(i!==wfCurrent(c,wf)||!wf.stages[i].opt)return;
-    c.wfDone=c.wfDone||{}; c.wfDone[i]={skipped:true,by:actor(),at:nowIso()}; commit(t);
+    c.wfDone=c.wfDone||{}; c.wfDone[wf.stages[i].id]={skipped:true,by:actor(),at:nowIso()}; commit(t);
   }
   function wfUndo(t,c,wf){
-    var d=c.wfDone||{}, last=wfLast(c); if(last<0)return; var s=wf.stages[last];
+    var d=c.wfDone||{}, last=wfLast(c,wf); if(last<0)return; var s=wf.stages[last];
     if(s.close){ c.status="Reviewed"; c.filedBy=""; c.filedAt=""; }
     else if(s.rev){ c.status="Prepared"; c.reviewedBy=""; }
-    else if(wf.stages[last+1]&&wf.stages[last+1].rev&&!d[last].skipped){ c.status="Not started"; c.preparedBy=""; c.preparedAt=""; }
-    delete d[last]; commit(t);
+    else if(wf.stages[last+1]&&wf.stages[last+1].rev&&!d[s.id].skipped){ c.status="Not started"; c.preparedBy=""; c.preparedAt=""; }
+    delete d[s.id]; commit(t);
   }
   var wfSel={};   // stage selected in the workflow view, per task
   function wfKey(i,j){ return i+"_"+j; }   // no "." : Firebase keys cannot contain dots
-  function wfChkCount(c,i,s){ var k=0; (s.cl||[]).forEach(function(_,j){ if(c.wfChk&&c.wfChk[wfKey(i,j)])k++; }); return k; }
+  function wfChkCount(c,i,s){ var k=0; (s.cl||[]).forEach(function(_,j){ if(c.wfChk&&c.wfChk[wfKey(s.id,j)])k++; }); return k; }
   function wfChkAll(c,i,s){ return wfChkCount(c,i,s)===(s.cl||[]).length; }
-  function wfToggleChk(t,c,i,j){ c.wfChk=c.wfChk||{}; var k=wfKey(i,j); if(c.wfChk[k])delete c.wfChk[k]; else c.wfChk[k]=true; commit(t); }
+  function wfToggleChk(t,c,sid,j){ c.wfChk=c.wfChk||{}; var k=wfKey(sid,j); if(c.wfChk[k])delete c.wfChk[k]; else c.wfChk[k]=true; commit(t); }
   function wfStepper(t,c,wf){
-    var cur=wfCurrent(c,wf), d=c.wfDone||{}, last=wfLast(c);
+    var cur=wfCurrent(c,wf), d=c.wfDone||{}, last=wfLast(c,wf);
     var sel=(wfSel[t.id]!=null)?wfSel[t.id]:(cur<0?wf.stages.length-1:cur);
     var wrap=el("div","wf-wrap"), left=el("div","wf-left"), right=el("div","wf-right");
     left.appendChild(el("div","sheet-lbl","Workflow · "+wf.name));
     left.appendChild(el("div","muted-note2", cur<0?"All stages are complete.":("Next: stage "+wfNo(wf,cur)+" of "+wfTotal(wf)+". Stages run in order; tap a stage to see its checklist.")));
     wf.stages.forEach(function(s,i){
-      if(s.auto)return; var isDone=!!d[i], isCur=(i===cur);
+      if(s.auto)return; var isDone=!!d[s.id], isCur=(i===cur);
       var row=el("div","wf-row "+(isDone?"done":(isCur?"cur":"todo"))+(s.r==="P"?" wf-p":"")+(sel===i?" sel":""));
       row.appendChild(el("div","wf-n",String(wfNo(wf,i))));
       var body=el("div","wf-body");
       body.appendChild(el("div","wf-t",s.t));
       var meta=(s.r==="P"?"Partner":"Staff");
-      if(isDone)meta+=d[i].skipped?" · not needed":(" · ✓ "+(d[i].by||"")+(d[i].at?" · "+fmtWhen(d[i].at):""));
+      if(isDone)meta+=d[s.id].skipped?" · not needed":(" · ✓ "+(d[s.id].by||"")+(d[s.id].at?" · "+fmtWhen(d[s.id].at):""));
       else if(isCur)meta+=" · next";
       body.appendChild(el("div","wf-by",meta));
       if(s.cl&&s.cl.length)body.appendChild(el("div","wf-prog",wfChkCount(c,i,s)+" of "+s.cl.length+" checklist items"));
@@ -706,16 +729,16 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(s.cl&&s.cl.length){
       var list=el("div","wf-chk");
       s.cl.forEach(function(item,j){
-        var on=!!(c.wfChk&&c.wfChk[wfKey(i,j)]);
+        var on=!!(c.wfChk&&c.wfChk[wfKey(s.id,j)]);
         var lb=el("label","wf-chk-i"+(on?" on":"")); var cb=el("input"); cb.type="checkbox"; cb.checked=on; cb.disabled=!actionable;
-        cb.addEventListener("change",function(){ wfToggleChk(t,c,i,j); });
+        cb.addEventListener("change",function(){ wfToggleChk(t,c,s.id,j); });
         lb.appendChild(cb); lb.appendChild(el("span",null,item)); list.appendChild(lb);
       });
       right.appendChild(list);
       right.appendChild(el("div","wf-prog",wfChkCount(c,i,s)+" of "+s.cl.length+" ticked"));
     } else right.appendChild(el("div","muted-note2","No checklist for this stage."));
-    if(d[i]){
-      right.appendChild(el("div","rbox done", "✓ Done"+(d[i].skipped?" (not needed)":" by "+(d[i].by||"")+(d[i].at?" · "+fmtWhen(d[i].at):""))));
+    if(d[s.id]){
+      right.appendChild(el("div","rbox done", "✓ Done"+(d[s.id].skipped?" (not needed)":" by "+(d[s.id].by||"")+(d[s.id].at?" · "+fmtWhen(d[s.id].at):""))));
     } else if(actionable){
       var arnIn=null;
       if(s.arn){ arnIn=el("input","sheet-input"); arnIn.type="text"; arnIn.placeholder=/SRN/.test(s.t)?"SRN (optional)":"ARN (optional)"; arnIn.value=c.arn||""; right.appendChild(arnIn); }
@@ -726,7 +749,7 @@ window.MARVCO_FIREBASE_CONFIG = {
       if(!gateOpen)right.appendChild(el("div","muted-note2","Tick every checklist item to continue."));
       if(s.opt){ var sk=el("button","clearbtn","Not needed"); sk.addEventListener("click",function(){ wfSkip(t,c,wf,i); }); right.appendChild(sk); }
     } else if(i>cur && cur>=0){
-      right.appendChild(el("div","muted-note2","Finish stage "+(cur+1)+" first."));
+      right.appendChild(el("div","muted-note2","Finish stage "+wfNo(wf,cur)+" first."));
     } else if(s.r==="P"&&!isOwner&&i===cur){
       right.appendChild(el("div","muted-note2","Waiting for a partner to do this stage."));
     }
@@ -753,17 +776,13 @@ window.MARVCO_FIREBASE_CONFIG = {
   var appView="board", tsWeek=0, tsEdit=null, openSubs={};
   var ACTIVITIES=[["Compliance filing",true],["Data collection & checking",true],["Client call / meeting",true],["Advisory / project work",true],["Audit / assurance",true],["Research / training",false],["Internal admin",false]];
   var tsForm={date:"",staffId:"",clientId:"",activity:"Compliance filing",billable:true,note:""};
-  var APS_SEED=[{id:"ap_gst",name:"GST return",actions:[{id:"a_gst",name:"Share GSTR-1, GSTR-3B and GST working sheet (PDF) with client",when:"filed"}]},
-    {id:"ap_tds",name:"TDS",actions:[{id:"a_tds",name:"Share challan and return acknowledgment with client",when:"filed"}]},
-    {id:"ap_itr",name:"Income-tax return",actions:[{id:"a_itr",name:"Share ITR-V acknowledgment and computation sheet with client",when:"filed"}]}];
-  function cloneSub(x){ return {id:uid("sb"),name:x.name,when:x.when||"filed"}; }
-  function presetSeedFor(name){ var n=String(name||""); if(/gstr|gst return|\bgst\b/i.test(n))return "ap_gst"; if(/tds/i.test(n))return "ap_tds"; if(/itr|income tax return/i.test(n))return "ap_itr"; return ""; }
-  function libNew(o){ return {id:uid("lb"),name:String(o.name||"").trim(),freq:o.freq||"monthly",due:o.due==null?null:o.due,dueMonth:o.dueMonth||null,dueDate:o.dueDate||"",type:o.type||"stat",ownerId:o.ownerId||"",reviewerId:o.reviewerId||"",from:o.from||"",fee:o.fee==null?null:o.fee,zohoItemId:o.zohoItemId||"",subs:(o.subs||[]).map(cloneSub),createdAt:nowIso()}; }
-  function seedLib(){ return COMMON.map(function(c){ var pid=presetSeedFor(c[0]), a=APS_SEED.filter(function(x){ return x.id===pid; })[0]; return libNew({name:c[0],freq:c[1],due:c[2],dueMonth:c[3]||null,subs:a?a.actions:[]}); }); }
+  function libNew(o){ return {id:uid("lb"),name:String(o.name||"").trim(),freq:o.freq||"monthly",due:o.due==null?null:o.due,dueMonth:o.dueMonth||null,dueDate:o.dueDate||"",type:o.type||"stat",ownerId:o.ownerId||"",reviewerId:o.reviewerId||"",from:o.from||"",fee:o.fee==null?null:o.fee,zohoItemId:o.zohoItemId||"",subs:[],createdAt:nowIso()}; }
+  function seedLib(){ return COMMON.map(function(c){ return libNew({name:c[0],freq:c[1],due:c[2],dueMonth:c[3]||null}); }); }
   function ensureLibs(s){
     Object.keys(s.board||{}).forEach(function(pk){ var row=s.board[pk]||{}; Object.keys(row).forEach(function(tk){ if(row[tk]&&row[tk].status==="Data received")row[tk].status="Not started"; }); });
-    if(!s.libSeeded){ s.taskLib=seedLib(); ensureWorkflowLibs(s); s.actionLib=APS_SEED.map(function(p){ return {id:p.id,name:p.name,actions:p.actions.map(function(x){ return {id:x.id,name:x.name,when:x.when}; })}; }); s.libSeeded=true; return true; }
-    s.actionLib=toArr(s.actionLib); var wch=ensureWorkflowLibs(s); migrateWfStages(s); return wch;
+    var freshWf=!s.workflows; s.workflows=freshWf?seedWorkflows():normalizeWorkflows(s.workflows); WORKFLOWS=s.workflows;
+    if(!s.libSeeded){ s.taskLib=seedLib(); ensureWorkflowLibs(s); s.libSeeded=true; return true; }
+    s.taskLib=toArr(s.taskLib); var wch=ensureWorkflowLibs(s); migrateWfStages(s); return wch||freshWf;
   }
   var session=null, viewer={role:"owner"}, isOwner=true;
   var serverMode=false, serverStamp="", pollTimer=null, API_BOARD="/api/board";
@@ -889,7 +908,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     fbSeeded=true;
     state.staff=toArr(v.staff); state.clients=toArr(v.clients); state.tasks=toArr(v.tasks);
     state.settings=v.settings||{ownerPin:""}; state.meta=v.meta||{};
-    state.taskLib=toArr(v.taskLib); state.actionLib=toArr(v.actionLib); state.libSeeded=!!v.libSeeded;
+    state.taskLib=toArr(v.taskLib); state.workflows=v.workflows?normalizeWorkflows(v.workflows):null; state.libSeeded=!!v.libSeeded;
     if(ensureLibs(state))pushStateFB();
     var addedOw=ensureOwners(state.settings);
     state.tasks.forEach(function(t){ if(t.ownerId===undefined)t.ownerId=""; });
@@ -907,10 +926,10 @@ window.MARVCO_FIREBASE_CONFIG = {
     if($("#loginOverlay").classList.contains("open"))renderLogin();
     if(sheetTask)renderSheetBody();
   }
-  function boardForCloud(){ var st=JSON.parse(JSON.stringify({staff:state.staff,clients:state.clients,tasks:state.tasks,settings:state.settings,meta:state.meta,taskLib:state.taskLib||[],actionLib:state.actionLib||[],libSeeded:!!state.libSeeded}));
+  function boardForCloud(){ var st=JSON.parse(JSON.stringify({staff:state.staff,clients:state.clients,tasks:state.tasks,settings:state.settings,meta:state.meta,taskLib:state.taskLib||[],workflows:state.workflows||[],libSeeded:!!state.libSeeded}));
     toArr(st.staff).forEach(function(x){ x.pin=""; }); if(st.settings){ st.settings.ownerPin=""; toArr(st.settings.owners).forEach(function(o){ o.pin=""; }); }
     return st; }
-  var fbSynced=null, fbGen=0, FB_COLS=["staff","clients","tasks","taskLib","actionLib"];
+  var fbSynced=null, fbGen=0, FB_COLS=["staff","clients","tasks","taskLib","workflows"];
   function fbWrite(p){ if(p&&typeof p.catch==="function")p.catch(function(e){ var n=$("#saved"); if(n)n.textContent="⚠ Not saved to the cloud: "+((e&&e.code==="PERMISSION_DENIED")?"your account can't make this change":"check your connection and try again"); }); return p; }
   function fbItems(src,c){ var o={}; toArr(src?src[c]:null).forEach(function(x){ if(x&&x.id)o[fbEnc(x.id)]=x; }); return o; }
   // what the database holds, as JSON per item, so later saves can send only what changed
@@ -1097,12 +1116,8 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(k.indexOf("M:")===0)return "Monthly · "+periodName(k.slice(2));
     if(k.indexOf("Q:")===0)return "Quarterly · "+periodLong({freq:"quarterly",pk:k.slice(2)});
     return ""; }
-  function subsOf(t){ return toArr(t.subs).filter(function(s){ return s && String(s.name||"").trim(); }); }
-  function subDone(c,sid){ return !!(c.subs && c.subs[sid] && c.subs[sid].done); }
-  function subLocked(t,s){ return s.when==="filed" && cell(t.id).status!=="Filed / Done"; }
-  function nextActions(t){ var c=cell(t.id); if(c.status==="N/A")return []; return subsOf(t).filter(function(s){ return !subDone(c,s.id) && !subLocked(t,s); }); }
-  function toggleSub(t,sid){ var c=cell(t.id); c.subs=c.subs||{}; if(subDone(c,sid))delete c.subs[sid]; else c.subs[sid]={done:true,doneAt:nowIso(),doneBy:whoami()}; commit(t); }
-  function cell(id){ var k=splitId(id), pk=fbEnc(k.pk), tk=fbEnc(k.tid); state.board[pk]=state.board[pk]||{}; var c=state.board[pk][tk]; if(!c){ c={status:"Not started",blocked:false,waiting:"",notes:"",wfV:3}; state.board[pk][tk]=c; } return c; }
+
+  function cell(id){ var k=splitId(id), pk=fbEnc(k.pk), tk=fbEnc(k.tid); state.board[pk]=state.board[pk]||{}; var c=state.board[pk][tk]; if(!c){ c={status:"Not started",blocked:false,waiting:"",notes:"",wfV:4}; state.board[pk][tk]=c; } return c; }
   var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   function dueDateOf(t){ return t.dueAt||null; }
   function fmtDue(d){ var s=d.getDate()+" "+MON[d.getMonth()]; if(d.getFullYear()!==new Date().getFullYear())s+=" "+d.getFullYear(); return s; }
@@ -1164,7 +1179,6 @@ window.MARVCO_FIREBASE_CONFIG = {
   function drillPred(k,t){ var c=cell(t.id), n;
     if(k==="overdue"){ if(dueFlag(t)!=="overdue")return false; return drill!=="overdue"||-daysLeft(t)>overMin; }
     if(k==="soon"){ if(!isOpen(c))return false; n=daysLeft(t); return n!==null&&n>=0&&n<=dueWin; }
-    if(k==="next")return nextActions(t).length>0;
     if(k==="wait:P")return isOpen(c)&&respOf(t,c)==="P";
     if(k==="wait:S")return isOpen(c)&&respOf(t,c)==="S";
     if(k==="started")return isOpen(c)&&startedOf(c);
@@ -1184,7 +1198,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   function curStageOf(t,c){ var wf=wfOf(t); if(!wf)return null; var i=wfCurrent(c,wf); return i<0?null:wf.stages[i]; }
   function respOf(t,c){ var s=curStageOf(t,c); if(s)return s.r; return c.status==="Prepared"?"P":"S"; }
   function drillLabel(k){ if(k==="started")return "Pending: started, not filed"; if(k==="overdue"&&overMin)return "Overdue by more than "+overMin+" days"; if(k==="soon")return "Due within "+dueWin+(dueWin===1?" day":" days"); if(k.indexOf("st:")===0)return ST_LONG[k.slice(3)]||k.slice(3);
-    return {overdue:"Overdue",next:"Next actions",pending:"Pending",done:"Filed so far",blocked:"Blocked",review:"To review",ready:"Ready to file",returned:"Sent back"}[k]||"Tasks"; }
+    return {overdue:"Overdue",pending:"Pending",done:"Filed so far",blocked:"Blocked",review:"To review",ready:"Ready to file",returned:"Sent back"}[k]||"Tasks"; }
   function ownerLabel(v){ return v==="__none__"?"Unassigned":staffName(v); }
   function drillTo(key,f){ f=f||{}; overMin=0; if(f.task!=null)$("#fTask").value=f.task; if(f.owner!=null)$("#fOwner").value=f.owner; drill=key; drillClient=""; renderPanel(); window.scrollTo({top:0}); }
   function byClientName(a,b){ var ca=(clientById(a.clientId)||{}).name||"",cb=(clientById(b.clientId)||{}).name||""; return ca<cb?-1:ca>cb?1:0; }
@@ -1236,7 +1250,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   function stageBar(s,cls){ var bar=el("div",cls||"bar");
     STAGES.forEach(function(st){ var n=s[st[1]]; if(!s.applicable||!n)return; var seg=el("span"); seg.style.width=(n/s.applicable*100)+"%"; seg.style.background=st[2]; seg.title=ST_LONG[st[0]]+": "+n; bar.appendChild(seg); });
     return bar; }
-  var PEND_SUBS=["wait:P","wait:S","overdue","soon","blocked","next"];
+  var PEND_SUBS=["wait:P","wait:S","overdue","soon","blocked"];
   function subLabel(k){ if(k==="wait:P")return "Waiting for partner"; if(k==="wait:S")return "Waiting for staff"; if(k==="overdue")return "Overdue"; if(k==="soon")return "Due in "+dueWin+(dueWin===1?" day":" days"); if(k==="blocked")return "Blocked"; if(k==="next")return "Next actions"; if(k==="returned")return "Sent back"; return ST_LONG[k.slice(3)]||k; }
   function bar3(s){
     var tot=Math.max(1,s.applicable), w=el("div","bar3");
@@ -1320,12 +1334,11 @@ window.MARVCO_FIREBASE_CONFIG = {
     sum.appendChild(statChip("pending",s.applicable-s.fl,"Pending","grey"));
     sum.appendChild(statChip("done",s.fl,"Filed so far","green"));
     sum.appendChild(statChip("blocked",s.blocked,"Blocked","red2"));
-    var nxc=cnt("next"); if(nxc||drill==="next")sum.appendChild(statChip("next",nxc,"Next actions","amber"));
     panel.appendChild(tsCard());
 
     if(isOwner){
       var xb=el("div","csv-bar"); xb.appendChild(el("span","muted-note2","Export CSV:"));
-      [["notstarted","Not started","st:Not started"],["review","Awaiting review","review"],["ready","Ready to file","ready"],["pending","Pending (not filed)","pending"],["next","Next actions","next"],["done","Filed","done"]].forEach(function(x){
+      [["notstarted","Not started","st:Not started"],["review","Awaiting review","review"],["ready","Ready to file","ready"],["pending","Pending (not filed)","pending"],["done","Filed","done"]].forEach(function(x){
         var xbtn=el("button","clearbtn","⬇ "+x[1]); xbtn.addEventListener("click",function(){ exportTasksCsv(x[0],x[2]); }); xb.appendChild(xbtn); });
       panel.appendChild(xb);
     }
@@ -1409,7 +1422,7 @@ window.MARVCO_FIREBASE_CONFIG = {
       var sc=el("td"), sl=stageStatusOf(tk,c), lbl=sl||ST_LONG[c.status]; if(!sl&&c.status==="Reviewed"&&c.reviewedBy)lbl="Reviewed by "+c.reviewedBy+" — ready to file"; if(!sl&&c.status==="Filed / Done"&&c.arn)lbl+=" · "+c.arn;
       sc.appendChild(el("span","chip "+ST_CLASS[c.status],lbl)); if(c.blocked)sc.appendChild(el("span","chip blk","⛔ Blocked")); tr.appendChild(sc);
       if(isOwner)tr.appendChild(el("td","tt-own",tk.ownerId?staffName(tk.ownerId):"Unassigned"));
-      var nt=[]; if(isReturned(c))nt.push("↩ Sent back: "+c.returnNote); if(c.waiting)nt.push("⏳ "+c.waiting); var nxa=nextActions(tk); if(nxa.length)nt.push("➜ Next: "+nxa[0].name+(nxa.length>1?" (+"+(nxa.length-1)+" more)":"")); if(c.notes)nt.push(c.notes);
+      var nt=[]; if(isReturned(c))nt.push("↩ Sent back: "+c.returnNote); if(c.waiting)nt.push("⏳ "+c.waiting); if(c.notes)nt.push(c.notes);
       tr.appendChild(el("td","tt-notes"+(isReturned(c)?" ret":""),nt.join(" · ")||"—"));
       if(isOwner&&state.invoiceConfig){ var ii=invInfo(tk); tr.appendChild(el("td","tt-inv "+(ii?ii.k:""),ii?ii.x:"")); }
       tr.addEventListener("click",function(){ openSheet(tk.id); });
@@ -1638,19 +1651,6 @@ window.MARVCO_FIREBASE_CONFIG = {
       STATUSES.forEach(function(x){ var o=el("button","opt "+ST_CLASS[x]+(c.status===x?" sel":""),stLabel(x)); o.addEventListener("click",function(){ ownerSet(t,x); }); g.appendChild(o); });
       ov.appendChild(g); b.appendChild(ov);
     }
-    var sbs=wfl?[]:subsOf(t);
-    if(sbs.length){
-      b.appendChild(el("div","sheet-lbl","Next actions"));
-      b.appendChild(el("div","muted-note2","Not billed. Tick when done. Only the parent task goes to Zoho."));
-
-      sbs.forEach(function(s){ var locked=subLocked(t,s), done=subDone(c,s.id);
-        var row=el("label","subrow"+(done?" done":""));
-        var cb=el("input"); cb.type="checkbox"; cb.checked=done;
-        cb.addEventListener("change",function(){ toggleSub(t,s.id); });
-        row.appendChild(cb); row.appendChild(el("span",null,s.name));
-        if(locked)row.appendChild(el("span","subtag","due after filing"));
-        b.appendChild(row); });
-    }
     b.appendChild(el("div","sheet-lbl","Blocked?"));
     var blk=el("button","toggle"+(c.blocked?" on":""),c.blocked?"⛔ Blocked — tap to clear":"Mark as blocked");
     blk.addEventListener("click",function(){ var cc=cell(t.id); cc.blocked=!cc.blocked; commit(t); }); b.appendChild(blk);
@@ -1803,7 +1803,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     if(f==="once"&&!t.createdAt)t.createdAt=nowIso();
     if(f==="annual"&&t.dueMonth==null)t.dueMonth=null; }
   var tkFilter={q:"",client:"",task:"",staff:"",freq:"",attn:false}, tkHost=null, tkScroll=null, tkView="alloc", libDraft=null, libAssign=null, libSel={}, libFilterQ="";
-  function tkRefresh(){ if(!tkHost)return; if(tkView==="lib")drawLib(tkHost); else if(tkView==="presets")drawPresets(tkHost); else drawTaskList(tkHost); }
+  function tkRefresh(){ if(!tkHost)return; if(tkView==="lib")drawLib(tkHost); else if(tkView==="workflows")drawWorkflows(tkHost); else drawTaskList(tkHost); }
   function afterDraw(){ if(!tkScroll||!tkHost)return; var t=tkHost.querySelector('[data-tid="'+tkScroll+'"]'); tkScroll=null; if(t&&t.scrollIntoView)setTimeout(function(){ t.scrollIntoView({behavior:"smooth",block:"start"}); },30); }
   function tkHasFilter(){ return !!(tkFilter.q||tkFilter.client||tkFilter.task||tkFilter.staff||tkFilter.freq||tkFilter.attn); }
   function tkIssues(tk){ var out=[]; if(zItems().length&&!tk.zohoItemId)out.push("No Zoho item"); if(!(Number(tk.fee)>0))out.push("No fee"); if(!tk.ownerId)out.push("Unassigned"); return out; }
@@ -1823,48 +1823,8 @@ window.MARVCO_FIREBASE_CONFIG = {
   function tmFld(lbl,ctrl,wide){ var d=el("div","tc2-f"+(wide?" wide":"")); d.appendChild(el("label",null,lbl)); d.appendChild(ctrl); return d; }
   function freqLabel(f){ return (FREQ_OPTS.filter(function(x){ return x[0]===f; })[0]||[])[1]||""; }
   function libById(id){ return toArr(state.taskLib).filter(function(x){ return x.id===id; })[0]; }
-  function presetById(id){ return toArr(state.actionLib).filter(function(x){ return x.id===id; })[0]; }
   function libUses(id){ return state.tasks.filter(function(x){ return x.libId===id; }).length; }
-  function presetActions(id){ var p=presetById(id); return p?toArr(p.actions).filter(function(a){ return a&&String(a.name||"").trim(); }).map(cloneSub):[]; }
-  function newTaskFromLib(lb,cid,o){ var fv=parseFloat(o.fee); return {id:uid("tk"),clientId:cid,name:lb.name,freq:lb.freq,type:lb.type||"stat",due:lb.freq==="once"?null:lb.due,dueMonth:lb.freq==="annual"?(lb.dueMonth||null):null,dueDate:lb.freq==="once"?(lb.dueDate||""):"",from:lb.freq==="once"?"":(lb.freq==="annual"&&lb.from?lb.from:latestFrom(lb.freq)),createdAt:nowIso(),ownerId:o.ownerId||"",reviewerId:lb.reviewerId||"",fee:isNaN(fv)?null:fv,zohoItemId:o.zohoItemId||"",subs:toArr(lb.subs).map(cloneSub),libId:lb.id}; }
-
-  // ---- shared next-action editor: kind "task" (client task) or "lib" (library task)
-  function actionsEditor(kind,id){
-    function get(){ return kind==="lib"?libById(id):taskById(id); }
-    function persist(){ save(whoami()); tkRefresh(); }
-    function linked(){ var item=get(); return kind==="lib"?state.tasks.filter(function(x){ return x.libId===id; }):state.tasks.filter(function(x){ return x.id!==id && item && x.name===item.name; }); }
-    var item=get()||{subs:[]}, box=el("div","subs-ed");
-    box.appendChild(el("div","muted-note2","Next actions are never billed. “After filing” ones show once the period is marked filed; “Now” ones straight away."));
-    toArr(item.subs).forEach(function(sb,i){
-      var row=el("div","subs-line");
-      var ti=el("input"); ti.type="text"; ti.value=sb.name||""; ti.placeholder="e.g. Share challan with client";
-      ti.addEventListener("change",function(){ var l=get(); l.subs=toArr(l.subs); if(l.subs[i])l.subs[i].name=ti.value.trim(); persist(); });
-      var wh=el("select"); [["filed","After filing"],["now","Now"]].forEach(function(o){ wh.appendChild(opt(o[0],o[1],sb.when===o[0])); });
-      wh.addEventListener("change",function(){ var l=get(); l.subs=toArr(l.subs); if(l.subs[i])l.subs[i].when=wh.value; persist(); });
-      var rmv=el("button","iconbtn","Remove"); rmv.addEventListener("click",function(){ var l=get(); l.subs=toArr(l.subs).filter(function(x,j){ return j!==i; }); persist(); });
-      row.appendChild(ti); row.appendChild(wh); row.appendChild(rmv); box.appendChild(row);
-    });
-    var ar=el("div","subs-line");
-    var add=el("button","clearbtn","+ Add next action");
-    add.addEventListener("click",function(){ var l=get(); l.subs=toArr(l.subs).concat([{id:uid("sb"),name:"",when:"filed"}]); persist(); });
-    var pre=el("select"); pre.appendChild(opt("","Add actions from a preset…",true));
-    toArr(state.actionLib).forEach(function(p){ pre.appendChild(opt(p.id,p.name)); });
-    pre.addEventListener("change",function(){ if(!pre.value)return; var l=get(); l.subs=toArr(l.subs).concat(presetActions(pre.value)); persist(); });
-    var sv=el("button","clearbtn","Save these as a preset…");
-    sv.addEventListener("click",function(){ var acts=subsOf(get()); if(!acts.length){ alert("Add at least one next action first."); return; }
-      var nm=prompt("Name for this preset, e.g. “GST return”"); if(!nm||!nm.trim())return;
-      state.actionLib=toArr(state.actionLib).concat([{id:uid("ap"),name:nm.trim(),actions:acts.map(function(x){ return {id:uid("a"),name:x.name,when:x.when||"filed"}; })}]); persist(); });
-    ar.appendChild(add); ar.appendChild(pre); ar.appendChild(sv); box.appendChild(ar);
-    var ar2=el("div","subs-line"), n=linked().length;
-    var ap=el("button","clearbtn", kind==="lib"?("Push these to the "+n+" client task(s) linked to this"):("Copy these to the "+n+" other “"+(item.name||"")+"” task(s)"));
-    ap.disabled=!n;
-    ap.addEventListener("click",function(){ var cur=subsOf(get()); if(!cur.length){ alert("Add at least one next action first."); return; }
-      var targets=linked(); if(!confirm("Replace the next actions on "+targets.length+" task(s) with these "+cur.length+"?"))return;
-      targets.forEach(function(x){ x.subs=cur.map(function(sb){ return cloneSub(sb); }); }); persist(); });
-    var dn=el("button","clearbtn","Close"); dn.addEventListener("click",function(){ openSubs[id]=false; tkRefresh(); });
-    ar2.appendChild(ap); ar2.appendChild(dn); box.appendChild(ar2);
-    return box;
-  }
+  function newTaskFromLib(lb,cid,o){ var fv=parseFloat(o.fee); return {id:uid("tk"),clientId:cid,name:lb.name,freq:lb.freq,type:lb.type||"stat",due:lb.freq==="once"?null:lb.due,dueMonth:lb.freq==="annual"?(lb.dueMonth||null):null,dueDate:lb.freq==="once"?(lb.dueDate||""):"",from:lb.freq==="once"?"":(lb.freq==="annual"&&lb.from?lb.from:latestFrom(lb.freq)),createdAt:nowIso(),ownerId:o.ownerId||"",reviewerId:lb.reviewerId||"",fee:isNaN(fv)?null:fv,zohoItemId:o.zohoItemId||"",subs:[],libId:lb.id}; }
 
   // ---- client task (allocation) ----
   function drawTaskList(host){
@@ -1889,8 +1849,6 @@ window.MARVCO_FIREBASE_CONFIG = {
     var nm=el("input","tc2-name"); nm.type="text"; nm.value=tk.name; nm.title="Task name (click to edit)";
     nm.addEventListener("change",function(){ var v=nm.value.trim(); if(!v){ nm.value=tk.name; return; } liveTask(tk).name=v; save(whoami()); tkRefresh(); });
     head.appendChild(nm);
-    var na=subsOf(tk).length, nb=el("button","clearbtn",na?("Next actions ("+na+")"):"+ Next actions");
-    nb.addEventListener("click",function(){ openSubs[tk.id]=!openSubs[tk.id]; tkScroll=openSubs[tk.id]?tk.id:null; tkRefresh(); }); head.appendChild(nb);
     var rm=el("button","iconbtn","Remove");
     rm.addEventListener("click",function(){ if(!confirm("Remove task \""+tk.name+"\" for "+((clientById(tk.clientId)||{}).name||"this client")+"? It disappears from every period, including its status history.")) return; Object.keys(state.board).forEach(function(pk){ delete state.board[pk][fbEnc(tk.id)]; }); state.tasks=state.tasks.filter(function(x){ return x.id!==tk.id; }); save(whoami()); tkRefresh(); });
     head.appendChild(rm); card.appendChild(head);
@@ -1921,9 +1879,8 @@ window.MARVCO_FIREBASE_CONFIG = {
     var fe=el("input"); fe.type="number"; fe.min="0"; fe.step="1"; fe.value=(tk.fee==null?"":tk.fee); fe.placeholder="₹";
     fe.addEventListener("change",function(){ var v=parseFloat(fe.value); liveTask(tk).fee=isNaN(v)?null:v; save(whoami()); tkRefresh(); }); g.appendChild(tmFld("Fee (₹)",fe));
     card.appendChild(g);
-    var foot=el("div","tc2-foot"), tog=el("button","clearbtn", openSubs[tk.id]?"▴ Hide next actions":("▾ Next actions"+(na?" ("+na+")":"")+" — tap to "+(na?"edit":"add")));
-    tog.addEventListener("click",function(){ openSubs[tk.id]=!openSubs[tk.id]; tkScroll=openSubs[tk.id]?tk.id:null; tkRefresh(); }); foot.appendChild(tog); card.appendChild(foot);
-    if(openSubs[tk.id])card.appendChild(actionsEditor("task",tk.id));
+    var lbw=libById(tk.libId), wfname=lbw&&lbw.workflow;
+    card.appendChild(el("div","tc2-foot muted-note2", wfname?("Workflow: "+wfname+" (set on the library item)"):"Plain task: no workflow. Set one on its library item."));
     return card;
   }
   function addTaskCard(){
@@ -1957,7 +1914,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     b.addEventListener("click",function(){ var nm=at.value.trim(); if(!nm){ at.focus(); return; }
       if(zItems().length&&!azi.value){ azi.className="warn"; azi.focus(); hint.textContent="Select the Zoho item this task is billed under."; return; }
       var f=afq.value, v=parseInt(ad.value,10), fv=parseFloat(afe.value), src=picked?libById(picked):null, same=!!(src&&src.name===nm);
-      state.tasks.push({id:uid("tk"),clientId:ac.value,name:nm,freq:f,type:"stat",due:(f==="once"||isNaN(v))?null:v,dueMonth:f==="annual"&&am.value?+am.value:null,dueDate:f==="once"?(adt.value||""):"",from:f==="once"?"":(f==="annual"&&aY.value?aY.value:latestFrom(f)),createdAt:nowIso(),ownerId:aa.value,reviewerId:aR.value,fee:isNaN(fv)?null:fv,zohoItemId:azi.value,subs:same?toArr(src.subs).map(cloneSub):[],libId:same?src.id:""});
+      state.tasks.push({id:uid("tk"),clientId:ac.value,name:nm,freq:f,type:"stat",due:(f==="once"||isNaN(v))?null:v,dueMonth:f==="annual"&&am.value?+am.value:null,dueDate:f==="once"?(adt.value||""):"",from:f==="once"?"":(f==="annual"&&aY.value?aY.value:latestFrom(f)),createdAt:nowIso(),ownerId:aa.value,reviewerId:aR.value,fee:isNaN(fv)?null:fv,zohoItemId:azi.value,subs:[],libId:same?src.id:""});
       save(whoami()); renderManage(); });
     foot.appendChild(b); d.appendChild(foot);
     sync();
@@ -2001,7 +1958,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   }
   function assignPanel(lb){
     var id=lb.id, p=el("div","assign-pan");
-    p.appendChild(el("div","muted-note2","Creates “"+lb.name+"” for each client you pick, with these defaults and next actions. Each client task can still be changed afterwards."));
+    p.appendChild(el("div","muted-note2","Creates “"+lb.name+"” for each client you pick, with these defaults. Each client task can still be changed afterwards."));
     var row=el("div","tc2-grid");
     var as=el("select"); as.appendChild(opt("","— none —",!lb.ownerId)); assigneeAdd(as,lb.ownerId); state.staff.forEach(function(st){ as.appendChild(opt(st.id,st.name,st.id===lb.ownerId)); });
     var zc=el("select"); zc.appendChild(opt("","— none —",!lb.zohoItemId)); zItems().forEach(function(z){ zc.appendChild(opt(z.id,z.name,String(z.id)===String(lb.zohoItemId))); });
@@ -2038,17 +1995,21 @@ window.MARVCO_FIREBASE_CONFIG = {
     head.appendChild(el("span","ptag", uses?("Assigned to "+uses+" client task"+(uses===1?"":"s")):"Not assigned to any client yet"));
     card.appendChild(head);
     card.appendChild(libFieldGrid(get,persist));
-    var foot=el("div","tc2-foot"), na=subsOf(lb).length;
+    var wfrow=el("div","tc2-foot"), wsel=el("select");
+    wsel.appendChild(opt("","None (plain task)",!lb.workflow));
+    toArr(state.workflows).slice().sort(function(a,b){ return a.name<b.name?-1:1; }).forEach(function(w){ wsel.appendChild(opt(w.name,w.name,lb.workflow===w.name)); });
+    wsel.addEventListener("change",function(){ var l=get(); if(l){ l.workflow=wsel.value; persist(); } });
+    wfrow.appendChild(tmFld("Workflow",wsel));
+    var wmb=el("button","clearbtn","Edit workflows in Workflow master"); wmb.addEventListener("click",function(){ tkView="workflows"; renderManage(); }); wfrow.appendChild(wmb);
+    card.appendChild(wfrow);
+    var foot=el("div","tc2-foot");
     var ab=el("button","primary", libAssign===id?"Close assign":"Assign to clients…");
     ab.addEventListener("click",function(){ if(libAssign===id){ libAssign=null; } else { libAssign=id; libSel={}; } tkRefresh(); }); foot.appendChild(ab);
-    var nb=el("button","clearbtn", openSubs[id]?"▴ Hide next actions":("▾ Next actions"+(na?" ("+na+")":"")));
-    nb.addEventListener("click",function(){ openSubs[id]=!openSubs[id]; tkScroll=openSubs[id]?id:null; tkRefresh(); }); foot.appendChild(nb);
     var rm=el("button","iconbtn","Remove");
     rm.addEventListener("click",function(){ if(!confirm("Remove “"+lb.name+"” from the library? Client tasks already created from it stay, they just stop being linked.")) return;
       state.tasks.forEach(function(x){ if(x.libId===id)x.libId=""; }); state.taskLib=toArr(state.taskLib).filter(function(x){ return x.id!==id; }); save(whoami()); tkRefresh(); });
     foot.appendChild(rm); card.appendChild(foot);
     if(libAssign===id)card.appendChild(assignPanel(lb));
-    if(openSubs[id])card.appendChild(actionsEditor("lib",id));
     return card;
   }
   function drawLib(host){
@@ -2061,52 +2022,137 @@ window.MARVCO_FIREBASE_CONFIG = {
     afterDraw();
   }
 
-  // ---- next-action presets ----
-  function presetCard(p){
-    var id=p.id, get=function(){ return presetById(id); }, persist=function(){ save(whoami()); tkRefresh(); };
-    var card=el("div","tc2"); card.setAttribute("data-tid",id);
-    var head=el("div","tc2-head"), nm=el("input","tc2-name"); nm.type="text"; nm.value=p.name||""; nm.placeholder="Preset name";
-    nm.addEventListener("change",function(){ var v=nm.value.trim(); if(v)get().name=v; persist(); }); head.appendChild(nm);
-    var rm=el("button","iconbtn","Delete preset");
-    rm.addEventListener("click",function(){ if(!confirm("Delete the preset “"+p.name+"”? Tasks that already have its actions keep them.")) return; state.actionLib=toArr(state.actionLib).filter(function(x){ return x.id!==id; }); save(whoami()); tkRefresh(); });
-    head.appendChild(rm); card.appendChild(head);
-    card.appendChild(el("div","muted-note2",toArr(p.actions).length+" action"+(toArr(p.actions).length===1?"":"s")+" — added to a task with the preset dropdown."));
-    toArr(p.actions).forEach(function(a,i){
-      var row=el("div","subs-line");
-      var ti=el("input"); ti.type="text"; ti.value=a.name||""; ti.placeholder="e.g. Share challan with client";
-      ti.addEventListener("change",function(){ var l=get(); l.actions=toArr(l.actions); if(l.actions[i])l.actions[i].name=ti.value.trim(); persist(); });
-      var wh=el("select"); [["filed","After filing"],["now","Now"]].forEach(function(o){ wh.appendChild(opt(o[0],o[1],a.when===o[0])); });
-      wh.addEventListener("change",function(){ var l=get(); l.actions=toArr(l.actions); if(l.actions[i])l.actions[i].when=wh.value; persist(); });
-      var rmv=el("button","iconbtn","Remove"); rmv.addEventListener("click",function(){ var l=get(); l.actions=toArr(l.actions).filter(function(x,j){ return j!==i; }); persist(); });
-      row.appendChild(ti); row.appendChild(wh); row.appendChild(rmv); card.appendChild(row);
-    });
-    var ar=el("div","subs-line"), add=el("button","clearbtn","+ Add action");
-    add.addEventListener("click",function(){ var l=get(); l.actions=toArr(l.actions).concat([{id:uid("a"),name:"",when:"filed"}]); persist(); });
-    ar.appendChild(add); card.appendChild(ar);
-    return card;
-  }
-  function drawPresets(host){
+  // ---- workflow master: the step order, partner and staff steps, checklists and the closing step ----
+  var wfEdit=null;   // {isNew, key (name when opened), draft}
+  var WF_FLAGS=[["rev","Partner review"],["close","Closes the task"],["arn","Records ARN / SRN"],["opt","Optional (can be Not needed)"],["gate","Checklist must be complete first"]];
+  function wfVisible(w){ return toArr(w.stages).filter(function(x){ return !x.auto; }); }
+  function wfTaskCount(name){ var n=0; toArr(state.taskLib).forEach(function(l){ if(l&&l.workflow===name) n+=state.tasks.filter(function(x){ return x.libId===l.id; }).length; }); return n; }
+  function wfSeedNamed(name){ return WF_SEED.some(function(x){ return x.name===name; }); }
+  function wfCloneStage(x){ return {id:x.id||uid("st"), r:x.r==="P"?"P":"S", t:String(x.t||""), rev:!!x.rev, arn:!!x.arn, opt:!!x.opt, gate:!!x.gate, close:!!x.close, cl:toArr(x.cl).slice()}; }
+  function wfAutoStage(){ return {id:uid("st"), auto:1, r:"P", t:"Task created and allotted by Partner"}; }
+  function wfDraftNew(){ return {name:"", freq:"monthly", auto:wfAutoStage(), stages:[wfCloneStage({r:"S"})]}; }
+  function wfDraftFrom(w){ var a=toArr(w.stages); return {name:w.name, freq:w.freq||"monthly", auto:(a[0]&&a[0].auto)?a[0]:wfAutoStage(), stages:wfVisible(w).map(wfCloneStage)}; }
+  function drawWorkflows(host){
     host.innerHTML="";
-    var all=toArr(state.actionLib);
-    host.appendChild(el("div","tm-count","Presets: "+all.length+". A preset is a named set of next actions (for example the GST return set). Pick one from the dropdown on any task or library item."));
-    if(!all.length)host.appendChild(el("div","empty2","No presets yet. Create one above, or save a task's next actions as a preset."));
-    all.slice().sort(function(a,b){ return a.name<b.name?-1:1; }).forEach(function(p){ host.appendChild(presetCard(p)); });
+    if(wfEdit){ host.appendChild(wfEditor()); afterDraw(); return; }
+    var all=toArr(state.workflows);
+    host.appendChild(el("div","tm-count","Workflows: "+all.length+". A workflow is the order of steps a task follows: staff steps, partner steps, checklists and the closing step. A library item with the same name uses its workflow."));
+    var nw=el("button","primary","+ New workflow");
+    nw.addEventListener("click",function(){ wfEdit={isNew:true,key:"",draft:wfDraftNew()}; tkRefresh(); });
+    host.appendChild(nw);
+    WF_SEED.filter(function(sd){ return !all.some(function(w){ return w.name===sd.name; }); }).forEach(function(sd){
+      var b=el("button","clearbtn","Restore built-in: "+sd.name);
+      b.addEventListener("click",function(){ var fresh=seedWorkflows().filter(function(w){ return w.name===sd.name; })[0]; state.workflows=toArr(state.workflows).concat([fresh]); WORKFLOWS=state.workflows; ensureWorkflowLibs(state); save(whoami()); renderManage(); });
+      host.appendChild(b);
+    });
+    all.slice().sort(function(a,b){ return a.name<b.name?-1:1; }).forEach(function(w){ host.appendChild(wfCard(w)); });
     afterDraw();
   }
-  function presetAddCard(){
-    var d=el("details","tc2-add"); d.open=!toArr(state.actionLib).length; d.appendChild(el("summary",null,"+ New preset"));
-    var foot=el("div","tc2-foot"), nm=el("input"); nm.type="text"; nm.placeholder="e.g. Income-tax return"; nm.style.flex="1"; nm.style.minWidth="200px";
-    var b=el("button","primary","Create preset");
-    b.addEventListener("click",function(){ var v=nm.value.trim(); if(!v){ nm.focus(); return; } state.actionLib=toArr(state.actionLib).concat([{id:uid("ap"),name:v,actions:[]}]); save(whoami()); renderManage(); });
-    foot.appendChild(nm); foot.appendChild(b); d.appendChild(foot);
-    return d;
+  function wfCard(w){
+    var card=el("div","tc2"); card.setAttribute("data-tid",w.id);
+    var head=el("div","tc2-head"); head.appendChild(el("span","tc2-name",w.name));
+    var ed=el("button","clearbtn","Edit");
+    ed.addEventListener("click",function(){ wfEdit={isNew:false,key:w.name,draft:wfDraftFrom(w)}; tkRefresh(); });
+    var rm=el("button","iconbtn","Delete");
+    rm.addEventListener("click",function(){
+      if(!confirm("Delete the workflow “"+w.name+"”? Library items that use it become plain tasks, and tasks on it lose their steps.")) return;
+      state.workflows=toArr(state.workflows).filter(function(x){ return x.id!==w.id; }); WORKFLOWS=state.workflows;
+      state.taskLib=toArr(state.taskLib).map(function(l){ if(l&&l.workflow===w.name)l.workflow=""; return l; });
+      save(whoami()); renderManage();
+    });
+    head.appendChild(ed); head.appendChild(rm); card.appendChild(head);
+    var vis=wfVisible(w);
+    card.appendChild(el("div","muted-note2",vis.length+" steps · "+(freqLabel(w.freq)||"")+" · "+wfTaskCount(w.name)+" task(s) on it"));
+    vis.forEach(function(x,k){
+      card.appendChild(el("div","muted-note2",(k+1)+". "+x.t+" — "+(x.r==="P"?"Partner":"Staff")+(x.rev?", partner review":"")+(x.close?", closes the task":"")+(toArr(x.cl).length?", "+toArr(x.cl).length+" checklist items":"")));
+    });
+    return card;
   }
-
+  function wfEditor(){
+    var E=wfEdit, d=E.draft, box=el("div","tc2");
+    box.appendChild(el("div","tc2-head",E.isNew?"New workflow":"Edit workflow · "+E.key));
+    var nmIn=el("input"); nmIn.type="text"; nmIn.value=d.name; nmIn.placeholder="e.g. Income-tax return";
+    nmIn.addEventListener("input",function(){ d.name=nmIn.value; });
+    var fq=el("select"); FREQ_OPTS.forEach(function(f){ fq.appendChild(opt(f[0],f[1],d.freq===f[0])); });
+    fq.addEventListener("change",function(){ d.freq=fq.value; });
+    box.appendChild(tmFld("Name",nmIn,true));
+    box.appendChild(tmFld("Frequency for a new library item",fq,true));
+    var inUse=E.isNew?0:wfTaskCount(E.key);
+    if(inUse)box.appendChild(el("div","muted-note2",inUse+" task(s) use this workflow. A step keeps its progress when you reorder or rename it. Removing a step drops the progress on it."));
+    d.stages.forEach(function(s,k){
+      var row=el("div","wf-ed-row");
+      var hd=el("div","wf-ed-h"); hd.appendChild(el("b",null,"Step "+(k+1)));
+      var up=el("button","iconbtn","↑"); up.disabled=k===0;
+      up.addEventListener("click",function(){ var x=d.stages; var tmp=x[k-1]; x[k-1]=x[k]; x[k]=tmp; tkRefresh(); });
+      var dn=el("button","iconbtn","↓"); dn.disabled=k===d.stages.length-1;
+      dn.addEventListener("click",function(){ var x=d.stages; var tmp=x[k+1]; x[k+1]=x[k]; x[k]=tmp; tkRefresh(); });
+      var rmv=el("button","iconbtn","Remove");
+      rmv.addEventListener("click",function(){ d.stages.splice(k,1); tkRefresh(); });
+      hd.appendChild(up); hd.appendChild(dn); hd.appendChild(rmv); row.appendChild(hd);
+      var tx=el("input"); tx.type="text"; tx.value=s.t; tx.placeholder="e.g. Entries posted";
+      tx.addEventListener("input",function(){ s.t=tx.value; });
+      var rs=el("select"); rs.appendChild(opt("S","Staff",s.r!=="P")); rs.appendChild(opt("P","Partner",s.r==="P"));
+      rs.addEventListener("change",function(){ s.r=rs.value; });
+      row.appendChild(tmFld("Step",tx,true)); row.appendChild(tmFld("Done by",rs));
+      var fl=el("div","wf-ed-flags");
+      WF_FLAGS.forEach(function(f){
+        var lb=el("label"), cb=el("input"); cb.type="checkbox"; cb.checked=!!s[f[0]];
+        cb.addEventListener("change",function(){ s[f[0]]=cb.checked; });
+        lb.appendChild(cb); lb.appendChild(document.createTextNode(" "+f[1])); fl.appendChild(lb);
+      });
+      row.appendChild(fl);
+      var ta=el("textarea"); ta.rows=3; ta.value=toArr(s.cl).join("\n"); ta.placeholder="Checklist, one item per line (optional)";
+      ta.addEventListener("input",function(){ s.cl=ta.value.split("\n").map(function(x){ return x.trim(); }).filter(Boolean); });
+      row.appendChild(tmFld("Checklist",ta,true));
+      box.appendChild(row);
+    });
+    var addS=el("button","clearbtn","+ Add step");
+    addS.addEventListener("click",function(){ d.stages.push(wfCloneStage({r:"S"})); tkRefresh(); });
+    box.appendChild(addS);
+    var foot=el("div","tc2-foot");
+    if(!E.isNew&&wfSeedNamed(E.key)){
+      var rb=el("button","clearbtn","Restore built-in steps");
+      rb.addEventListener("click",function(){
+        if(!confirm("Replace the steps on this form with the built-in steps? Nothing changes until you press Save workflow.")) return;
+        var sd=seedWorkflows().filter(function(w){ return w.name===E.key; })[0];
+        d.stages=wfVisible(sd).map(wfCloneStage); d.auto=toArr(sd.stages)[0]; tkRefresh();
+      });
+      foot.appendChild(rb);
+    }
+    var cancel=el("button","clearbtn","Cancel");
+    cancel.addEventListener("click",function(){ wfEdit=null; renderManage(); });
+    var sv=el("button","primary","Save workflow");
+    sv.addEventListener("click",wfSaveEdit);
+    foot.appendChild(cancel); foot.appendChild(sv); box.appendChild(foot);
+    return box;
+  }
+  function wfSaveEdit(){
+    var E=wfEdit, d=E.draft, name=String(d.name||"").trim();
+    if(!name){ alert("Give the workflow a name."); return; }
+    if(toArr(state.workflows).some(function(w){ return w.name===name&&w.name!==E.key; })){ alert("A workflow named “"+name+"” already exists."); return; }
+    if(!d.stages.length){ alert("Add at least one step."); return; }
+    if(d.stages.some(function(x){ return !String(x.t||"").trim(); })){ alert("Every step needs a name. Fill it in or remove the empty step."); return; }
+    if(!d.stages.some(function(x){ return x.close; })){ alert("One step must be marked “Closes the task”, so that the task can be filed."); return; }
+    var stages=[{id:d.auto.id,auto:1,r:"P",t:d.auto.t}].concat(d.stages.map(function(x){
+      var o={id:x.id||uid("st"), r:x.r==="P"?"P":"S", t:String(x.t).trim()};
+      ["rev","arn","opt","gate","close"].forEach(function(k){ if(x[k])o[k]=true; });
+      var cl=toArr(x.cl).map(function(v){ return String(v).trim(); }).filter(Boolean); if(cl.length)o.cl=cl;
+      return o; }));
+    var list=toArr(state.workflows).slice();
+    var prev=E.isNew?null:list.filter(function(x){ return x.name===E.key; })[0];
+    var w={id:prev?prev.id:uid("wf"), name:name, freq:d.freq||"monthly", stages:stages};
+    if(prev)list=list.map(function(x){ return x===prev?w:x; }); else list.push(w);
+    if(prev&&E.key!==name){
+      state.taskLib=toArr(state.taskLib).map(function(l){ if(l&&l.workflow===E.key){ l.workflow=name; if(l.name===E.key)l.name=name; } return l; });
+    }
+    state.workflows=list; WORKFLOWS=list; ensureWorkflowLibs(state);
+    wfEdit=null; save(whoami()); renderManage();
+  }
   function renderTasksSec(body){
-    body.appendChild(el("p","muted-note","Three parts. Client tasks: what each client has and who does it. Task library: common tasks such as GSTR-1 and TDS deposit, with their next actions, assigned to clients in one step. Next-action presets: named action sets such as the GST return set."));
+    body.appendChild(el("p","muted-note","Three parts. Client tasks: what each client has and who does it. Task library: common tasks such as GSTR-1 and TDS deposit, assigned to clients in one step. Workflow master: the step order, checklists and closing step of each workflow."));
     body.appendChild(zohoStatusEl());
     var seg=el("div","tk-seg");
-    [["alloc","Client tasks"],["lib","Task library"],["presets","Next-action presets"]].forEach(function(v){ var b=el("button","tk-seg-b"+(tkView===v[0]?" on":""),v[1]); b.addEventListener("click",function(){ tkView=v[0]; tkScroll=null; renderManage(); }); seg.appendChild(b); });
+    [["alloc","Client tasks"],["lib","Task library"],["workflows","Workflow master"]].forEach(function(v){ var b=el("button","tk-seg-b"+(tkView===v[0]?" on":""),v[1]); b.addEventListener("click",function(){ tkView=v[0]; tkScroll=null; wfEdit=null; renderManage(); }); seg.appendChild(b); });
     body.appendChild(seg);
     tkHost=el("div");
     if(tkView==="lib"){
@@ -2114,7 +2160,7 @@ window.MARVCO_FIREBASE_CONFIG = {
       var lq=el("input","tm-search"); lq.type="search"; lq.placeholder="Search the library…"; lq.value=libFilterQ; lq.addEventListener("input",function(){ libFilterQ=lq.value; tkRefresh(); }); body.appendChild(lq);
       body.appendChild(tkHost); drawLib(tkHost); return;
     }
-    if(tkView==="presets"){ body.appendChild(presetAddCard()); body.appendChild(tkHost); drawPresets(tkHost); return; }
+    if(tkView==="workflows"){ body.appendChild(tkHost); drawWorkflows(tkHost); return; }
     if(!state.clients.length){ body.appendChild(el("div","empty2","Add a client first, then assign tasks here.")); return; }
     body.appendChild(addTaskCard());
     var bar=el("div","tm-bar");
@@ -2316,14 +2362,14 @@ window.MARVCO_FIREBASE_CONFIG = {
   function shareWhatsApp(){ var text=buildDigest(); try{ if(navigator.clipboard)navigator.clipboard.writeText(text); }catch(e){} window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank"); }
 
   // ---------- CSV export (owner) ----------
-  var CSV_COLS=["Client","Task","Period","Repeats","Status","Due date","Assigned to (employee)","Worked on by","Reviewed by (partner)","Bill amount (Rs)","Zoho item","Waiting on","Notes","Pending next actions","Filed on","Filed by","ARN"];
+  var CSV_COLS=["Client","Task","Period","Repeats","Status","Due date","Assigned to (employee)","Worked on by","Reviewed by (partner)","Bill amount (Rs)","Zoho item","Waiting on","Notes","Current stage","Filed on","Filed by","ARN"];
   function csvCell(v){ var s=(v==null?"":String(v)); return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
   function exportTasksCsv(label,key){
     var rows=baseTasks().filter(passFilter).filter(function(t){ return drillPred(key,t); });
     var out=[CSV_COLS.join(",")];
     rows.forEach(function(t){
       var c=cell(t.id), cl=clientById(t.clientId)||{name:""}, d=dueDateOf(t), zi=zItemById(t.zohoItemId);
-      var pend=nextActions(t).map(function(s){ return s.name; }).join("; ");
+      var cst=curStageOf(t,c), pend=cst?cst.t:"";
       out.push([cl.name, t.name, periodLong(t), freqLabel(freqOf(t)), c.status, d?(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")):"",
         t.ownerId?staffName(t.ownerId):"Unassigned", c.preparedBy||"", c.reviewedBy||"", t.fee==null?"":t.fee,
         zi?zi.name:(t.zohoItemId||""), c.waiting||"", c.notes||"", pend, c.filedAt?fmtWhen(c.filedAt):"", c.filedBy||"", c.arn||""].map(csvCell).join(","));
