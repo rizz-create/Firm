@@ -538,12 +538,14 @@ window.MARVCO_FIREBASE_CONFIG = {
       st("S","Document verification",{cl:WF_GST_DOCS,gate:1}),
       st("S","Entered data in GST site"),
       st("P","Partner review in GST site; give ready-to-file signal",{rev:1}),
+      st("S","Ready to file"),
       st("S","Application filed (note ARN)",{arn:1}),
       st("S","Department query / reply filed (if any)",{opt:1}),
       st("S","Approved - GSTIN generated"),
       st("S","Bank account updation"),
       st("S","GST certificate downloaded to OneDrive and delivered to client"),
-      st("P","Closed",{close:1,cl:WF_GST_CLOSE,gate:1})]},
+      st("P","Closed",{close:1,cl:WF_GST_CLOSE,gate:1})
+    ]},
     {name:"Company/LLP Registration",freq:"once",stages:[
       st("P","Task created and allotted by Partner",{auto:1}),
       st("S","Documents collection",{cl:WF_CO_DOCS}),
@@ -552,40 +554,51 @@ window.MARVCO_FIREBASE_CONFIG = {
       st("S","DSC"),
       st("S","SPICe+ Part B"),
       st("P","Partner review",{rev:1}),
+      st("S","Ready to file"),
       st("S","Incorporation form filed (note SRN)",{arn:1}),
       st("S","ROC query / resubmission (if any)",{opt:1}),
       st("S","Certificate of Incorporation received (with PAN and TAN)"),
       st("S","Documents delivered to client"),
-      st("P","Closed",{close:1,cl:WF_CO_CLOSE,gate:1})]},
+      st("P","Closed",{close:1,cl:WF_CO_CLOSE,gate:1})
+    ]},
     {name:"GSTR-1",freq:"monthly",stages:[
       st("P","Task created and allotted by Partner",{auto:1}),
       st("S","Documents collection",{cl:["Sales register from the client"]}),
       st("S","Document verification"),
       st("S","Draft GSTR-1"),
       st("P","Partner review",{rev:1}),
-      st("S","GSTR-1 filed",{close:1,cl:WF_GSTR1_CLOSE,gate:1})]},
+      st("S","Ready to file"),
+      st("S","GSTR-1 filed"),
+      st("P","Closed",{close:1,cl:WF_GSTR1_CLOSE,gate:1})
+    ]},
     {name:"GSTR-3B",freq:"monthly",stages:[
       st("P","Task created and allotted by Partner",{auto:1}),
       st("S","GSTR-2B vs purchase book comparison"),
       st("S","GSTR-3B prepared"),
       st("P","Partner review",{rev:1}),
+      st("S","Ready to file"),
       st("S","Tax paid and GSTR-3B filed",{arn:1}),
-      st("S","GSTR-3B shared with client and saved in Drive",{close:1,cl:WF_GSTR3B_CLOSE,gate:1})]},
+      st("P","Closed",{close:1,cl:WF_GSTR3B_CLOSE,gate:1})
+    ]},
     {name:"TDS Challan Filing",freq:"monthly",stages:[
       st("P","Task created and allotted by Partner",{auto:1}),
       st("S","Documents collection"),
       st("S","Document verification"),
       st("P","Partner review",{rev:1}),
+      st("S","Ready to file"),
       st("S","TDS challan paid"),
-      st("P","Closed",{close:1})]},
+      st("P","Closed",{close:1})
+    ]},
     {name:"TDS Filing",freq:"monthly",stages:[
       st("P","Task created and allotted by Partner",{auto:1}),
       st("S","Documents collection"),
       st("S","Document verification"),
       st("S","TDS return prepared"),
       st("P","Partner review",{rev:1}),
+      st("S","Ready to file"),
       st("S","TDS return filed",{arn:1}),
-      st("P","Closed",{close:1})]},
+      st("P","Closed",{close:1})
+    ]},
     {name:"Accounts Maintenance",freq:"monthly",stages:[
       st("P","Task created and allotted by Partner",{auto:1}),
       st("S","Documents collection"),
@@ -593,8 +606,34 @@ window.MARVCO_FIREBASE_CONFIG = {
       st("S","Entries posted"),
       st("S","Bank and ledger reconciliation"),
       st("P","Partner review done",{rev:1}),
-      st("P","Closed",{close:1})]}
+      st("S","Ready to file"),
+      st("S","Filed"),
+      st("P","Closed",{close:1})
+    ]}
   ];
+  // stage texts as they were before "Ready to file" / "Filed" were added, so saved progress can be moved
+  var WF_OLD={"GST Registration":["Task created and allotted by Partner","Documents collection","Document verification","Entered data in GST site","Partner review in GST site; give ready-to-file signal","Application filed (note ARN)","Department query / reply filed (if any)","Approved - GSTIN generated","Bank account updation","GST certificate downloaded to OneDrive and delivered to client","Closed"],"Company/LLP Registration":["Task created and allotted by Partner","Documents collection","Document verification","Name reservation","DSC","SPICe+ Part B","Partner review","Incorporation form filed (note SRN)","ROC query / resubmission (if any)","Certificate of Incorporation received (with PAN and TAN)","Documents delivered to client","Closed"],"GSTR-1":["Task created and allotted by Partner","Documents collection","Document verification","Draft GSTR-1","Partner review","GSTR-1 filed"],"GSTR-3B":["Task created and allotted by Partner","GSTR-2B vs purchase book comparison","GSTR-3B prepared","Partner review","Tax paid and GSTR-3B filed","GSTR-3B shared with client and saved in Drive"],"TDS Challan Filing":["Task created and allotted by Partner","Documents collection","Document verification","Partner review","TDS challan paid","Closed"],"TDS Filing":["Task created and allotted by Partner","Documents collection","Document verification","TDS return prepared","Partner review","TDS return filed","Closed"],"Accounts Maintenance":["Task created and allotted by Partner","Documents collection","Document verification","Entries posted","Bank and ledger reconciliation","Partner review done","Closed"]};
+  var WF_ALIAS={"GSTR-3B shared with client and saved in Drive":"Closed"};
+  // moves saved stage progress and checklist ticks from the old stage positions to the new ones (by stage text)
+  function migrateWfStages(s){
+    var tasks=toArr(s.tasks), libs=toArr(s.taskLib);
+    Object.keys(s.board||{}).forEach(function(pk){ var row=s.board[pk]||{}; Object.keys(row).forEach(function(tid){
+      var c=row[tid]; if(!c||c.wfV===3)return;
+      var tk=null, lb=null, q, r;
+      for(q=0;q<tasks.length;q++){ if(tasks[q]&&tasks[q].id===tid){ tk=tasks[q]; break; } }
+      if(tk)for(r=0;r<libs.length;r++){ if(libs[r]&&libs[r].id===tk.libId){ lb=libs[r]; break; } }
+      var wf=lb&&lb.workflow?wfByName(lb.workflow):null, old=lb&&lb.workflow?WF_OLD[lb.workflow]:null;
+      if(wf&&old&&(c.wfDone||c.wfChk)){
+        var map={};
+        old.forEach(function(txt,k){ var want=WF_ALIAS[txt]||txt; for(var m=0;m<wf.stages.length;m++){ if(wf.stages[m].t===want){ map[k]=m; break; } } });
+        var nd={}, nk={};
+        Object.keys(c.wfDone||{}).forEach(function(k){ if(map[k]!=null)nd[map[k]]=c.wfDone[k]; });
+        Object.keys(c.wfChk||{}).forEach(function(key){ var pp=key.split(/[._]/); if(map[pp[0]]!=null)nk[map[pp[0]]+"_"+pp[1]]=true; });
+        c.wfDone=nd; c.wfChk=nk;
+      }
+      c.wfV=3;
+    }); });
+  }
   function wfByName(n){ for(var i=0;i<WORKFLOWS.length;i++){ if(WORKFLOWS[i].name===n)return WORKFLOWS[i]; } return null; }
   function wfOf(t){ var tk=taskById(t.tid)||t; if(!tk||!tk.libId)return null; var lb=libById(tk.libId); return lb&&lb.workflow?wfByName(lb.workflow):null; }
   function wfCurrent(c,wf){ var d=c.wfDone||{}; for(var i=0;i<wf.stages.length;i++){ if(wf.stages[i].auto||d[i])continue; return i; } return -1; }
@@ -632,7 +671,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     delete d[last]; commit(t);
   }
   var wfSel={};   // stage selected in the workflow view, per task
-  function wfKey(i,j){ return i+"."+j; }
+  function wfKey(i,j){ return i+"_"+j; }   // no "." : Firebase keys cannot contain dots
   function wfChkCount(c,i,s){ var k=0; (s.cl||[]).forEach(function(_,j){ if(c.wfChk&&c.wfChk[wfKey(i,j)])k++; }); return k; }
   function wfChkAll(c,i,s){ return wfChkCount(c,i,s)===(s.cl||[]).length; }
   function wfToggleChk(t,c,i,j){ c.wfChk=c.wfChk||{}; var k=wfKey(i,j); if(c.wfChk[k])delete c.wfChk[k]; else c.wfChk[k]=true; commit(t); }
@@ -724,7 +763,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   function ensureLibs(s){
     Object.keys(s.board||{}).forEach(function(pk){ var row=s.board[pk]||{}; Object.keys(row).forEach(function(tk){ if(row[tk]&&row[tk].status==="Data received")row[tk].status="Not started"; }); });
     if(!s.libSeeded){ s.taskLib=seedLib(); ensureWorkflowLibs(s); s.actionLib=APS_SEED.map(function(p){ return {id:p.id,name:p.name,actions:p.actions.map(function(x){ return {id:x.id,name:x.name,when:x.when}; })}; }); s.libSeeded=true; return true; }
-    s.actionLib=toArr(s.actionLib); return ensureWorkflowLibs(s);
+    s.actionLib=toArr(s.actionLib); var wch=ensureWorkflowLibs(s); migrateWfStages(s); return wch;
   }
   var session=null, viewer={role:"owner"}, isOwner=true;
   var serverMode=false, serverStamp="", pollTimer=null, API_BOARD="/api/board";
@@ -1063,7 +1102,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   function subLocked(t,s){ return s.when==="filed" && cell(t.id).status!=="Filed / Done"; }
   function nextActions(t){ var c=cell(t.id); if(c.status==="N/A")return []; return subsOf(t).filter(function(s){ return !subDone(c,s.id) && !subLocked(t,s); }); }
   function toggleSub(t,sid){ var c=cell(t.id); c.subs=c.subs||{}; if(subDone(c,sid))delete c.subs[sid]; else c.subs[sid]={done:true,doneAt:nowIso(),doneBy:whoami()}; commit(t); }
-  function cell(id){ var k=splitId(id), pk=fbEnc(k.pk), tk=fbEnc(k.tid); state.board[pk]=state.board[pk]||{}; var c=state.board[pk][tk]; if(!c){ c={status:"Not started",blocked:false,waiting:"",notes:""}; state.board[pk][tk]=c; } return c; }
+  function cell(id){ var k=splitId(id), pk=fbEnc(k.pk), tk=fbEnc(k.tid); state.board[pk]=state.board[pk]||{}; var c=state.board[pk][tk]; if(!c){ c={status:"Not started",blocked:false,waiting:"",notes:"",wfV:3}; state.board[pk][tk]=c; } return c; }
   var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   function dueDateOf(t){ return t.dueAt||null; }
   function fmtDue(d){ var s=d.getDate()+" "+MON[d.getMonth()]; if(d.getFullYear()!==new Date().getFullYear())s+=" "+d.getFullYear(); return s; }
