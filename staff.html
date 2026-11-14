@@ -416,6 +416,14 @@ window.MARVCO_FIREBASE_CONFIG = {
   .pick-row input{width:18px;height:18px;flex:none}
   .pick-row.has{color:var(--muted);cursor:default}
   .pick-row .subtag{margin-left:auto}
+  .ap-pend{color:#8A5A00;font-weight:600} .ap-ok{color:#0A4D22;font-weight:600}
+  .pay-sum{display:grid;grid-template-columns:1fr auto;gap:4px 14px;max-width:460px;margin:8px 0} .pay-sum b{text-align:right}
+  .ded-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0}
+  .payslip{background:#fff;color:#111;border:1px solid #CFCFCF;border-radius:8px;padding:18px;max-width:560px;margin:12px 0}
+  .payslip h3{margin:2px 0 4px} .payslip table{width:100%;border-collapse:collapse;margin-top:8px}
+  .payslip td{padding:5px 0;border-bottom:1px solid #eee} .payslip td:last-child{text-align:right}
+  .payslip .ps-sub td{font-weight:600} .payslip .ps-net td{font-weight:700;border-top:2px solid #111;border-bottom:none}
+  @media print{ body *{visibility:hidden} .payslip,.payslip *{visibility:visible} .payslip{position:absolute;left:0;top:0;width:100%;max-width:none;border:none} }
 </style>
 </head>
 <body>
@@ -448,6 +456,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     <div class="mhead">Signed in<b id="whoAmiLabel"></b></div>
     <button id="btnManage">Manage data</button>
     <button id="btnTime">Timesheet</button>
+    <button id="btnPay">Payroll</button>
     <button id="btnWhatsapp">Share to WhatsApp</button>
     <button id="btnExport">Export backup</button>
     <button id="btnSignout">Sign out</button>
@@ -827,7 +836,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     }
     s.tasks.forEach(function(t){ if(t.ownerId===undefined)t.ownerId=""; });
     delete s.owners;
-    if(!s.board)s.board={}; if(!s.meta)s.meta={}; if(!s.timesheet)s.timesheet={}; ensureLibs(s); if(!s.period)s.period=currentPeriod();
+    if(!s.board)s.board={}; if(!s.meta)s.meta={}; if(!s.timesheet)s.timesheet={}; if(!s.salary)s.salary={}; if(!s.slips)s.slips={}; ensureLibs(s); if(!s.period)s.period=currentPeriod();
     return s;
   }
   function blankState(){ return migrate({period:currentPeriod(),staff:[],clients:[],tasks:[],board:{},meta:{}}); }
@@ -897,6 +906,8 @@ window.MARVCO_FIREBASE_CONFIG = {
     fbDb.ref("cells").on("value", function(snap){ fbApplyCells(snap.val()); }, fbErr);
     if(isOwner){
       fbDb.ref("timesheet").on("value", function(snap){ state.timesheet=snap.val()||{}; fbAfterUpdate(); }, function(){});
+      fbDb.ref("salary").on("value", function(snap){ state.salary=snap.val()||{}; fbAfterUpdate(); }, function(){});
+      fbDb.ref("slips").on("value", function(snap){ state.slips=snap.val()||{}; fbAfterUpdate(); }, function(){});
       fbDb.ref("invoiceLog").on("value", function(snap){ state.invoiceLog=snap.val()||{}; fbAfterUpdate(); }, function(){});
       fbDb.ref("invoiceConfig").on("value", function(snap){ state.invoiceConfig=snap.val()||null; fbAfterUpdate(); }, function(){});
       fbDb.ref("zohoMaster").on("value", function(snap){ state.zohoMaster=snap.val()||null; fbAfterUpdate();
@@ -904,6 +915,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     } else {
       // staff: only their own timesheet rows (the database rules enforce the same filter)
       fbDb.ref("timesheet").orderByChild("staffId").equalTo(viewer.staffId).on("value", function(snap){ state.timesheet=snap.val()||{}; fbAfterUpdate(); }, function(){});
+      fbDb.ref("slips").orderByChild("staffId").equalTo(viewer.staffId).on("value", function(snap){ state.slips=snap.val()||{}; fbAfterUpdate(); }, function(){});
     }
   }
   function fbErr(err){ fbMode=false; var el2=$("#saved"); if(el2)el2.textContent="Cloud offline"; }
@@ -1223,7 +1235,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   function setTab(id){ activeTab=id; appView="board"; sheetTask=null; $("#menu").classList.remove("open"); renderPanel(); window.scrollTo({top:0}); }
   function renderAll(){ renderPanel(); }
   function clearAllFilters(){ ["#fOwner","#fClient","#fTask","#q"].forEach(function(sl){ var n=$(sl); if(n)n.value=""; }); renderPanel(); }
-  function renderPanel(){ returnSheetBody(); invalidateInst(); renderTopBar(); if(appView==="time"){ renderTimesheet(); return; } if(sheetTask){ renderTaskPage(); return; } if(activeTab==="overview")renderHome(); else { var c=clientById(activeTab); if(c)renderClientScreen(c); else { activeTab="overview"; renderHome(); } } }
+  function renderPanel(){ returnSheetBody(); invalidateInst(); renderTopBar(); if(appView==="time"){ renderTimesheet(); return; } if(appView==="pay"){ renderPayroll(); return; } if(sheetTask){ renderTaskPage(); return; } if(activeTab==="overview")renderHome(); else { var c=clientById(activeTab); if(c)renderClientScreen(c); else { activeTab="overview"; renderHome(); } } }
   function rankToPeriod(r){ var y=Math.floor(r/12), m=r%12+1; return y+"-"+String(m).padStart(2,"0"); }
   function fillPeriods(){
     var ao=$("#asOf"); if(ao)ao.textContent="As of today \u00B7 "+ordDate(new Date())+" "+new Date().getFullYear();
@@ -1243,9 +1255,9 @@ window.MARVCO_FIREBASE_CONFIG = {
     sel.value=showKey;
   }
   function renderTopBar(){
-    var onClient = activeTab!=="overview" && !!clientById(activeTab), onTime=appView==="time", hide=onClient||onTime;
+    var onClient = activeTab!=="overview" && !!clientById(activeTab), onTime=appView==="time"||appView==="pay", hide=onClient||onTime;
     var back=$("#backBtn"); if(back)back.style.display=hide?"":"none";
-    $("#barTitle").textContent = onTime ? "Timesheet" : onClient ? clientById(activeTab).name : "Marv & Co";
+    $("#barTitle").textContent = appView==="pay" ? "Payroll" : onTime ? "Timesheet" : onClient ? clientById(activeTab).name : "Marv & Co";
     var sb=$("#subbar"); if(sb)sb.style.display=hide?"none":"flex";
     var sw=$("#searchwrap"); if(sw&&hide)sw.classList.remove("open");
     var sbtn=$("#searchBtn"); if(sbtn)sbtn.style.display=hide?"none":"";
@@ -2220,6 +2232,10 @@ window.MARVCO_FIREBASE_CONFIG = {
   function sumBill(list){ return list.reduce(function(a,e){ return a+(e.billable?(+e.hours||0):0); },0); }
   function tsPut(e){ state.timesheet=state.timesheet||{}; state.timesheet[e.id]=e; stampSave(whoami()); if(fbMode&&fbDb){ fbWrite(fbDb.ref("timesheet/"+fbEnc(e.id)).set(e)); } else if(serverMode)pushState(); }
   function tsDel(id){ if(state.timesheet)delete state.timesheet[id]; stampSave(whoami()); if(fbMode&&fbDb){ fbWrite(fbDb.ref("timesheet/"+fbEnc(id)).remove()); } else if(serverMode)pushState(); }
+  // approval: an entry is Pending until a partner approves it; older entries with no status count as approved
+  function apOf(e){ return e.ap||"Approved"; }
+  function tsPendingIn(sid,days){ return tsAll().filter(function(e){ return e.staffId===sid && days.indexOf(e.date)>=0 && apOf(e)!=="Approved"; }); }
+  function tsApproveWeek(sid,days){ tsPendingIn(sid,days).forEach(function(e){ e.ap="Approved"; e.apBy=whoami(); e.apAt=nowIso(); tsPut(e); }); renderPanel(); }
   function tsFld(lbl,ctrl){ var d=el("div","fld"); d.appendChild(el("label",null,lbl)); d.appendChild(ctrl); return d; }
   function tsMsg(t){ var m=$("#tsMsg"); if(m)m.textContent=t||""; }
   function tsCard(){
@@ -2255,7 +2271,8 @@ window.MARVCO_FIREBASE_CONFIG = {
       var sid=isOwner?(fStaff?fStaff.value:""):tsSelf();
       if(!sid){ tsMsg("Pick a staff member."); return; }
       if(!fDate.value){ fDate.focus(); tsMsg("Pick a date."); return; }
-      var e={id:ed?ed.id:uid("ts"),staffId:sid,date:fDate.value,hours:h,clientId:fClient.value||"",activity:fAct.value,billable:fBill.checked,note:fNote.value.trim(),by:whoami(),at:nowIso()};
+      var apNew=isOwner?(ed&&ed.ap?ed.ap:"Approved"):"Pending";
+      var e={id:ed?ed.id:uid("ts"),staffId:sid,date:fDate.value,hours:h,clientId:fClient.value||"",activity:fAct.value,billable:fBill.checked,note:fNote.value.trim(),ap:apNew,by:whoami(),at:nowIso()};
       tsForm={date:e.date,staffId:sid,clientId:e.clientId,activity:e.activity,billable:e.billable,note:""};
       tsEdit=null; tsPut(e); renderPanel();
     });
@@ -2268,7 +2285,9 @@ window.MARVCO_FIREBASE_CONFIG = {
   function tsGridEl(days){
     var rows=isOwner?state.staff.slice().sort(function(a,b){ return a.name<b.name?-1:1; }):[staffById(viewer.staffId)].filter(Boolean);
     var wrap=el("div","tt-scroll"), t=el("table","ts-grid"), th=el("thead"), hr=el("tr");
-    hr.appendChild(el("th",null,"Staff")); days.forEach(function(d){ hr.appendChild(el("th",null,dayHead(d))); }); hr.appendChild(el("th",null,"Total")); hr.appendChild(el("th",null,"Billable")); th.appendChild(hr); t.appendChild(th);
+    hr.appendChild(el("th",null,"Staff")); days.forEach(function(d){ hr.appendChild(el("th",null,dayHead(d))); }); hr.appendChild(el("th",null,"Total")); hr.appendChild(el("th",null,"Billable"));
+    if(isOwner)hr.appendChild(el("th",null,"Weekly approval"));
+    th.appendChild(hr); t.appendChild(th);
     var tb=el("tbody"), colT=days.map(function(){ return 0; }), weekAll=tsAll().filter(function(e){ return days.indexOf(e.date)>=0; }), started=days[0]<=ymd(new Date());
     rows.forEach(function(st){
       var mine=weekAll.filter(function(e){ return e.staffId===st.id; }), tot=sumHours(mine), idle=!mine.length&&started;
@@ -2277,25 +2296,32 @@ window.MARVCO_FIREBASE_CONFIG = {
       days.forEach(function(d,i){ var h=sumHours(mine.filter(function(e){ return e.date===d; })); colT[i]+=h;
         var td=el("td","ts-cell"+(h?"":" zero"),h?hrs(h):"·"); td.title="Add an entry for this day";
         td.addEventListener("click",function(){ tsForm.date=d; if(isOwner)tsForm.staffId=st.id; tsEdit=null; renderPanel(); }); tr.appendChild(td); });
-      tr.appendChild(el("td","ts-tot",hrs(tot))); tr.appendChild(el("td","ts-bp",tot?(Math.round(sumBill(mine)/tot*100)+"%"):"—")); tb.appendChild(tr);
+      tr.appendChild(el("td","ts-tot",hrs(tot))); tr.appendChild(el("td","ts-bp",tot?(Math.round(sumBill(mine)/tot*100)+"%"):"—"));
+      if(isOwner){ var pend=tsPendingIn(st.id,days), ac=el("td");
+        if(!mine.length)ac.appendChild(el("span","muted-note2","—"));
+        else if(pend.length){ var ab=el("button","clearbtn","Approve "+hrs(sumHours(pend))+" h"); ab.addEventListener("click",function(){ tsApproveWeek(st.id,days); }); ac.appendChild(ab); }
+        else ac.appendChild(el("span","ap-ok","✓ Approved"));
+        tr.appendChild(ac); }
+      tb.appendChild(tr);
     });
     t.appendChild(tb);
     if(isOwner&&rows.length){ var tf=el("tfoot"), fr=el("tr"); fr.appendChild(el("td","ts-name","Team"));
       colT.forEach(function(h){ fr.appendChild(el("td",null,h?hrs(h):"·")); });
-      var wt=sumHours(weekAll), wb=sumBill(weekAll); fr.appendChild(el("td","ts-tot",hrs(wt))); fr.appendChild(el("td",null,wt?(Math.round(wb/wt*100)+"%"):"—")); tf.appendChild(fr); t.appendChild(tf); }
+      var wt=sumHours(weekAll), wb=sumBill(weekAll); fr.appendChild(el("td","ts-tot",hrs(wt))); fr.appendChild(el("td",null,wt?(Math.round(wb/wt*100)+"%"):"—")); fr.appendChild(el("td")); tf.appendChild(fr); t.appendChild(tf); }
     wrap.appendChild(t); return wrap;
   }
   function tsEntriesEl(days){
     var list=tsMine().filter(function(e){ return days.indexOf(e.date)>=0; }).sort(function(a,b){ return a.date<b.date?-1:a.date>b.date?1:((a.at||"")<(b.at||"")?-1:1); });
     if(!list.length)return el("div","empty2","No entries for this week yet.");
     var wrap=el("div","tt-scroll"), t=el("table","mtable"), th=el("thead"), hr=el("tr");
-    var cols=["Date"]; if(isOwner)cols.push("Staff"); cols.push("Client","Activity","Hours","Billable","Note",""); cols.forEach(function(x){ hr.appendChild(el("th",null,x)); }); th.appendChild(hr); t.appendChild(th);
+    var cols=["Date"]; if(isOwner)cols.push("Staff"); cols.push("Client","Activity","Hours","Approval","Billable","Note",""); cols.forEach(function(x){ hr.appendChild(el("th",null,x)); }); th.appendChild(hr); t.appendChild(th);
     var tb=el("tbody");
     list.forEach(function(e){ var tr=el("tr"); tr.appendChild(el("td",null,dayHead(e.date)));
       if(isOwner)tr.appendChild(el("td",null,staffName(e.staffId)||"—"));
       tr.appendChild(el("td",null,e.clientId?((clientById(e.clientId)||{}).name||"—"):"Internal"));
       tr.appendChild(el("td",null,e.activity||""));
       tr.appendChild(el("td",null,hrs(+e.hours||0)));
+      var okAp=apOf(e)==="Approved"; tr.appendChild(el("td",okAp?"ap-ok":"ap-pend",okAp?"Approved":"Pending"));
       tr.appendChild(el("td",null,e.billable?"Yes":"No"));
       tr.appendChild(el("td",null,e.note||""));
       var ac=el("td"), eb=el("button","clearbtn","Edit"); eb.addEventListener("click",function(){ tsEdit=e.id; renderPanel(); window.scrollTo({top:0}); });
@@ -2324,6 +2350,161 @@ window.MARVCO_FIREBASE_CONFIG = {
       tr.appendChild(el("td",null,st.name)); tr.appendChild(el("td",null,hrs(s.h))); tr.appendChild(el("td",null,s.h?(Math.round(s.b/s.h*100)+"%"):"—")); tb2.appendChild(tr); });
     t2.appendChild(tb2); ts2.appendChild(t2); wrap.appendChild(el("div","sheet-lbl","By staff (this month)")); wrap.appendChild(ts2);
     return wrap;
+  }
+  // ---------- payroll: fixed monthly salary, approved hours, pay slips ----------
+  var payMonth=null, payOpen=null, payDraft=null;
+  function payMonths(){ var cur=periodRank(currentPeriod()), out=[]; for(var r=cur-1;r>=cur-12;r--)out.push(rankToPeriod(r)); return out; }
+  function paySlipKey(sid,mk){ return sid+"_"+mk; }
+  function copyObj(o){ var r={}; Object.keys(o).forEach(function(k){ r[k]=o[k]; }); return r; }
+  function payClean(list){ return list.filter(function(d){ return d.label||d.amount; }).map(function(d){ return {label:d.label||"Deduction",amount:+d.amount||0}; }); }
+  function payPut(path,obj){
+    var parts=path.split("/"), top=parts[0], k=parts[1];
+    state[top]=state[top]||{};
+    if(obj===null)delete state[top][k]; else state[top][k]=obj;
+    stampSave(whoami());
+    if(fbMode&&fbDb){ fbWrite(obj===null?fbDb.ref(path).remove():fbDb.ref(path).set(obj)); } else if(serverMode)pushState();
+  }
+  // earnings: salary in proportion to approved hours out of the expected hours; extra hours are not added
+  function payFor(sid,mk){
+    var sal=(state.salary||{})[sid]||{}, M=+sal.monthly||0, E=+sal.hours||0, A=0, P=0;
+    tsAll().forEach(function(e){ if(e.staffId!==sid||String(e.date).slice(0,7)!==mk)return; var h=+e.hours||0; if(apOf(e)==="Approved")A+=h; else P+=h; });
+    var earn=E?Math.round(M*Math.min(A,E)/E):M;
+    return {monthly:M,hours:E,approved:A,pending:P,missed:E?Math.max(0,E-A):0,earnings:earn,reduction:M-earn,noHours:!E};
+  }
+  function slipCard(sl){
+    var box=el("div","payslip"), st=staffById(sl.staffId), tb=el("tbody"), dsum=0;
+    box.appendChild(el("div","muted-note2","Marv & Co · Chartered Accountants, Thrissur"));
+    box.appendChild(el("h3",null,"Pay slip · "+periodName(sl.month)));
+    box.appendChild(el("div","muted-note2",(sl.staffName||(st?st.name:""))+(st&&st.role?" · "+st.role:"")));
+    function row(a,b,cls){ var tr=el("tr",cls||null); tr.appendChild(el("td",null,a)); tr.appendChild(el("td",null,b)); tb.appendChild(tr); }
+    row("Fixed monthly salary",money(sl.monthly));
+    row("Less: reduction for missed time ("+hrs(sl.missed||0)+" h short of "+hrs(sl.hours||0)+" h)", sl.hours?("− "+money(sl.reduction)):"—");
+    row("Earnings",money(sl.earnings),"ps-sub");
+    (sl.deductions||[]).forEach(function(d){ row(d.label||"Deduction","− "+money(d.amount)); dsum+=+d.amount||0; });
+    row("Total deductions","− "+money(dsum),"ps-sub");
+    row("Net pay",money(sl.net),"ps-net");
+    var t=el("table"); t.appendChild(tb); box.appendChild(t);
+    box.appendChild(el("div","muted-note2","Approved hours: "+hrs(sl.approved||0)+" h"+(sl.pending?" · pending approval, not paid: "+hrs(sl.pending)+" h":"")+(sl.hours?"":" · expected hours not set, so the full salary is shown")));
+    box.appendChild(el("div","muted-note2",sl.status==="Paid"?("Paid "+money(sl.paidAmount)+" on "+sl.paidOn+" · "+(sl.paidMode||"")+(sl.paidRef?" · Ref "+sl.paidRef:"")):"Not yet paid"));
+    box.appendChild(el("div","muted-note2","Generated "+String(sl.generatedAt||"").slice(0,10)+" · computer-generated pay slip"));
+    return box;
+  }
+  function payslipEditor(sid,mk){
+    var st=staffById(sid), key=paySlipKey(sid,mk), saved=(state.slips||{})[key]||null, p=payFor(sid,mk);
+    if(!payDraft||payDraft.key!==key)payDraft={key:key,ded:(saved&&saved.deductions?saved.deductions:[]).map(function(d){ return {label:d.label||"",amount:+d.amount||0}; })};
+    var locked=!!(saved&&saved.status==="Paid"), box=el("div"), tdd=0;
+    payDraft.ded.forEach(function(d){ tdd+=+d.amount||0; });
+    var net=p.earnings-tdd, dirty=!!saved&&(saved.earnings!==p.earnings||JSON.stringify(payClean(payDraft.ded))!==JSON.stringify(saved.deductions||[]));
+    box.appendChild(el("div","sheet-lbl",(st?st.name:"Staff")+" · "+periodName(mk)));
+    if(p.noHours)box.appendChild(el("div","muted-note2","Expected hours are not set for this person, so the full salary is shown. Set them in the table above."));
+    var sm=el("div","pay-sum");
+    sm.appendChild(el("span",null,"Earnings (approved "+hrs(p.approved)+" h of "+hrs(p.hours)+" h)")); sm.appendChild(el("b",null,money(p.earnings)));
+    sm.appendChild(el("span",null,"Deductions")); sm.appendChild(el("b",null,"− "+money(tdd)));
+    sm.appendChild(el("span",null,"Net pay")); sm.appendChild(el("b",null,money(net)));
+    box.appendChild(sm);
+    box.appendChild(el("div","sheet-lbl","Deductions (advance, PF, TDS and similar)"));
+    payDraft.ded.forEach(function(d,i){
+      var row=el("div","ded-row"), lb=el("input"), am=el("input");
+      lb.type="text"; lb.value=d.label; lb.placeholder="e.g. Advance"; lb.disabled=locked;
+      lb.addEventListener("change",function(){ d.label=lb.value.trim(); renderPanel(); });
+      am.type="number"; am.min="0"; am.value=d.amount?String(d.amount):""; am.placeholder="0"; am.disabled=locked;
+      am.addEventListener("change",function(){ d.amount=+am.value||0; renderPanel(); });
+      row.appendChild(lb); row.appendChild(am);
+      if(!locked){ var rm=el("button","iconbtn","Remove"); rm.addEventListener("click",function(){ payDraft.ded.splice(i,1); renderPanel(); }); row.appendChild(rm); }
+      box.appendChild(row);
+    });
+    if(!locked){ var ad=el("button","clearbtn","+ Add deduction"); ad.addEventListener("click",function(){ payDraft.ded.push({label:"",amount:0}); renderPanel(); }); box.appendChild(ad); }
+    var acts=el("div","ts-acts");
+    if(!locked){
+      var sv=el("button","primary",saved?"Update pay slip":"Save pay slip");
+      sv.addEventListener("click",function(){
+        if(net<0){ alert("The deductions are more than the earnings. Check the amounts."); return; }
+        payPut("slips/"+key,{id:key,staffId:sid,staffName:st?st.name:"",month:mk,monthly:p.monthly,hours:p.hours,approved:p.approved,pending:p.pending,missed:p.missed,reduction:p.reduction,earnings:p.earnings,deductions:payClean(payDraft.ded),totalDed:tdd,net:net,status:"Generated",generatedAt:nowIso(),generatedBy:whoami()});
+        renderPanel();
+      });
+      acts.appendChild(sv);
+    }
+    if(saved){ var pp=el("button","clearbtn","Print / save as PDF"); pp.addEventListener("click",function(){ window.print(); }); acts.appendChild(pp); }
+    box.appendChild(acts);
+    if(saved&&!locked){
+      if(dirty)box.appendChild(el("div","login-err","This pay slip is out of date (approvals or deductions changed). Update it before recording the payment."));
+      box.appendChild(el("div","sheet-lbl","Record payment"));
+      var pr=el("div","ts-row"), pd=el("input"), pm=el("select"), pref=el("input"), pa=el("input");
+      pd.type="date"; pd.value=ymd(new Date());
+      ["Bank transfer","UPI","Cash","Cheque"].forEach(function(m){ pm.appendChild(opt(m,m,false)); });
+      pref.type="text"; pref.placeholder="UTR / cheque no. (optional)";
+      pa.type="number"; pa.min="0"; pa.value=String(saved.net);
+      pr.appendChild(tsFld("Paid on",pd)); pr.appendChild(tsFld("Mode",pm)); pr.appendChild(tsFld("Amount paid ₹",pa)); pr.appendChild(tsFld("Reference",pref));
+      box.appendChild(pr);
+      var pb=el("button","primary","Record payment as paid"); pb.disabled=dirty;
+      pb.addEventListener("click",function(){
+        var amt=+pa.value; if(!(amt>0)){ pa.focus(); return; }
+        if(!pd.value){ pd.focus(); return; }
+        var paid=copyObj(saved); paid.status="Paid"; paid.paidOn=pd.value; paid.paidAmount=amt; paid.paidMode=pm.value; paid.paidRef=pref.value.trim(); paid.paidBy=whoami();
+        payPut("slips/"+key,paid); renderPanel();
+      });
+      box.appendChild(pb);
+    }
+    if(saved)box.appendChild(slipCard(saved));
+    return box;
+  }
+  function renderMySlips(panel,mk){
+    var mine=toArr(state.slips).filter(function(s){ return s&&s.staffId===viewer.staffId; }).sort(function(a,b){ return a.month<b.month?1:-1; });
+    if(!mine.length){ panel.appendChild(el("div","empty2","No pay slips yet. Your partner generates one after each month.")); return; }
+    var wrap=el("div","tt-scroll"), t=el("table","mtable"), h=el("tr");
+    ["Month","Net pay","Status"].forEach(function(x){ h.appendChild(el("th",null,x)); }); var th=el("thead"); th.appendChild(h); t.appendChild(th);
+    var tb=el("tbody");
+    mine.forEach(function(s){ var tr=el("tr"); tr.appendChild(el("td",null,periodName(s.month))); tr.appendChild(el("td",null,money(s.net))); tr.appendChild(el("td",null,s.status==="Paid"?("Paid on "+s.paidOn):"Not yet paid"));
+      tr.addEventListener("click",function(){ payOpen=s.id; renderPanel(); }); tb.appendChild(tr); });
+    t.appendChild(tb); wrap.appendChild(t); panel.appendChild(wrap);
+    var cur=mine.filter(function(s){ return s.id===payOpen; })[0]||mine.filter(function(s){ return s.month===mk; })[0];
+    if(cur)panel.appendChild(slipCard(cur)); else panel.appendChild(el("div","empty2","No pay slip for "+periodName(mk)+" yet."));
+  }
+  function renderPayroll(){
+    var panel=$("#panel"); panel.innerHTML="";
+    var mk=payMonth||payMonths()[0];
+    var head=el("div","ts-head"); head.appendChild(el("div","ts-title",isOwner?"Payroll":"My pay slips"));
+    var sel=el("select"); payMonths().forEach(function(m){ sel.appendChild(opt(m,periodName(m),m===mk)); });
+    sel.addEventListener("change",function(){ payMonth=sel.value; payOpen=null; payDraft=null; renderPanel(); });
+    head.appendChild(sel); panel.appendChild(head);
+    if(!isOwner){ renderMySlips(panel,mk); return; }
+    panel.appendChild(el("div","muted-note2","Earnings = fixed monthly salary × approved hours ÷ expected hours, capped at the full salary. Pending hours are not paid until a partner approves the week in Timesheet. Extra hours are not added."));
+    var wrap=el("div","tt-scroll"), t=el("table","mtable"), h=el("tr");
+    ["Staff","Monthly salary ₹","Expected hrs","Approved hrs","Pending hrs","Missed hrs","Earnings","Deductions","Net pay","Pay slip",""].forEach(function(x){ h.appendChild(el("th",null,x)); });
+    var th=el("thead"); th.appendChild(h); t.appendChild(th);
+    var tb=el("tbody"), T={e:0,d:0,n:0};
+    state.staff.slice().sort(function(a,b){ return a.name<b.name?-1:1; }).forEach(function(st){
+      var sal=(state.salary||{})[st.id]||{}, p=payFor(st.id,mk), sl=(state.slips||{})[paySlipKey(st.id,mk)]||null;
+      var ded=sl?(+sl.totalDed||0):0, net=p.earnings-ded;
+      T.e+=p.earnings; T.d+=ded; T.n+=net;
+      var tr=el("tr"), mi=el("input"), hi=el("input");
+      mi.type="number"; mi.min="0"; mi.value=sal.monthly?String(sal.monthly):""; mi.placeholder="0"; mi.style.width="110px";
+      hi.type="number"; hi.min="0"; hi.value=sal.hours?String(sal.hours):""; hi.placeholder="e.g. 176"; hi.style.width="80px";
+      var saveSal=function(){ payPut("salary/"+st.id,{monthly:+mi.value||0,hours:+hi.value||0}); renderPanel(); };
+      mi.addEventListener("change",saveSal); hi.addEventListener("change",saveSal);
+      tr.appendChild(el("td","ts-name",st.name));
+      var c1=el("td"); c1.appendChild(mi); tr.appendChild(c1);
+      var c2=el("td"); c2.appendChild(hi); tr.appendChild(c2);
+      tr.appendChild(el("td",null,hrs(p.approved)));
+      tr.appendChild(el("td",p.pending?"ap-pend":null,hrs(p.pending)));
+      tr.appendChild(el("td",null,hrs(p.missed)));
+      tr.appendChild(el("td",null,money(p.earnings)));
+      tr.appendChild(el("td",null,ded?("− "+money(ded)):"—"));
+      tr.appendChild(el("td",null,money(net)));
+      tr.appendChild(el("td",null,!sl?"No slip yet":sl.status==="Paid"?("Paid "+money(sl.paidAmount)):(sl.earnings!==p.earnings?"Slip out of date":"Slip saved")));
+      var ob=el("button","clearbtn",payOpen===st.id?"Close":"Open"); ob.addEventListener("click",function(){ payOpen=payOpen===st.id?null:st.id; payDraft=null; renderPanel(); });
+      var c3=el("td"); c3.appendChild(ob); tr.appendChild(c3);
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb);
+    var tf=el("tfoot"), fr=el("tr"); fr.appendChild(el("td","ts-name","Total"));
+    for(var z=0;z<5;z++)fr.appendChild(el("td"));
+    fr.appendChild(el("td",null,money(T.e))); fr.appendChild(el("td",null,money(T.d))); fr.appendChild(el("td",null,money(T.n))); fr.appendChild(el("td")); fr.appendChild(el("td")); tf.appendChild(fr); t.appendChild(tf);
+    wrap.appendChild(t); panel.appendChild(wrap);
+    var unapproved=tsAll().filter(function(e){ return String(e.date).slice(0,7)===mk && apOf(e)!=="Approved"; });
+    if(unapproved.length)panel.appendChild(el("div","login-err",hrs(sumHours(unapproved))+" h logged for "+periodName(mk)+" are still waiting for approval and are not counted. Approve them in Timesheet, then generate the slips."));
+    if(!state.staff.length)panel.appendChild(el("div","empty2","Add staff under Manage data first."));
+    if(payOpen&&staffById(payOpen))panel.appendChild(payslipEditor(payOpen,mk));
   }
   function renderTimesheet(){
     var panel=$("#panel"); panel.innerHTML="";
@@ -2413,6 +2594,7 @@ window.MARVCO_FIREBASE_CONFIG = {
     $("#backBtn").addEventListener("click",function(){ setTab("overview"); });
     $("#btnManage").addEventListener("click",function(){ $("#menu").classList.remove("open"); openManage("staff"); });
     $("#btnWhatsapp").addEventListener("click",function(){ $("#menu").classList.remove("open"); shareWhatsApp(); });
+    $("#btnPay").addEventListener("click",function(){ $("#menu").classList.remove("open"); appView="pay"; payOpen=null; payDraft=null; renderPanel(); window.scrollTo({top:0}); });
     $("#btnTime").addEventListener("click",function(){ $("#menu").classList.remove("open"); appView="time"; renderPanel(); window.scrollTo({top:0}); });
     $("#btnExport").addEventListener("click",function(){ $("#menu").classList.remove("open"); exportData(); });
     $("#btnSignout").addEventListener("click",function(){ $("#menu").classList.remove("open"); signOut(); });
