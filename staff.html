@@ -289,6 +289,10 @@ window.MARVCO_FIREBASE_CONFIG = {
   .mx-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:100%;min-width:90px;padding:6px;border-radius:8px;border:2px solid transparent;cursor:pointer;font-family:var(--sans)}
   .mx-cell+.mx-cell{margin-top:4px} .mx-cell:hover{filter:brightness(.96)}
   .mx-cell.overdue{border-color:var(--red)} .mx-cell.soon{border-color:var(--amber)}
+  .mx-cell.dash-g{background:#DCF8C6;border-color:#128C3B;color:#0A4D22}
+  .mx-cell.dash-y{background:#FFF1B8;border-color:#D9A400;color:#6B4E00}
+  .mx-cell.dash-r{background:#FFD6D1;border-color:#D92D20;color:#8A1D14}
+  .mx-cell.dash-na{background:#ECEFEA;border-color:#9AA09B;color:#6B716D}
   .mx-st{font-size:12px;font-weight:700;line-height:1.25} .mx-sub{font-size:10.5px;opacity:.85;white-space:nowrap}
   .mx-cell.overdue .mx-sub{color:var(--red);font-weight:700;opacity:1}
   .mx-none{color:var(--line2)}
@@ -1121,6 +1125,16 @@ window.MARVCO_FIREBASE_CONFIG = {
   var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   function dueDateOf(t){ return t.dueAt||null; }
   function fmtDue(d){ var s=d.getDate()+" "+MON[d.getMonth()]; if(d.getFullYear()!==new Date().getFullYear())s+=" "+d.getFullYear(); return s; }
+  // dashboard colour: g = closed (green), r = overdue or due within 2 days (red), y = pending (yellow), na = not applicable
+  function dashState(t){
+    var c=cell(t.id);
+    if(c.status==="Filed / Done")return "g";
+    if(c.status==="N/A")return "na";
+    var n=daysLeft(t);
+    if(n!==null&&n<=2)return "r";
+    return "y";
+  }
+  function dashCounts(tasks){ var r={g:0,y:0,r:0,na:0}; tasks.forEach(function(t){ r[dashState(t)]++; }); return r; }
   function dueFlag(t){
     var d=dueDateOf(t); if(!d) return "";
     var c=cell(t.id); if(c.status==="Filed / Done"||c.status==="N/A") return "";
@@ -1177,6 +1191,8 @@ window.MARVCO_FIREBASE_CONFIG = {
   var ST_LONG={"Not started":"Not started","Prepared":"Prepared — awaiting review","Reviewed":"Reviewed — ready to file","Filed / Done":"Filed","N/A":"Not applicable"};
   var STAGES=[["Not started","ns","var(--ns)"],["Prepared","pr","var(--pr)"],["Reviewed","rv","var(--rv)"],["Filed / Done","fl","var(--fl)"]];
   function drillPred(k,t){ var c=cell(t.id), n;
+    if(k==="yellow")return isOpen(c)&&dashState(t)==="y";
+    if(k==="red")return isOpen(c)&&dashState(t)==="r";
     if(k==="overdue"){ if(dueFlag(t)!=="overdue")return false; return drill!=="overdue"||-daysLeft(t)>overMin; }
     if(k==="soon"){ if(!isOpen(c))return false; n=daysLeft(t); return n!==null&&n>=0&&n<=dueWin; }
     if(k==="wait:P")return isOpen(c)&&respOf(t,c)==="P";
@@ -1197,7 +1213,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   // the current workflow stage (null for ordinary tasks), and who the task is waiting on
   function curStageOf(t,c){ var wf=wfOf(t); if(!wf)return null; var i=wfCurrent(c,wf); return i<0?null:wf.stages[i]; }
   function respOf(t,c){ var s=curStageOf(t,c); if(s)return s.r; return c.status==="Prepared"?"P":"S"; }
-  function drillLabel(k){ if(k==="started")return "Pending: started, not filed"; if(k==="overdue"&&overMin)return "Overdue by more than "+overMin+" days"; if(k==="soon")return "Due within "+dueWin+(dueWin===1?" day":" days"); if(k.indexOf("st:")===0)return ST_LONG[k.slice(3)]||k.slice(3);
+  function drillLabel(k){ if(k==="yellow")return "Pending: on track"; if(k==="red")return "Due in 2 days or overdue"; if(k==="started")return "Pending: started, not filed"; if(k==="overdue"&&overMin)return "Overdue by more than "+overMin+" days"; if(k==="soon")return "Due within "+dueWin+(dueWin===1?" day":" days"); if(k.indexOf("st:")===0)return ST_LONG[k.slice(3)]||k.slice(3);
     return {overdue:"Overdue",pending:"Pending",done:"Filed so far",blocked:"Blocked",review:"To review",ready:"Ready to file",returned:"Sent back"}[k]||"Tasks"; }
   function ownerLabel(v){ return v==="__none__"?"Unassigned":staffName(v); }
   function drillTo(key,f){ f=f||{}; overMin=0; if(f.task!=null)$("#fTask").value=f.task; if(f.owner!=null)$("#fOwner").value=f.owner; drill=key; drillClient=""; renderPanel(); window.scrollTo({top:0}); }
@@ -1252,9 +1268,9 @@ window.MARVCO_FIREBASE_CONFIG = {
     return bar; }
   var PEND_SUBS=["wait:P","wait:S","overdue","soon","blocked"];
   function subLabel(k){ if(k==="wait:P")return "Waiting for partner"; if(k==="wait:S")return "Waiting for staff"; if(k==="overdue")return "Overdue"; if(k==="soon")return "Due in "+dueWin+(dueWin===1?" day":" days"); if(k==="blocked")return "Blocked"; if(k==="next")return "Next actions"; if(k==="returned")return "Sent back"; return ST_LONG[k.slice(3)]||k; }
-  function bar3(s){
-    var tot=Math.max(1,s.applicable), w=el("div","bar3");
-    [["Not started",s.ns,"var(--ns)"],["Pending",Math.max(0,s.applicable-s.fl-s.ns),"var(--pr)"],["Filed",s.fl,"var(--fl)"]].forEach(function(g){
+  function bar3(k){
+    var tot=Math.max(1,k.g+k.y+k.r+k.na), w=el("div","bar3");
+    [["Closed",k.g,"#128C3B"],["Pending",k.y,"#D9A400"],["Due in 2 days or overdue",k.r,"#D92D20"],["N/A",k.na,"#9AA09B"]].forEach(function(g){
       if(!g[1])return; var sg=el("div","bar3-seg"); sg.style.width=(g[1]/tot*100)+"%"; sg.style.background=g[2]; sg.title=g[0]+": "+g[1]; w.appendChild(sg); });
     return w;
   }
@@ -1262,12 +1278,13 @@ window.MARVCO_FIREBASE_CONFIG = {
     var box=el("div","stages"), hd=el("div","stages-h");
     hd.appendChild(el("span","stages-t","Where the work stands · "+scopeName()));
     hd.appendChild(el("span","stages-p",showKey?((s.applicable?Math.round(s.fl/s.applicable*100):0)+"% filed"):((s.applicable-s.fl)+" not filed · "+s.fl+" filed")));
-    box.appendChild(hd); box.appendChild(bar3(s));
-    var pendOn=(drill==="started"||PEND_SUBS.indexOf(drill)>=0);
+    var dc3=dashCounts(scoped||[]);
+    box.appendChild(hd); box.appendChild(bar3(dc3));
+    var pendOn=(drill==="started"||drill==="yellow"||PEND_SUBS.indexOf(drill)>=0);
     var row=el("div","stbtns");
-    [["st:Not started",s.ns,"Not started","var(--ns)",drill==="st:Not started"],
-     ["started",Math.max(0,s.applicable-s.fl-s.ns),"Pending","var(--pr)",pendOn],
-     ["st:Filed / Done",s.fl,"Filed","var(--fl)",drill==="st:Filed / Done"]].forEach(function(m){
+    [["st:Filed / Done",dc3.g,"Closed","#128C3B",drill==="st:Filed / Done"],
+     ["yellow",dc3.y,"Pending","#D9A400",drill==="yellow"],
+     ["red",dc3.r,"Due in 2 days or overdue","#D92D20",drill==="red"]].forEach(function(m){
       var b=el("button","stbtn"+(m[4]?" active":"")); var d=el("span","dot"); d.style.background=m[3]; b.appendChild(d);
       b.appendChild(el("b",null,String(m[1]))); b.appendChild(el("span",null,m[2]));
       b.addEventListener("click",function(){ drill=(m[4]?"":m[0]); drillClient=""; renderPanel(); });
@@ -1280,7 +1297,7 @@ window.MARVCO_FIREBASE_CONFIG = {
       PEND_SUBS.forEach(function(k){
         var n=open.filter(function(t){ return drillPred(k,t); }).length;
         var sbt=el("button","stbtn sub"+(drill===k?" active":"")); sbt.appendChild(el("b",null,String(n))); sbt.appendChild(el("span",null,subLabel(k)));
-        sbt.addEventListener("click",function(){ drill=(drill===k?"started":k); drillClient=""; renderPanel(); }); sb.appendChild(sbt); });
+        sbt.addEventListener("click",function(){ drill=(drill===k?"yellow":k); drillClient=""; renderPanel(); }); sb.appendChild(sbt); });
       sub.appendChild(sb); box.appendChild(sub);
     }
     return box;
@@ -1433,7 +1450,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   function colOrder(names,tasks){ var due={}, FB={monthly:0,quarterly:100,annual:200,once:300}; tasks.forEach(function(t){ var f=freqOf(t), d=FB[f]+(f==="annual"?(((+t.dueMonth||3)+8)%12)*31:0)+(+t.due||31); if(due[t.name]===undefined||d<due[t.name])due[t.name]=d; });
     return names.slice().sort(function(a,b){ return (due[a]-due[b])||(a<b?-1:1); }); }
   function mxCell(tk){ var c=cell(tk.id), dc=dueCls(tk), n=daysLeft(tk);
-    var b=el("button","mx-cell "+ST_CLASS[c.status]+(dc?(" "+dc):""));
+    var b=el("button","mx-cell dash-"+dashState(tk));
     b.appendChild(el("span","mx-per",periodShort(tk)));
     b.appendChild(el("span","mx-st",(c.blocked?"⛔ ":"")+(isReturned(c)?"↩ ":"")+(stageStatusOf(tk,c)||ST_SHORT[c.status]||(startedOf(c)?"Pending":"Not started"))));
     var sub=""; if(isOpen(c)&&n!==null){ sub=n<0?((-n)+"d late"):(n===0?"due today":(n===1?"due tomorrow":"due "+fmtDue(dueDateOf(tk)))); } else if(c.status==="Filed / Done"&&c.filedAt){ sub="filed "+fmtDue(new Date(c.filedAt)); }
