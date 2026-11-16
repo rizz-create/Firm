@@ -628,6 +628,46 @@ window.MARVCO_FIREBASE_CONFIG = {
       st("S","Ready to file"),
       st("S","Filed"),
       st("P","Closed",{close:1})
+    ]},
+    {name:"AOC-4",freq:"annual",stages:[
+      st("P","Task created and allotted by Partner",{auto:1}),
+      st("S","Documents collection"),
+      st("S","Document verification"),
+      st("S","Draft AOC-4 (with XBRL)"),
+      st("P","Partner review",{rev:1}),
+      st("S","Ready to file"),
+      st("S","AOC-4 filed",{arn:1}),
+      st("P","Closed",{close:1,gate:1,cl:["SRN saved on the file","Filed e-form copy saved in Drive"]})
+    ]},
+    {name:"MGT-7",freq:"annual",stages:[
+      st("P","Task created and allotted by Partner",{auto:1}),
+      st("S","Documents collection"),
+      st("S","Document verification"),
+      st("S","Draft MGT-7"),
+      st("P","Partner review",{rev:1}),
+      st("S","Ready to file"),
+      st("S","MGT-7 filed",{arn:1}),
+      st("P","Closed",{close:1,gate:1,cl:["SRN saved on the file","Filed e-form copy saved in Drive"]})
+    ]},
+    {name:"Form 8",freq:"annual",stages:[
+      st("P","Task created and allotted by Partner",{auto:1}),
+      st("S","Documents collection"),
+      st("S","Document verification"),
+      st("S","Draft Form 8"),
+      st("P","Partner review",{rev:1}),
+      st("S","Ready to file"),
+      st("S","Form 8 filed",{arn:1}),
+      st("P","Closed",{close:1,gate:1,cl:["SRN saved on the file","Filed e-form copy saved in Drive"]})
+    ]},
+    {name:"Form 11",freq:"annual",stages:[
+      st("P","Task created and allotted by Partner",{auto:1}),
+      st("S","Documents collection"),
+      st("S","Document verification"),
+      st("S","Draft Form 11"),
+      st("P","Partner review",{rev:1}),
+      st("S","Ready to file"),
+      st("S","Form 11 filed",{arn:1}),
+      st("P","Closed",{close:1,gate:1,cl:["SRN saved on the file","Filed e-form copy saved in Drive"]})
     ]}
   ];
   // stage texts as they were before "Ready to file" / "Filed" were added, so saved progress can be moved
