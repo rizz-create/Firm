@@ -417,6 +417,7 @@ window.MARVCO_FIREBASE_CONFIG = {
   .pick-row.has{color:var(--muted);cursor:default}
   .pick-row .subtag{margin-left:auto}
   .ap-pend{color:#8A5A00;font-weight:600} .ap-ok{color:#0A4D22;font-weight:600}
+  .stgrp{display:inline-flex;flex-direction:column;gap:4px;margin:0 16px 6px 0} .stgrp-t{font-size:12px;color:#6B716D;font-weight:600}
   .ap-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#FFF8E1;border:1px solid #E8C96B;border-radius:8px;padding:8px 10px;margin:6px 0}
   .pay-sum{display:grid;grid-template-columns:1fr auto;gap:4px 14px;max-width:460px;margin:8px 0} .pay-sum b{text-align:right}
   .ded-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0}
@@ -1293,25 +1294,27 @@ window.MARVCO_FIREBASE_CONFIG = {
     hd.appendChild(el("span","stages-p",showKey?((s.applicable?Math.round(s.fl/s.applicable*100):0)+"% filed"):((s.applicable-s.fl)+" not filed · "+s.fl+" filed")));
     var dc3=dashCounts(scoped||[]);
     box.appendChild(hd); box.appendChild(bar3(dc3));
-    var pendOn=(drill==="started"||drill==="yellow"||PEND_SUBS.indexOf(drill)>=0);
+    var pendOn=(drill==="pending"||drill==="started"||drill==="yellow"||drill==="red"||PEND_SUBS.indexOf(drill)>=0);
     var row=el("div","stbtns");
     [["st:Filed / Done",dc3.g,"Closed","#128C3B",drill==="st:Filed / Done"],
-     ["yellow",dc3.y,"Pending","#D9A400",drill==="yellow"],
-     ["red",dc3.r,"Due in 2 days or overdue","#D92D20",drill==="red"]].forEach(function(m){
+     ["pending",dc3.y+dc3.r,"Pending","#D9A400",drill==="pending"]].forEach(function(m){
       var b=el("button","stbtn"+(m[4]?" active":"")); var d=el("span","dot"); d.style.background=m[3]; b.appendChild(d);
       b.appendChild(el("b",null,String(m[1]))); b.appendChild(el("span",null,m[2]));
       b.addEventListener("click",function(){ drill=(m[4]?"":m[0]); drillClient=""; renderPanel(); });
       row.appendChild(b); });
     box.appendChild(row);
     if(pendOn){
-      var sub=el("div","stsub"), sb=el("div","stbtns sub");
+      var sub=el("div","stsub");
       sub.appendChild(el("div","stsub-t","Pending — tap to see the tasks"));
       var open=(scoped||[]).filter(function(t){ return isOpen(cell(t.id)); });
-      PEND_SUBS.forEach(function(k){
-        var n=open.filter(function(t){ return drillPred(k,t); }).length;
-        var sbt=el("button","stbtn sub"+(drill===k?" active":"")); sbt.appendChild(el("b",null,String(n))); sbt.appendChild(el("span",null,subLabel(k)));
-        sbt.addEventListener("click",function(){ drill=(drill===k?"yellow":k); drillClient=""; renderPanel(); }); sb.appendChild(sbt); });
-      sub.appendChild(sb); box.appendChild(sub);
+      [["Stuck with",["wait:P","wait:S","blocked"]],["Due date",["overdue","soon"]]].forEach(function(g){
+        var grp=el("div","stgrp"); grp.appendChild(el("div","stgrp-t",g[0])); var sb=el("div","stbtns sub");
+        g[1].forEach(function(k){
+          var n=open.filter(function(t){ return drillPred(k,t); }).length;
+          var sbt=el("button","stbtn sub"+(drill===k?" active":"")); sbt.appendChild(el("b",null,String(n))); sbt.appendChild(el("span",null,subLabel(k)));
+          sbt.addEventListener("click",function(){ drill=(drill===k?"pending":k); drillClient=""; renderPanel(); }); sb.appendChild(sbt); });
+        grp.appendChild(sb); sub.appendChild(grp); });
+      box.appendChild(sub);
     }
     return box;
   }
