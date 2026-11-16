@@ -668,6 +668,36 @@ window.MARVCO_FIREBASE_CONFIG = {
       st("S","Ready to file"),
       st("S","Form 11 filed",{arn:1}),
       st("P","Closed",{close:1,gate:1,cl:["SRN saved on the file","Filed e-form copy saved in Drive"]})
+    ]},
+    {name:"ITR - Individual",freq:"annual",stages:[
+      st("P","Task created and allotted by Partner",{auto:1}),
+      st("S","Documents collection",{cl:["Copy of Aadhaar Card","Copy of PAN Card","Copy of bank statement"]}),
+      st("S","Document verification",{cl:["Confirm: partner in a firm, director in a company, or holds unlisted shares (decides the ITR form)"]}),
+      st("S","Computation and ITR prepared"),
+      st("P","Partner review",{rev:1}),
+      st("S","Ready to file"),
+      st("S","ITR filed (ack saved)",{arn:1}),
+      st("P","Closed",{close:1,gate:1,cl:["ITR-V acknowledgement saved on the file","Client informed"]})
+    ]},
+    {name:"ITR - Company (ITR-6)",freq:"annual",stages:[
+      st("P","Task created and allotted by Partner",{auto:1}),
+      st("S","Documents collection"),
+      st("S","Document verification"),
+      st("S","Computation and ITR-6 prepared"),
+      st("P","Partner review",{rev:1}),
+      st("S","Ready to file"),
+      st("S","ITR-6 filed (ack saved)",{arn:1}),
+      st("P","Closed",{close:1,gate:1,cl:["ITR-V acknowledgement saved on the file","Tax audit report (3CD) saved, if applicable"]})
+    ]},
+    {name:"ITR - LLP (ITR-5)",freq:"annual",stages:[
+      st("P","Task created and allotted by Partner",{auto:1}),
+      st("S","Documents collection"),
+      st("S","Document verification"),
+      st("S","Computation and ITR-5 prepared"),
+      st("P","Partner review",{rev:1}),
+      st("S","Ready to file"),
+      st("S","ITR-5 filed (ack saved)",{arn:1}),
+      st("P","Closed",{close:1,gate:1,cl:["ITR-V acknowledgement saved on the file","Tax audit report (3CD) saved, if applicable"]})
     ]}
   ];
   // stage texts as they were before "Ready to file" / "Filed" were added, so saved progress can be moved
